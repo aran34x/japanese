@@ -70,7 +70,29 @@ export const strings: Dict = {
   mature: { en: 'Mature', it: 'Mature' },
   streak: { en: 'Day streak', it: 'Giorni di fila' },
   back: { en: 'Back', it: 'Indietro' },
-  loading: { en: 'Loading…', it: 'Caricamento…' }
+  loading: { en: 'Loading…', it: 'Caricamento…' },
+
+  adventure: { en: 'Adventure', it: 'Avventura' },
+  collection: { en: 'Collection', it: 'Collezione' },
+  achievements: { en: 'Achievements', it: 'Obiettivi' },
+  continueQuest: { en: 'Continue Quest', it: 'Continua la Missione' },
+  level: { en: 'Level', it: 'Livello' },
+  powerLevel: { en: 'Power level', it: 'Livello di potenza' },
+  locked: { en: 'Locked', it: 'Bloccato' },
+  toNextHero: { en: 'to next hero', it: 'al prossimo eroe' },
+  questDeck: { en: 'Choose your battlefield', it: 'Scegli il campo di battaglia' },
+  beginQuest: { en: 'Begin Quest', it: 'Inizia la Missione' },
+  xpEarned: { en: 'XP earned', it: 'XP guadagnati' },
+  combo: { en: 'Combo', it: 'Combo' },
+  attack: { en: 'Attack!', it: 'Attacca!' },
+  defeated: { en: 'DEFEATED!', it: 'SCONFITTO!' },
+  bossWins: { en: 'The boss got away…', it: 'Il boss è scappato…' },
+  wager: { en: 'Answer correctly to DOUBLE your combo XP. Miss and lose it all.', it: 'Rispondi bene per RADDOPPIARE gli XP della combo. Sbaglia e perdi tutto.' },
+  accept: { en: 'Accept', it: 'Accetta' },
+  skip: { en: 'Skip', it: 'Salta' },
+  go: { en: 'GO!', it: 'VIA!' },
+  timeUp: { en: "Time's up!", it: 'Tempo scaduto!' },
+  earnedAch: { en: 'Achievement unlocked', it: 'Obiettivo sbloccato' }
 };
 
 export function translate(key: string, lang: Lang): string {

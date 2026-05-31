@@ -35,6 +35,18 @@
     </button>
   </div>
 
+  <button
+    class="flex w-full items-center gap-4 rounded-2xl bg-gradient-to-r from-pink-600 to-amber-500 p-4 text-left shadow-lg active:scale-[0.98]"
+    on:click={() => navigate('adventure')}
+  >
+    <span class="text-4xl">⚔️</span>
+    <span class="flex-1">
+      <span class="block text-lg font-bold">{$t('adventure')}</span>
+      <span class="block text-sm text-pink-100">Level up · unlock heroes · battle bosses</span>
+    </span>
+    <span class="text-2xl">›</span>
+  </button>
+
   <div>
     <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">{$t('modes')}</h2>
     <div class="grid grid-cols-2 gap-3">

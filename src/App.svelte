@@ -3,17 +3,21 @@
   import { ready, route, navigate, t, settings } from './lib/stores';
   import { loadSettings } from './lib/stores';
   import { ensureSeeded } from './lib/data/seed';
+  import { loadGame } from './lib/game/state';
   import Home from './components/Home.svelte';
   import Study from './components/Study.svelte';
   import Decks from './components/Decks.svelte';
   import Stats from './components/Stats.svelte';
   import SettingsScreen from './components/SettingsScreen.svelte';
   import ImportScreen from './components/ImportScreen.svelte';
+  import Adventure from './components/Adventure.svelte';
+  import Toasts from './components/Toasts.svelte';
   import Nav from './components/Nav.svelte';
 
   onMount(async () => {
     await loadSettings();
     await ensureSeeded();
+    await loadGame();
     ready.set(true);
   });
 </script>
@@ -39,6 +43,8 @@
     <main class="flex-1 px-4 pb-24">
       {#if $route === 'home'}
         <Home />
+      {:else if $route === 'adventure'}
+        <Adventure />
       {:else if $route === 'study'}
         <Study />
       {:else if $route === 'decks'}
@@ -55,6 +61,7 @@
     </main>
 
     <Nav />
+    <Toasts />
   </div>
 {:else}
   <div class="grid min-h-screen place-items-center text-slate-400">読み込み中…</div>
