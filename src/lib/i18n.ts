@@ -43,6 +43,11 @@ export const strings: Dict = {
   typeAnswer: { en: 'Type your answer…', it: 'Scrivi la risposta…' },
   meaning: { en: 'Meaning', it: 'Significato' },
   readingLabel: { en: 'Reading', it: 'Lettura' },
+  q_meaning: { en: 'What does this mean?', it: 'Cosa significa?' },
+  q_say: { en: 'How do you say this?', it: 'Come si dice?' },
+  q_reading: { en: 'How is this read?', it: 'Come si legge?' },
+  q_type_reading: { en: 'Type the reading (romaji)', it: 'Scrivi la lettura (romaji)' },
+  q_type_meaning: { en: 'Type the meaning', it: 'Scrivi il significato' },
 
   chooseDeck: { en: 'Choose decks to study', it: 'Scegli i mazzi da studiare' },
   allDecks: { en: 'All decks', it: 'Tutti i mazzi' },

@@ -29,7 +29,7 @@
 
 <div class="rounded-2xl bg-slate-800 p-5 text-center">
   <div class="mb-1 text-xs uppercase tracking-wide text-slate-500">
-    {exercise.kind === 'mcq-jp-to-reading' ? $t('readingLabel') : $t('meaning')}
+    {$t(exercise.instructionKey || 'meaning')}
   </div>
   <button
     class="mx-auto block py-{compact ? 3 : 5} font-jp {compact ? 'text-4xl' : 'text-6xl'}"

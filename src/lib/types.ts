@@ -103,6 +103,8 @@ export interface Exercise {
   kind: ExerciseKind;
   card: Card;
   prompt: string;
+  /** i18n key describing the task, e.g. 'q_say' → "How do you say this?". */
+  instructionKey?: string;
   /** for MCQ kinds */
   options?: McqOption[];
   /** acceptable answers for typed kinds (lowercased, trimmed) */
