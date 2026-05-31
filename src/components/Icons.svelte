@@ -221,7 +221,7 @@
       {$settings.uiLang === 'it' ? 'Sbloccato!' : 'Unlocked!'} +{person.xp} XP
     </div>
     <div class="mt-5 flex gap-3">
-      <button class="rounded-xl bg-indigo-500 px-5 py-3 font-semibold" on:click={() => openDetail(person)}>
+      <button class="rounded-xl bg-indigo-500 px-5 py-3 font-semibold" on:click={() => person && openDetail(person)}>
         {$settings.uiLang === 'it' ? 'Vedi bio' : 'View bio'}
       </button>
       <button class="rounded-xl bg-slate-700 px-5 py-3 font-semibold" on:click={() => (view = 'grid')}>
