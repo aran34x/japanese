@@ -8,9 +8,10 @@
   import { ACHIEVEMENTS } from '../lib/game/achievements';
   import CharacterPortrait from './CharacterPortrait.svelte';
   import AdventureSession from './AdventureSession.svelte';
+  import Icons from './Icons.svelte';
   import { fly } from 'svelte/transition';
 
-  type Tab = 'quest' | 'collection' | 'achievements';
+  type Tab = 'quest' | 'icons' | 'collection' | 'achievements';
   let tab: Tab = 'quest';
   type View = 'hub' | 'deck' | 'session' | 'result';
   let view: View = 'hub';
@@ -26,6 +27,7 @@
 
   $: tabs = [
     { id: 'quest' as Tab, label: $t('adventure') },
+    { id: 'icons' as Tab, label: $t('icons') },
     { id: 'collection' as Tab, label: $t('collection') },
     { id: 'achievements' as Tab, label: $t('achievements') }
   ];
@@ -133,6 +135,9 @@
         class="w-full rounded-2xl bg-gradient-to-r from-pink-500 to-indigo-500 py-4 text-lg font-bold shadow-lg active:scale-[0.98]"
         on:click={() => (view = 'deck')}>⚔ {$t('continueQuest')}</button>
     </section>
+
+  {:else if tab === 'icons'}
+    <Icons />
 
   {:else if tab === 'collection'}
     <section class="grid grid-cols-3 gap-3" in:fly={{ y: 12, duration: 200 }}>

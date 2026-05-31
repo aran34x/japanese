@@ -16,6 +16,8 @@ export interface GameState {
   bestSpeedRound: number;
   achievements: string[];
   unlockedCharacters: string[];
+  /** ids of real-person "Icons" whose challenge has been cleared. */
+  unlockedPeople: string[];
 }
 
 export const DEFAULT_GAME: GameState = {
@@ -29,7 +31,8 @@ export const DEFAULT_GAME: GameState = {
   gamblesWon: 0,
   bestSpeedRound: 0,
   achievements: [],
-  unlockedCharacters: ['mochi']
+  unlockedCharacters: ['mochi'],
+  unlockedPeople: []
 };
 
 export const game = writable<GameState>(DEFAULT_GAME);
@@ -116,6 +119,18 @@ export function xpForAnswer(streak: number, hard = false): number {
   const base = 10;
   const comboBonus = Math.min(streak, 20) * 2; // up to +40
   return Math.round((base + comboBonus) * (hard ? 1.5 : 1));
+}
+
+/** Mark a real-person Icon as unlocked and award XP (idempotent). */
+export async function unlockPerson(id: string, xp: number, name: string) {
+  const before = get(game);
+  if (before.unlockedPeople.includes(id)) return;
+  pushToast({ kind: 'character', title: `Unlocked: ${name}`, subtitle: '+' + xp + ' XP', icon: '🌟' });
+  await mutateGame((g) =>
+    g.unlockedPeople.includes(id)
+      ? g
+      : { ...g, xp: g.xp + xp, unlockedPeople: [...g.unlockedPeople, id] }
+  );
 }
 
 export { characterForXp, nextUnlock };
