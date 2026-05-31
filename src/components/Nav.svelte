@@ -2,6 +2,7 @@
   import { route, navigate, t } from '../lib/stores';
   const items = [
     { id: 'home', icon: '🏠', key: 'home' },
+    { id: 'adventure', icon: '⚔️', key: 'adventure' },
     { id: 'study', icon: '🎯', key: 'study' },
     { id: 'decks', icon: '🗂️', key: 'decks' },
     { id: 'stats', icon: '📊', key: 'stats' },
@@ -10,7 +11,7 @@
 </script>
 
 <nav class="fixed inset-x-0 bottom-0 mx-auto max-w-2xl border-t border-slate-800 bg-slate-900/95 backdrop-blur">
-  <div class="grid grid-cols-5">
+  <div class="grid grid-cols-6">
     {#each items as item}
       <button
         class="flex flex-col items-center gap-0.5 py-2 text-xs transition-colors {$route === item.id
