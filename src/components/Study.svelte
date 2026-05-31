@@ -164,7 +164,7 @@
         {:else if current.kind.startsWith('mcq')}
           <div class="rounded-2xl bg-slate-800 p-6 text-center">
             <div class="mb-1 text-xs uppercase tracking-wide text-slate-500">
-              {current.kind === 'mcq-jp-to-reading' ? $t('readingLabel') : $t('meaning')}
+              {$t(current.instructionKey || 'meaning')}
             </div>
             <div class="py-6 font-jp text-5xl">{current.prompt}</div>
           </div>
@@ -182,6 +182,9 @@
         {:else}
           <!-- typing -->
           <div class="rounded-2xl bg-slate-800 p-6 text-center">
+            <div class="mb-1 text-xs uppercase tracking-wide text-slate-500">
+              {$t(current.instructionKey || 'meaning')}
+            </div>
             <div class="py-6 font-jp text-5xl">{current.prompt}</div>
           </div>
           <input
