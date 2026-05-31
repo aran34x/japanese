@@ -9,10 +9,10 @@
   import Flashcard from './Flashcard.svelte';
   import { fly } from 'svelte/transition';
 
-  type Phase = 'config' | 'running' | 'done';
+  type Phase = 'menu' | 'config' | 'running' | 'done';
   type Mode = 'mixed' | 'flashcard' | 'quiz' | 'typing';
 
-  let phase: Phase = 'config';
+  let phase: Phase = 'menu';
   let decks: Deck[] = [];
   let selected = new Set<string>();
   let mode: Mode = 'mixed';
@@ -57,6 +57,13 @@
     // typing
     if (card.category === 'hiragana' || card.category === 'katakana') return 'type-reading';
     return 'type-meaning';
+  }
+
+  // Quick modes start immediately across all decks — no checkbox gate.
+  function quickStart(m: Mode) {
+    mode = m;
+    selected = new Set(decks.map((d) => d.id));
+    start();
   }
 
   async function start() {
@@ -122,8 +129,32 @@
   $: progress = queue.length ? Math.round((index / queue.length) * 100) : 0;
 </script>
 
-{#if phase === 'config'}
+{#if phase === 'menu'}
+  <section class="space-y-4">
+    <h2 class="text-lg font-semibold">{$t('study')}</h2>
+    <div class="grid grid-cols-2 gap-3">
+      {#each modeOptions as opt}
+        <button
+          class="rounded-2xl bg-slate-800 p-5 text-left active:scale-[0.98]"
+          on:click={() => quickStart(opt.id)}
+        >
+          <div class="text-3xl">{opt.label.split(' ')[0]}</div>
+          <div class="mt-2 font-medium">{opt.label.slice(opt.label.indexOf(' ') + 1)}</div>
+          <div class="text-xs text-slate-400">{$t('allDecks')}</div>
+        </button>
+      {/each}
+    </div>
+    <button
+      class="w-full rounded-2xl border border-dashed border-slate-600 p-4 text-left active:scale-[0.98]"
+      on:click={() => (phase = 'config')}
+    >
+      <div class="font-medium">⚙️ Custom</div>
+      <div class="text-xs text-slate-400">{$t('chooseDeck')}</div>
+    </button>
+  </section>
+{:else if phase === 'config'}
   <section class="space-y-5">
+    <button class="text-sm text-slate-400" on:click={() => (phase = 'menu')}>← {$t('back')}</button>
     <h2 class="text-lg font-semibold">{$t('chooseDeck')}</h2>
     <div class="space-y-2">
       {#each decks as d}
@@ -229,7 +260,7 @@
     {:else}
       <p class="mt-4 text-slate-400">{$t('noDue')}</p>
     {/if}
-    <button class="mt-6 rounded-xl bg-indigo-500 px-6 py-3 font-semibold" on:click={() => (phase = 'config')}>
+    <button class="mt-6 rounded-xl bg-indigo-500 px-6 py-3 font-semibold" on:click={() => (phase = 'menu')}>
       {$t('back')}
     </button>
   </section>
