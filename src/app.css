@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  min-height: 100%;
+}
+
+/* Smooth, game-like button feedback */
+button {
+  touch-action: manipulation;
+}
+
+.card-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
