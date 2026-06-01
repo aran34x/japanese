@@ -18,6 +18,8 @@ export interface GameState {
   unlockedCharacters: string[];
   /** ids of real-person "Icons" whose challenge has been cleared. */
   unlockedPeople: string[];
+  /** ids of fictional characters whose challenge has been cleared. */
+  unlockedFictional: string[];
 }
 
 export const DEFAULT_GAME: GameState = {
@@ -32,7 +34,8 @@ export const DEFAULT_GAME: GameState = {
   bestSpeedRound: 0,
   achievements: [],
   unlockedCharacters: ['mochi'],
-  unlockedPeople: []
+  unlockedPeople: [],
+  unlockedFictional: []
 };
 
 export const game = writable<GameState>(DEFAULT_GAME);
@@ -130,6 +133,18 @@ export async function unlockPerson(id: string, xp: number, name: string) {
     g.unlockedPeople.includes(id)
       ? g
       : { ...g, xp: g.xp + xp, unlockedPeople: [...g.unlockedPeople, id] }
+  );
+}
+
+/** Mark a fictional character as unlocked and award XP (idempotent). */
+export async function unlockFictional(id: string, xp: number, name: string) {
+  const before = get(game);
+  if (before.unlockedFictional.includes(id)) return;
+  pushToast({ kind: 'character', title: `Unlocked: ${name}`, subtitle: '+' + xp + ' XP', icon: '🎉' });
+  await mutateGame((g) =>
+    g.unlockedFictional.includes(id)
+      ? g
+      : { ...g, xp: g.xp + xp, unlockedFictional: [...g.unlockedFictional, id] }
   );
 }
 
