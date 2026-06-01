@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.11.0';
+export const APP_VERSION = '0.11.1';
 
 export interface ChangelogEntry {
   version: string;

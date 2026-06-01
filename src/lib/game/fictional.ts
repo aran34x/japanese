@@ -174,21 +174,15 @@ export function buildCharChallenge(ch: FictionalChar): FQuestion[] {
     ])
   };
 
-  // Q2 — which franchise are they from
-  const correctFr = FRANCHISE_META[ch.franchise].label;
-  const wrongFr = shuffle(
-    Object.values(FRANCHISE_META)
-      .map((f) => f.label)
-      .filter((l) => l !== correctFr)
-  ).slice(0, 3);
+  // Q2 — recognise the Japanese spelling of the name (in the original script)
   const q2: FQuestion = {
     instruction: {
-      en: `Which series is ${ch.name} from?`,
-      it: `Da quale serie viene ${ch.name}?`
+      en: `Which is "${ch.name}" written in Japanese?`,
+      it: `Qual è "${ch.name}" scritto in giapponese?`
     },
     options: shuffle([
-      { text: correctFr, correct: true },
-      ...wrongFr.map((l) => ({ text: l, correct: false }))
+      { text: ch.ja, correct: true },
+      ...others.slice(0, 3).map((o) => ({ text: o.ja, correct: false }))
     ])
   };
 
