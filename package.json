@@ -24,6 +24,7 @@
     "vite-plugin-pwa": "^0.21.1"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.106.2",
     "dexie": "^4.0.10",
     "fflate": "^0.8.2",
     "sql.js": "^1.12.0"

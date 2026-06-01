@@ -4,6 +4,7 @@
   import { loadSettings } from './lib/stores';
   import { ensureSeeded } from './lib/data/seed';
   import { loadGame } from './lib/game/state';
+  import { initSync } from './lib/sync';
   import Home from './components/Home.svelte';
   import Study from './components/Study.svelte';
   import Decks from './components/Decks.svelte';
@@ -20,6 +21,8 @@
     await ensureSeeded();
     await loadGame();
     ready.set(true);
+    // Initialise cloud sync (no-op unless the user configured Supabase).
+    void initSync();
   });
 </script>
 

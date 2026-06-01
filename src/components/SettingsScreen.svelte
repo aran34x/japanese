@@ -3,6 +3,7 @@
   import type { Lang } from '../lib/types';
   import { exportBackup, downloadBackup, importBackup } from '../lib/backup';
   import { APP_VERSION } from '../lib/version';
+  import CloudSync from './CloudSync.svelte';
 
   const langOptions: { code: Lang; label: string }[] = [
     { code: 'en', label: 'English' },
@@ -119,6 +120,8 @@
     </div>
     {#if backupMsg}<div class="mt-2 text-center text-xs text-pink-300">{backupMsg}</div>{/if}
   </div>
+
+  <CloudSync />
 
   <div class="pt-2 text-center text-xs text-slate-600">Nihongo Quest · v{APP_VERSION}</div>
 </section>

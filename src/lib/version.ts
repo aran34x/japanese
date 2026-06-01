@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.5.0';
+export const APP_VERSION = '0.6.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.6.0',
+    date: '2026-06-01',
+    title: { en: 'Automatic cloud sync', it: 'Sincronizzazione cloud automatica' },
+    changes: [
+      { en: 'Connect a free Supabase account to sync progress across all your devices.', it: 'Collega un account Supabase gratuito per sincronizzare i progressi su tutti i dispositivi.' },
+      { en: 'Sign in with email; your progress uploads automatically as you play.', it: 'Accedi via email; i progressi si caricano automaticamente mentre giochi.' },
+      { en: 'See Settings → Cloud sync to set it up.', it: 'Vai su Impostazioni → Sincronizzazione cloud per configurarla.' }
+    ]
+  },
   {
     version: '0.5.0',
     date: '2026-06-01',
