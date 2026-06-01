@@ -9,9 +9,10 @@
   import CharacterPortrait from './CharacterPortrait.svelte';
   import AdventureSession from './AdventureSession.svelte';
   import Icons from './Icons.svelte';
+  import Characters from './Characters.svelte';
   import { fly } from 'svelte/transition';
 
-  type Tab = 'quest' | 'icons' | 'collection' | 'achievements';
+  type Tab = 'quest' | 'icons' | 'characters' | 'collection' | 'achievements';
   let tab: Tab = 'quest';
   type View = 'hub' | 'deck' | 'session' | 'result';
   let view: View = 'hub';
@@ -28,6 +29,7 @@
   $: tabs = [
     { id: 'quest' as Tab, label: $t('adventure') },
     { id: 'icons' as Tab, label: $t('icons') },
+    { id: 'characters' as Tab, label: $t('charactersTab') },
     { id: 'collection' as Tab, label: $t('collection') },
     { id: 'achievements' as Tab, label: $t('achievements') }
   ];
@@ -91,10 +93,10 @@
 
 {:else}
   <!-- HUB with tabs -->
-  <div class="mb-4 flex gap-1 rounded-full bg-slate-800 p-1 text-sm">
+  <div class="mb-4 flex gap-1 overflow-x-auto rounded-full bg-slate-800 p-1 text-sm">
     {#each tabs as tb}
       <button
-        class="flex-1 rounded-full py-1.5 font-medium {tab === tb.id ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
+        class="shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 font-medium {tab === tb.id ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
         on:click={() => (tab = tb.id)}>{tb.label}</button>
     {/each}
   </div>
@@ -138,6 +140,9 @@
 
   {:else if tab === 'icons'}
     <Icons />
+
+  {:else if tab === 'characters'}
+    <Characters />
 
   {:else if tab === 'collection'}
     <section class="grid grid-cols-3 gap-3" in:fly={{ y: 12, duration: 200 }}>

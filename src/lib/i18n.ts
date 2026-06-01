@@ -81,6 +81,7 @@ export const strings: Dict = {
   collection: { en: 'Collection', it: 'Collezione' },
   achievements: { en: 'Achievements', it: 'Obiettivi' },
   icons: { en: 'Icons', it: 'Icone' },
+  charactersTab: { en: 'Characters', it: 'Personaggi' },
   continueQuest: { en: 'Continue Quest', it: 'Continua la Missione' },
   level: { en: 'Level', it: 'Livello' },
   powerLevel: { en: 'Power level', it: 'Livello di potenza' },
