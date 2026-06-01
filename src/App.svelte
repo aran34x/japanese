@@ -12,6 +12,7 @@
   import ImportScreen from './components/ImportScreen.svelte';
   import Adventure from './components/Adventure.svelte';
   import Toasts from './components/Toasts.svelte';
+  import WhatsNew from './components/WhatsNew.svelte';
   import Nav from './components/Nav.svelte';
 
   onMount(async () => {
@@ -62,6 +63,7 @@
 
     <Nav />
     <Toasts />
+    <WhatsNew />
   </div>
 {:else}
   <div class="grid min-h-screen place-items-center text-slate-400">読み込み中…</div>
