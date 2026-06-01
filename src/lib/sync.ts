@@ -1,17 +1,10 @@
-// Optional cloud sync via Supabase. Credentials are NOT baked into the repo —
-// the user pastes their own Supabase project URL + anon key into Settings, and
-// they're stored locally (IndexedDB). Auth uses a magic-link email; progress is
-// stored as a single JSON row per user (last-write-wins), reusing the same
-// serialization as the local backup.
+// Cloud sync via Supabase with Google sign-in. The publishable key lives in
+// supabase-config.ts (safe for client code). Progress is stored as a single
+// JSON row per user (last-write-wins), reusing the local backup serialization.
 import { createClient, type SupabaseClient, type Session } from '@supabase/supabase-js';
 import { writable } from 'svelte/store';
-import { db } from './db';
 import { exportBackup, importBackup } from './backup';
-
-export interface SyncConfig {
-  url: string;
-  anonKey: string;
-}
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, supabaseConfigured } from './supabase-config';
 
 export const syncSession = writable<Session | null>(null);
 export const syncConfigured = writable(false);
@@ -19,18 +12,12 @@ export const syncStatus = writable<string>('');
 
 let client: SupabaseClient | null = null;
 
-export async function loadSyncConfig(): Promise<SyncConfig | null> {
-  const row = await db.meta.get('syncConfig');
-  return (row?.value as SyncConfig) ?? null;
-}
-
 export async function initSync(): Promise<void> {
-  const cfg = await loadSyncConfig();
-  if (!cfg?.url || !cfg?.anonKey) {
+  if (!supabaseConfigured()) {
     syncConfigured.set(false);
     return;
   }
-  client = createClient(cfg.url, cfg.anonKey, {
+  client = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
   syncConfigured.set(true);
@@ -43,28 +30,13 @@ export async function initSync(): Promise<void> {
   });
 }
 
-export async function saveSyncConfig(cfg: SyncConfig): Promise<void> {
-  await db.meta.put({ key: 'syncConfig', value: cfg });
-  await initSync();
-}
-
-export async function clearSyncConfig(): Promise<void> {
-  if (client) await client.auth.signOut().catch(() => {});
-  await db.meta.delete('syncConfig');
-  client = null;
-  syncConfigured.set(false);
-  syncSession.set(null);
-}
-
 export async function signInWithEmail(email: string): Promise<void> {
   if (!client) throw new Error('Sync not configured');
-  syncStatus.set('sending');
   const { error } = await client.auth.signInWithOtp({
     email,
     options: { emailRedirectTo: location.href }
   });
   if (error) throw error;
-  syncStatus.set('check-email');
 }
 
 export async function signOut(): Promise<void> {
