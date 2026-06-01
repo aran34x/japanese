@@ -9,12 +9,15 @@ import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, supabaseConfigured } from './su
 export const syncSession = writable<Session | null>(null);
 export const syncConfigured = writable(false);
 export const syncStatus = writable<string>('');
+/** Set once the initial session has been resolved (so the gate can render). */
+export const authReady = writable(false);
 
 let client: SupabaseClient | null = null;
 
 export async function initSync(): Promise<void> {
   if (!supabaseConfigured()) {
     syncConfigured.set(false);
+    authReady.set(true);
     return;
   }
   client = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -23,6 +26,7 @@ export async function initSync(): Promise<void> {
   syncConfigured.set(true);
   const { data } = await client.auth.getSession();
   syncSession.set(data.session);
+  authReady.set(true);
   client.auth.onAuthStateChange((_e, session) => {
     syncSession.set(session);
     // Auto-pull right after a fresh sign-in.
@@ -30,11 +34,28 @@ export async function initSync(): Promise<void> {
   });
 }
 
-export async function signInWithEmail(email: string): Promise<void> {
+export async function signUpWithPassword(email: string, password: string): Promise<string> {
   if (!client) throw new Error('Sync not configured');
-  const { error } = await client.auth.signInWithOtp({
+  const { data, error } = await client.auth.signUp({
     email,
+    password,
     options: { emailRedirectTo: location.href }
+  });
+  if (error) throw error;
+  // If email confirmation is on, there's no session yet.
+  return data.session ? 'signed-in' : 'confirm-email';
+}
+
+export async function signInWithPassword(email: string, password: string): Promise<void> {
+  if (!client) throw new Error('Sync not configured');
+  const { error } = await client.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+}
+
+export async function resetPassword(email: string): Promise<void> {
+  if (!client) throw new Error('Sync not configured');
+  const { error } = await client.auth.resetPasswordForEmail(email, {
+    redirectTo: location.href
   });
   if (error) throw error;
 }
