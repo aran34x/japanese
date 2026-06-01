@@ -57,6 +57,33 @@ Go to **Import** and choose a file:
   猫,ねこ,cat / gatto,animals
   ```
 
+## Cloud sync (optional, Supabase)
+
+Progress is stored locally (IndexedDB) and can be exported/imported as a JSON
+file from **Settings → Save & backup**. For automatic cross-device sync, connect
+your own free Supabase project (no credentials are stored in this repo):
+
+1. Create a free project at [supabase.com](https://supabase.com).
+2. In the project's **SQL Editor**, run:
+
+   ```sql
+   create table if not exists saves (
+     user_id uuid primary key references auth.users on delete cascade,
+     data jsonb,
+     updated_at timestamptz default now()
+   );
+   alter table saves enable row level security;
+   create policy "own save" on saves
+     for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+   ```
+3. In **Authentication → Providers**, keep **Email** enabled (magic link).
+   Under **Authentication → URL Configuration**, add your app URL
+   (`https://aran34x.github.io/japanese/`) to the redirect allow-list.
+4. From **Project Settings → API**, copy the **Project URL** and **anon public**
+   key, then paste them into the app under **Settings → Cloud sync → Connect**.
+5. Sign in with your email (magic link). Progress now uploads automatically and
+   can be pulled on any other device with the same login.
+
 ## Tech
 
 Svelte + Vite + TypeScript · Tailwind CSS · Dexie (IndexedDB) ·

@@ -114,7 +114,17 @@ export async function mutateGame(fn: (s: GameState) => GameState) {
 
   game.set(next);
   await persist(next);
+  scheduleCloudPush();
   return next;
+}
+
+// Debounced background cloud push so rapid answers don't spam the network.
+let pushTimer: ReturnType<typeof setTimeout> | null = null;
+function scheduleCloudPush() {
+  if (pushTimer) clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => {
+    void import('../sync').then((m) => m.autoPush());
+  }, 5000);
 }
 
 /** XP for a single correct answer given the current combo streak. */
