@@ -4,7 +4,7 @@
 // (sb_secret_...) key here.
 //
 // Fill these in with your project's values (Settings → API in Supabase):
-export const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+export const SUPABASE_URL = 'https://zxzidyhyugjwgekcqobw.supabase.co';
 export const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_ii969Tu0BY3OXcKAh0YB9A_IrmVdc-q';
 
 export const supabaseConfigured = () =>

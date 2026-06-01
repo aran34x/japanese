@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.6.0';
+export const APP_VERSION = '0.7.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.7.0',
+    date: '2026-06-01',
+    title: { en: 'Cloud sync is live', it: 'Sincronizzazione cloud attiva' },
+    changes: [
+      { en: 'Sign in with your email in Settings → Cloud sync to save progress across devices.', it: 'Accedi con la tua email in Impostazioni → Sincronizzazione cloud per salvare i progressi su tutti i dispositivi.' },
+      { en: 'No passwords — you get a one-tap login link in your inbox.', it: 'Niente password — ricevi un link di accesso con un tocco nella tua casella.' }
+    ]
+  },
   {
     version: '0.6.0',
     date: '2026-06-01',
