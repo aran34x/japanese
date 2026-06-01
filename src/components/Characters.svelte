@@ -84,17 +84,17 @@
         ? 'Personaggi di fantasia: leggi i loro nomi giapponesi reali. Bio dal vivo da Wikipedia (niente immagini protette).'
         : 'Fictional characters: read their real Japanese names. Live bios from Wikipedia (no copyrighted art).'}
     </p>
-    <div class="mb-4 flex gap-2 overflow-x-auto pb-1">
+    <div class="mb-4 flex flex-wrap gap-2">
       {#each franchises as f}
         <button
-          class="shrink-0 rounded-full px-3 py-1.5 text-sm font-medium {fr === f
+          class="rounded-full px-3 py-1.5 text-sm font-medium {fr === f
             ? 'bg-indigo-500 text-white'
             : 'bg-slate-800 text-slate-300'}"
           on:click={() => (fr = f)}>{FRANCHISE_META[f].emoji} {FRANCHISE_META[f].label}</button>
       {/each}
     </div>
 
-    <div class="grid grid-cols-2 gap-3">
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {#each roster as x (x.id)}
         {@const unlocked = isUnlocked(x)}
         <button

@@ -40,7 +40,7 @@
 {#if showGate}
   <AuthGate on:done={() => (skippedAuth = true)} />
 {:else if $ready}
-  <div class="mx-auto flex min-h-screen max-w-2xl flex-col">
+  <div class="mx-auto flex min-h-screen max-w-2xl flex-col lg:max-w-5xl">
     <header class="flex items-center justify-between px-4 pb-2 pt-4">
       <button class="text-left" on:click={() => navigate('home')}>
         <h1 class="bg-gradient-to-r from-pink-400 to-indigo-400 bg-clip-text text-2xl font-bold text-transparent">

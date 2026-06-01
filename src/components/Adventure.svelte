@@ -93,10 +93,10 @@
 
 {:else}
   <!-- HUB with tabs -->
-  <div class="mb-4 flex gap-1 overflow-x-auto rounded-full bg-slate-800 p-1 text-sm">
+  <div class="mb-4 flex flex-wrap gap-1 rounded-2xl bg-slate-800 p-1 text-sm sm:rounded-full">
     {#each tabs as tb}
       <button
-        class="shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 font-medium {tab === tb.id ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
+        class="flex-1 whitespace-nowrap rounded-full px-3 py-1.5 font-medium {tab === tb.id ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
         on:click={() => (tab = tb.id)}>{tb.label}</button>
     {/each}
   </div>

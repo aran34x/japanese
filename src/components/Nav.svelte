@@ -10,7 +10,7 @@
   ];
 </script>
 
-<nav class="fixed inset-x-0 bottom-0 mx-auto max-w-2xl border-t border-slate-800 bg-slate-900/95 backdrop-blur">
+<nav class="fixed inset-x-0 bottom-0 mx-auto max-w-2xl border-t border-slate-800 bg-slate-900/95 backdrop-blur lg:max-w-5xl">
   <div class="grid grid-cols-6">
     {#each items as item}
       <button

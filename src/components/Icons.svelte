@@ -95,10 +95,10 @@
         ? 'Sfida figure reali della cultura giapponese. Foto e bio dal vivo da Wikipedia.'
         : 'Challenge real figures of Japanese culture. Photos & bios live from Wikipedia.'}
     </p>
-    <div class="mb-4 flex gap-2 overflow-x-auto pb-1">
+    <div class="mb-4 flex flex-wrap gap-2">
       {#each cats as c}
         <button
-          class="shrink-0 rounded-full px-3 py-1.5 text-sm font-medium {cat === c
+          class="rounded-full px-3 py-1.5 text-sm font-medium {cat === c
             ? 'bg-indigo-500 text-white'
             : 'bg-slate-800 text-slate-300'}"
           on:click={() => (cat = c)}
@@ -106,7 +106,7 @@
       {/each}
     </div>
 
-    <div class="grid grid-cols-3 gap-3">
+    <div class="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
       {#each roster as pp (pp.id)}
         <button class="text-center" on:click={() => openDetail(pp)}>
           <div class="aspect-square">
