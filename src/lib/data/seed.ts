@@ -3,6 +3,7 @@ import { db, addCards } from '../db';
 import { kanaTable } from './kana';
 import { kanjiN5 } from './kanji';
 import { vocab, readings } from './vocab';
+import { phrasesN4 } from './phrases';
 
 // Deterministic id helper so re-seeding never duplicates builtin cards.
 const id = (s: string) => s;
@@ -21,7 +22,9 @@ export const BUILTIN_DECKS: Deck[] = [
   deck({ id: 'vocab-n5', name: { en: 'Vocabulary N5', it: 'Vocaboli N5' }, category: 'vocab', builtin: true,
     description: { en: 'Common beginner words', it: 'Parole comuni per principianti' } }),
   deck({ id: 'reading', name: { en: 'Reading', it: 'Lettura' }, category: 'reading', builtin: true,
-    description: { en: 'Short sentences to read', it: 'Brevi frasi da leggere' } })
+    description: { en: 'Short sentences to read', it: 'Brevi frasi da leggere' } }),
+  deck({ id: 'phrases-n4', name: { en: 'Phrases N4', it: 'Frasi N4' }, category: 'reading', builtin: true,
+    description: { en: 'Advanced everyday sentences', it: 'Frasi quotidiane avanzate' } })
 ];
 
 function buildCards(): Card[] {
@@ -64,14 +67,30 @@ function buildCards(): Card[] {
     });
   });
 
+  phrasesN4.forEach((r, i) => {
+    cards.push({
+      id: id(`phrase-${i}`), deckId: 'phrases-n4', category: 'reading',
+      front: r.text, reading: r.reading,
+      meaning: { en: r.en, it: r.it }, tags: ['jlpt-n4', 'phrases'], order: i
+    });
+  });
+
   return cards;
 }
 
-/** Idempotent: seeds builtin decks/cards on first run. */
+/**
+ * Idempotent seeding. `addCards`/`bulkPut` won't clobber existing review
+ * progress, so bumping SEED_VERSION safely adds newly-introduced builtin decks
+ * for users who already seeded an earlier version.
+ */
+const SEED_VERSION = 2;
 export async function ensureSeeded(): Promise<void> {
-  const seeded = await db.meta.get('seeded-v1');
-  if (seeded) return;
+  const row = await db.meta.get('seedVersion');
+  let current = (row?.value as number) ?? 0;
+  // Migrate the old boolean flag (v1) to the numeric version.
+  if (current === 0 && (await db.meta.get('seeded-v1'))) current = 1;
+  if (current >= SEED_VERSION) return;
   await db.decks.bulkPut(BUILTIN_DECKS);
   await addCards(buildCards());
-  await db.meta.put({ key: 'seeded-v1', value: true });
+  await db.meta.put({ key: 'seedVersion', value: SEED_VERSION });
 }

@@ -1,7 +1,14 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import { settings } from '../lib/stores';
-  import { signInWithPassword, signUpWithPassword, resetPassword } from '../lib/sync';
+  import {
+    signInWithPassword,
+    signUpWithPassword,
+    resetPassword,
+    getRememberLogin,
+    setRememberLogin,
+    initSync
+  } from '../lib/sync';
   import { fly } from 'svelte/transition';
 
   const dispatch = createEventDispatcher<{ done: void }>();
@@ -13,6 +20,14 @@
   let password = '';
   let msg = '';
   let busy = false;
+  let remember = getRememberLogin();
+
+  // Persist the choice and re-init the client so the session lands in the right
+  // storage (localStorage = remembered, sessionStorage = until browser closes).
+  async function onRemember() {
+    setRememberLogin(remember);
+    await initSync();
+  }
 
   $: validEmail = email.includes('@') && email.includes('.');
   $: validPw = password.length >= 6;
@@ -105,6 +120,10 @@
         placeholder={it() ? 'Password (min 6)' : 'Password (min 6)'}
         class="w-full rounded-xl bg-slate-800 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-500"
       />
+      <label class="flex items-center gap-2 px-1 text-sm text-slate-300">
+        <input type="checkbox" bind:checked={remember} on:change={onRemember} class="h-4 w-4 accent-pink-500" />
+        {it() ? 'Ricordami su questo dispositivo' : 'Remember me on this device'}
+      </label>
       <button
         type="submit"
         disabled={busy || !validEmail || !validPw}

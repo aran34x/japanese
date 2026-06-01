@@ -14,14 +14,31 @@ export const authReady = writable(false);
 
 let client: SupabaseClient | null = null;
 
+const REMEMBER_KEY = 'nq-remember-login';
+/** Whether to keep the user signed in across browser restarts on this device. */
+export function getRememberLogin(): boolean {
+  return localStorage.getItem(REMEMBER_KEY) !== '0';
+}
+export function setRememberLogin(on: boolean): void {
+  localStorage.setItem(REMEMBER_KEY, on ? '1' : '0');
+}
+
 export async function initSync(): Promise<void> {
   if (!supabaseConfigured()) {
     syncConfigured.set(false);
     authReady.set(true);
     return;
   }
+  // When "remember me" is off, keep the session only for this tab/session so it
+  // is cleared when the browser closes; otherwise persist it on this device.
+  const remember = getRememberLogin();
   client = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storage: remember ? window.localStorage : window.sessionStorage
+    }
   });
   syncConfigured.set(true);
   const { data } = await client.auth.getSession();

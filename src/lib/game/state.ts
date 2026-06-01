@@ -1,5 +1,6 @@
 import { writable, get } from 'svelte/store';
 import { db } from '../db';
+import { newReviewState } from '../srs';
 import { characterForXp, nextUnlock, CHARACTERS } from './characters';
 import { newlyEarned } from './achievements';
 
@@ -67,6 +68,19 @@ export async function loadGame() {
 
 async function persist(s: GameState) {
   await db.meta.put({ key: 'gamestate', value: s });
+}
+
+/**
+ * Reset ALL learning progress to zero: clears SRS review history for every card
+ * (cards/decks themselves are kept) and resets Adventure XP, levels, unlocks and
+ * achievements. Does not touch settings, imported decks, or login.
+ */
+export async function resetAllProgress(): Promise<void> {
+  const ids = (await db.cards.toCollection().primaryKeys()) as string[];
+  await db.reviews.bulkPut(ids.map((id) => newReviewState(id)));
+  const fresh = { ...DEFAULT_GAME };
+  await db.meta.put({ key: 'gamestate', value: fresh });
+  game.set(fresh);
 }
 
 /** Register a day of activity and update the consecutive-day streak. */

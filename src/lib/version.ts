@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.8.0';
+export const APP_VERSION = '0.9.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.9.0',
+    date: '2026-06-01',
+    title: { en: 'Remember me, reset, and N4 phrases', it: 'Ricordami, azzera e frasi N4' },
+    changes: [
+      { en: '"Remember me on this device" option on the login screen.', it: 'Opzione "Ricordami su questo dispositivo" nella schermata di accesso.' },
+      { en: 'Reset all progress to zero from Settings → Danger zone.', it: 'Azzera tutti i progressi da Impostazioni → Zona pericolosa.' },
+      { en: 'New "Phrases N4" deck: advanced everyday sentences like "There are lots of temples in Tokyo".', it: 'Nuovo mazzo "Frasi N4": frasi quotidiane avanzate come "A Tokyo ci sono molti templi".' }
+    ]
+  },
   {
     version: '0.8.0',
     date: '2026-06-01',
