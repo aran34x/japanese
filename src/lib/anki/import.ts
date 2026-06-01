@@ -36,6 +36,52 @@ function parseField(html: string): { text: string; media: string[] } {
   return { text, media };
 }
 
+// --- Script detection, to map arbitrary Anki fields to front/reading/meaning.
+const hasKanji = (s: string) => /[一-龯]/.test(s);
+const hasKana = (s: string) => /[぀-ゟ゠-ヿ]/.test(s);
+const isJapanese = (s: string) => hasKanji(s) || hasKana(s);
+const isKanaOnly = (s: string) => hasKana(s) && !hasKanji(s) && !/[a-zA-Z]/.test(s);
+// Junk fields like "item:435851" / "sentence:246957" carry no learning value.
+const isMetaField = (s: string) => /^(item|sentence|word|vocab(ulary)?|core\d*)[:\s]?\d*$/i.test(s.trim());
+
+interface MappedNote {
+  front: string;
+  reading?: string;
+  meaning: string;
+  media: string[];
+}
+
+/**
+ * Map a note's fields to front (Japanese) / reading (kana) / meaning, by
+ * analysing each field's script rather than assuming a fixed column order.
+ * Works for simple 2-field decks and rich decks like Japanese Core 2000.
+ */
+function mapNoteFields(rawFields: string[]): MappedNote {
+  const parsed = rawFields.map((f) => parseField(f));
+  const media = parsed.flatMap((p) => p.media);
+  const texts = parsed.map((p) => p.text);
+
+  // Candidate front: prefer a Japanese field containing kanji; else any JP field.
+  let frontIdx = texts.findIndex((t) => t && hasKanji(t) && !isMetaField(t));
+  if (frontIdx === -1) frontIdx = texts.findIndex((t) => t && isJapanese(t) && !isMetaField(t));
+  const front = frontIdx >= 0 ? texts[frontIdx] : texts.find((t) => t && !isMetaField(t)) ?? '';
+
+  // Reading: a kana-only field different from the front (Core 2000 field [2]).
+  const reading = texts.find(
+    (t, i) => i !== frontIdx && t && isKanaOnly(t) && t !== front && !isMetaField(t)
+  );
+
+  // Meaning: the best field containing Latin letters (English gloss), even if
+  // it also includes a little Japanese (e.g. "That's a nice story. それ -- that").
+  const hasLatin = (t: string) => /[a-zA-Z]/.test(t);
+  const meaning =
+    texts.find((t, i) => i !== frontIdx && t !== reading && t && hasLatin(t) && !isMetaField(t)) ??
+    texts.find((t, i) => i !== frontIdx && t && t !== reading && !isJapanese(t) && !isMetaField(t)) ??
+    '';
+
+  return { front, reading, meaning, media };
+}
+
 async function createDeck(name: string, builtin = false): Promise<Deck> {
   const deck: Deck = {
     id: `import-${uid()}`,
@@ -116,9 +162,8 @@ export async function importApkg(buffer: ArrayBuffer, fileName: string): Promise
     res[0].values.forEach((row, i) => {
       const flds = String(row[0]).split('');
       const tagStr = String(row[1] ?? '').trim();
-      const front = parseField(flds[0] ?? '');
-      const back = parseField(flds[1] ?? '');
-      const allMedia = [...front.media, ...back.media];
+      const m = mapNoteFields(flds);
+      const allMedia = m.media;
       const audio = allMedia.find((f) => /\.(mp3|ogg|wav|m4a)$/i.test(f));
       const image = allMedia.find((f) => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f));
       const video = allMedia.find((f) => /\.(mp4|webm)$/i.test(f));
@@ -126,8 +171,9 @@ export async function importApkg(buffer: ArrayBuffer, fileName: string): Promise
         id: `${deck.id}-${i}`,
         deckId: deck.id,
         category: 'custom',
-        front: front.text || flds[0] || '(card)',
-        meaning: { en: back.text, it: back.text },
+        front: m.front || '(card)',
+        reading: m.reading,
+        meaning: { en: m.meaning, it: m.meaning },
         audioId: audio ? mediaByFilename.get(audio) : undefined,
         imageId: image ? mediaByFilename.get(image) : undefined,
         videoId: video ? mediaByFilename.get(video) : undefined,
