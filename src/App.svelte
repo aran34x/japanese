@@ -1,11 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { fade } from 'svelte/transition';
   import { ready, route, navigate, t, settings } from './lib/stores';
   import { loadSettings } from './lib/stores';
   import { ensureSeeded } from './lib/data/seed';
   import { loadGame } from './lib/game/state';
   import { initSync, authReady, syncSession, syncConfigured } from './lib/sync';
   import AuthGate from './components/AuthGate.svelte';
+  import AccountMenu from './components/AccountMenu.svelte';
+  import SaveIndicator from './components/SaveIndicator.svelte';
   import Home from './components/Home.svelte';
   import Study from './components/Study.svelte';
   import Decks from './components/Decks.svelte';
@@ -44,34 +47,40 @@
           日本語 · {$t('appName')}
         </h1>
       </button>
-      <div class="flex gap-1 rounded-full bg-slate-800 p-1 text-xs">
-        <button
-          class="rounded-full px-3 py-1 {$settings.uiLang === 'en' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
-          on:click={() => settings.update((s) => ({ ...s, uiLang: 'en' }))}>EN</button>
-        <button
-          class="rounded-full px-3 py-1 {$settings.uiLang === 'it' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
-          on:click={() => settings.update((s) => ({ ...s, uiLang: 'it' }))}>IT</button>
+      <div class="flex items-center gap-2">
+        <SaveIndicator />
+        <div class="flex gap-1 rounded-full bg-slate-800 p-1 text-xs">
+          <button
+            class="rounded-full px-3 py-1 {$settings.uiLang === 'en' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
+            on:click={() => settings.update((s) => ({ ...s, uiLang: 'en' }))}>EN</button>
+          <button
+            class="rounded-full px-3 py-1 {$settings.uiLang === 'it' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
+            on:click={() => settings.update((s) => ({ ...s, uiLang: 'it' }))}>IT</button>
+        </div>
+        <AccountMenu />
       </div>
     </header>
 
     <main class="flex-1 px-4 pb-24">
-      {#if $route === 'home'}
-        <Home />
-      {:else if $route === 'adventure'}
-        <Adventure />
-      {:else if $route === 'study'}
-        <Study />
-      {:else if $route === 'decks'}
-        <Decks />
-      {:else if $route === 'stats'}
-        <Stats />
-      {:else if $route === 'settings'}
-        <SettingsScreen />
-      {:else if $route === 'import'}
-        <ImportScreen />
-      {:else}
-        <Home />
-      {/if}
+      {#key $route}
+        <div in:fade={{ duration: 220, delay: 60 }} out:fade={{ duration: 100 }}>
+          {#if $route === 'adventure'}
+            <Adventure />
+          {:else if $route === 'study'}
+            <Study />
+          {:else if $route === 'decks'}
+            <Decks />
+          {:else if $route === 'stats'}
+            <Stats />
+          {:else if $route === 'settings'}
+            <SettingsScreen />
+          {:else if $route === 'import'}
+            <ImportScreen />
+          {:else}
+            <Home />
+          {/if}
+        </div>
+      {/key}
     </main>
 
     <Nav />

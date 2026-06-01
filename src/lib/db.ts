@@ -1,6 +1,7 @@
 import Dexie, { type Table } from 'dexie';
 import type { Card, Deck, MediaBlob, ReviewState, Settings } from './types';
 import { newReviewState } from './srs';
+import { markSaving, markSaved } from './saveStatus';
 
 // IndexedDB-backed store. Media blobs (audio/image/video) live in their own
 // table so imported Anki media of any type can be persisted offline.
@@ -39,7 +40,10 @@ export async function getSettings(): Promise<Settings> {
 }
 
 export async function saveSettings(s: Settings): Promise<void> {
+  markSaving();
   await db.meta.put({ key: 'settings', value: s });
+  markSaved();
+  void import('./sync').then((m) => m.autoPush());
 }
 
 /** Insert cards and create their initial (new) review states in one tx. */

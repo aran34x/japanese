@@ -1,6 +1,7 @@
 import { writable, get } from 'svelte/store';
 import { db } from '../db';
 import { newReviewState } from '../srs';
+import { markSaving, markSaved } from '../saveStatus';
 import { characterForXp, nextUnlock, CHARACTERS } from './characters';
 import { newlyEarned } from './achievements';
 
@@ -67,7 +68,9 @@ export async function loadGame() {
 }
 
 async function persist(s: GameState) {
+  markSaving();
   await db.meta.put({ key: 'gamestate', value: s });
+  markSaved();
 }
 
 /**
