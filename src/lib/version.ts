@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.7.0';
+export const APP_VERSION = '0.8.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.8.0',
+    date: '2026-06-01',
+    title: { en: 'Real accounts (email + password)', it: 'Account reali (email + password)' },
+    changes: [
+      { en: 'Proper Sign up / Log in screen on startup — create an account with email and password.', it: 'Vera schermata Registrati / Accedi all\'avvio — crea un account con email e password.' },
+      { en: 'You stay logged in across opens; progress syncs automatically.', it: 'Resti connesso tra le aperture; i progressi si sincronizzano automaticamente.' },
+      { en: 'You can still continue without an account if you prefer.', it: 'Puoi comunque continuare senza account se preferisci.' }
+    ]
+  },
   {
     version: '0.7.0',
     date: '2026-06-01',

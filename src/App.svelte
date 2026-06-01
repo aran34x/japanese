@@ -4,7 +4,8 @@
   import { loadSettings } from './lib/stores';
   import { ensureSeeded } from './lib/data/seed';
   import { loadGame } from './lib/game/state';
-  import { initSync } from './lib/sync';
+  import { initSync, authReady, syncSession, syncConfigured } from './lib/sync';
+  import AuthGate from './components/AuthGate.svelte';
   import Home from './components/Home.svelte';
   import Study from './components/Study.svelte';
   import Decks from './components/Decks.svelte';
@@ -16,17 +17,26 @@
   import WhatsNew from './components/WhatsNew.svelte';
   import Nav from './components/Nav.svelte';
 
+  let skippedAuth = false;
+
   onMount(async () => {
     await loadSettings();
     await ensureSeeded();
     await loadGame();
     ready.set(true);
-    // Initialise cloud sync (no-op unless the user configured Supabase).
+    // Initialise cloud sync (resolves the session and sets authReady).
     void initSync();
   });
+
+  // Show the login gate on startup until the user logs in or chooses to skip.
+  // If sync isn't configured, never gate.
+  $: showGate =
+    $ready && $authReady && $syncConfigured && !$syncSession && !skippedAuth;
 </script>
 
-{#if $ready}
+{#if showGate}
+  <AuthGate on:done={() => (skippedAuth = true)} />
+{:else if $ready}
   <div class="mx-auto flex min-h-screen max-w-2xl flex-col">
     <header class="flex items-center justify-between px-4 pb-2 pt-4">
       <button class="text-left" on:click={() => navigate('home')}>
