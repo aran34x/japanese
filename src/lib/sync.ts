@@ -30,11 +30,11 @@ export async function initSync(): Promise<void> {
   });
 }
 
-export async function signInWithGoogle(): Promise<void> {
+export async function signInWithEmail(email: string): Promise<void> {
   if (!client) throw new Error('Sync not configured');
-  const { error } = await client.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: location.href }
+  const { error } = await client.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: location.href }
   });
   if (error) throw error;
 }
