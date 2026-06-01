@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.9.0';
+export const APP_VERSION = '0.10.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.10.0',
+    date: '2026-06-01',
+    title: { en: 'Account menu & autosave', it: 'Menu account e salvataggio automatico' },
+    changes: [
+      { en: 'Account menu (top-right): your email, sync now, settings & data, sign out.', it: 'Menu account (in alto a destra): la tua email, sincronizza, impostazioni e dati, esci.' },
+      { en: 'Everything autosaves — a small icon shows when it happens. Manual backup buttons removed.', it: 'Tutto si salva da solo — una piccola icona lo segnala. Rimossi i pulsanti di backup manuale.' },
+      { en: 'Confetti + auto-advance on correct answers; smooth fade transitions between pages.', it: 'Coriandoli e avanzamento automatico sulle risposte corrette; transizioni in dissolvenza tra le pagine.' },
+      { en: 'Select all/none for decks; deck descriptions; locked Icons stay hidden until unlocked.', it: 'Seleziona tutto/niente per i mazzi; descrizioni dei mazzi; le Icone bloccate restano nascoste.' }
+    ]
+  },
   {
     version: '0.9.0',
     date: '2026-06-01',

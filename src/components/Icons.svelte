@@ -112,7 +112,9 @@
           <div class="aspect-square">
             <WikiImage title={pp.wiki} blurred={!isUnlocked(pp)} />
           </div>
-          <div class="mt-1 truncate text-xs font-medium">{pp.name}</div>
+          <div class="mt-1 truncate text-xs font-medium {isUnlocked(pp) ? '' : 'text-slate-500'}">
+            {isUnlocked(pp) ? pp.name : '???'}
+          </div>
           <div class="text-[10px] text-slate-500">{isUnlocked(pp) ? '✓' : '🔒'}</div>
         </button>
       {/each}
@@ -126,9 +128,11 @@
       <WikiImage title={person.wiki} blurred={!isUnlocked(person)} />
     </div>
     <div class="text-center">
-      <div class="text-xl font-bold">{person.name}</div>
+      <div class="text-xl font-bold">{isUnlocked(person) ? person.name : '???'}</div>
       <div class="font-jp text-lg text-pink-300">{person.ja}</div>
-      <div class="text-sm text-slate-400">{person.reading} · {roleLabel(person)}</div>
+      <div class="text-sm text-slate-400">
+        {isUnlocked(person) ? person.reading + ' · ' : ''}{roleLabel(person)}
+      </div>
     </div>
 
     {#if isUnlocked(person)}

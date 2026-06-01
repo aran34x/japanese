@@ -7,7 +7,9 @@
   import { schedule, previewInterval } from '../lib/srs';
   import type { Deck, Exercise, ExerciseKind, Grade } from '../lib/types';
   import Flashcard from './Flashcard.svelte';
-  import { fly } from 'svelte/transition';
+  import { fly, fade } from 'svelte/transition';
+  import { confetti } from '../lib/confetti';
+  import { markSaving, markSaved } from '../lib/saveStatus';
 
   type Phase = 'menu' | 'config' | 'running' | 'done';
   type Mode = 'mixed' | 'flashcard' | 'quiz' | 'typing';
@@ -45,6 +47,33 @@
   function toggle(id: string) {
     selected.has(id) ? selected.delete(id) : selected.add(id);
     selected = new Set(selected);
+  }
+
+  $: allSelected = decks.length > 0 && selected.size === decks.length;
+  function toggleAll() {
+    selected = allSelected ? new Set() : new Set(decks.map((d) => d.id));
+  }
+
+  // Short explanation per deck category, shown under each deck name.
+  function deckBlurb(d: Deck): string {
+    const en: Record<string, string> = {
+      hiragana: 'Basic phonetic script for native Japanese words',
+      katakana: 'Phonetic script for foreign/loan words',
+      kanji: 'Chinese characters — meaning + reading',
+      vocab: 'Common words and their meanings',
+      reading: 'Short sentences to read and understand',
+      custom: 'Your imported cards'
+    };
+    const it: Record<string, string> = {
+      hiragana: 'Scrittura fonetica di base per parole giapponesi',
+      katakana: 'Scrittura fonetica per parole straniere',
+      kanji: 'Caratteri cinesi — significato + lettura',
+      vocab: 'Parole comuni e i loro significati',
+      reading: 'Brevi frasi da leggere e capire',
+      custom: 'Le tue carte importate'
+    };
+    const map = $settings.uiLang === 'it' ? it : en;
+    return d.description?.[$settings.uiLang] ?? map[d.category] ?? '';
   }
 
   function kindForMode(card: Exercise['card']): ExerciseKind | 'auto' {
@@ -92,7 +121,10 @@
   async function grade(g: Grade) {
     const item = queue[index];
     const updated = schedule(item.state, g);
+    markSaving();
     await db.reviews.put(updated);
+    markSaved();
+    void import('../lib/sync').then((m) => m.autoPush());
     sessionStats.reviewed += 1;
     if (g !== 'again') sessionStats.correct += 1;
     next();
@@ -108,10 +140,17 @@
     loadCurrent();
   }
 
+  function onCorrect() {
+    confetti();
+    // Auto-advance shortly after a correct answer.
+    setTimeout(() => continueAfterAnswer(), 750);
+  }
+
   function answerMcq(correct: boolean) {
     if (answered) return;
     answered = true;
     lastCorrect = correct;
+    if (correct) onCorrect();
   }
 
   function checkTyped() {
@@ -119,6 +158,7 @@
     answered = true;
     const ans = normalize(typed);
     lastCorrect = (current.answers ?? []).some((a) => a === ans);
+    if (lastCorrect) onCorrect();
   }
 
   // For auto/quiz/typing we auto-map correctness to a grade then continue.
@@ -155,13 +195,23 @@
 {:else if phase === 'config'}
   <section class="space-y-5">
     <button class="text-sm text-slate-400" on:click={() => (phase = 'menu')}>← {$t('back')}</button>
-    <h2 class="text-lg font-semibold">{$t('chooseDeck')}</h2>
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold">{$t('chooseDeck')}</h2>
+      <button class="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-pink-300" on:click={toggleAll}>
+        {allSelected
+          ? ($settings.uiLang === 'it' ? 'Deseleziona tutto' : 'Unselect all')
+          : ($settings.uiLang === 'it' ? 'Seleziona tutto' : 'Select all')}
+      </button>
+    </div>
     <div class="space-y-2">
       {#each decks as d}
         <label class="flex items-center gap-3 rounded-xl bg-slate-800 px-4 py-3">
           <input type="checkbox" checked={selected.has(d.id)} on:change={() => toggle(d.id)}
-            class="h-5 w-5 accent-pink-500" />
-          <span class="flex-1">{deckName(d)}</span>
+            class="h-5 w-5 shrink-0 accent-pink-500" />
+          <span class="flex-1">
+            <span class="block font-medium">{deckName(d)}</span>
+            <span class="block text-xs text-slate-400">{deckBlurb(d)}</span>
+          </span>
         </label>
       {/each}
     </div>
@@ -240,9 +290,11 @@
               {current.card.front} — {current.card.reading ?? ''}
               {#if current.card.meaning[$settings.uiLang]}· {current.card.meaning[$settings.uiLang]}{/if}
             </div>
-            <button class="mt-3 w-full rounded-xl bg-slate-700 py-2 font-medium" on:click={continueAfterAnswer}>
-              {$t('next')} →
-            </button>
+            {#if !lastCorrect}
+              <button class="mt-3 w-full rounded-xl bg-slate-700 py-2 font-medium" on:click={continueAfterAnswer}>
+                {$t('next')} →
+              </button>
+            {/if}
           </div>
         {/if}
       </div>
