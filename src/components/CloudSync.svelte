@@ -6,10 +6,10 @@
     signInWithPassword,
     signUpWithPassword,
     signOut,
-    push,
-    pull,
     syncSession,
-    syncConfigured
+    syncConfigured,
+    syncStatus,
+    lastSyncError
   } from '../lib/sync';
 
   let msg = '';
@@ -43,20 +43,6 @@
       }, it() ? 'Account creato.' : 'Account created.');
     } else {
       await run(() => signInWithPassword(email.trim(), password), it() ? 'Accesso effettuato.' : 'Logged in.');
-    }
-  }
-  const doPush = () => run(push, it() ? 'Caricato nel cloud.' : 'Uploaded to the cloud.');
-  async function doPull() {
-    busy = true;
-    msg = '';
-    try {
-      const had = await pull();
-      msg = had ? (it() ? 'Ripristinato. Ricarico…' : 'Restored. Reloading…') : (it() ? 'Nessun salvataggio.' : 'No cloud save yet.');
-      if (had) setTimeout(() => location.reload(), 900);
-    } catch (e) {
-      msg = e instanceof Error ? e.message : String(e);
-    } finally {
-      busy = false;
     }
   }
 </script>
@@ -102,16 +88,20 @@
       {mode === 'signup' ? (it() ? 'Crea account' : 'Create account') : (it() ? 'Accedi' : 'Log in')}
     </button>
   {:else}
-    <div class="mb-3 truncate text-xs text-slate-400">{$syncSession.user.email}</div>
-    <div class="flex gap-2">
-      <button class="flex-1 rounded-lg bg-indigo-500 py-2 text-sm font-semibold disabled:opacity-50" disabled={busy} on:click={doPush}>
-        ⬆ {it() ? 'Carica' : 'Upload'}
-      </button>
-      <button class="flex-1 rounded-lg bg-slate-700 py-2 text-sm font-semibold disabled:opacity-50" disabled={busy} on:click={doPull}>
-        ⬇ {it() ? 'Scarica' : 'Download'}
-      </button>
+    <div class="truncate text-xs text-slate-400">{$syncSession.user.email}</div>
+    <div class="mt-2 flex items-center gap-2 text-xs">
+      {#if $syncStatus === 'error'}
+        <span class="text-rose-400">⚠ {it() ? 'Errore di sincronizzazione' : 'Sync error'}</span>
+      {:else if $syncStatus === 'pushing' || $syncStatus === 'pulling'}
+        <span class="text-slate-400">⟳ {it() ? 'Sincronizzazione…' : 'Syncing…'}</span>
+      {:else}
+        <span class="text-green-400">✓ {it() ? 'Tutto salvato automaticamente' : 'All changes saved automatically'}</span>
+      {/if}
     </div>
-    <button class="mt-2 w-full text-center text-xs text-slate-500 underline" on:click={signOut}>
+    {#if $syncStatus === 'error' && $lastSyncError}
+      <div class="mt-1 rounded-lg bg-rose-900/40 p-2 text-[11px] text-rose-200">{$lastSyncError}</div>
+    {/if}
+    <button class="mt-3 w-full text-center text-xs text-slate-500 underline" on:click={signOut}>
       {it() ? 'Esci' : 'Sign out'}
     </button>
   {/if}

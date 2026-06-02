@@ -4,9 +4,9 @@
   import { ready, route, navigate, t, settings } from './lib/stores';
   import { loadSettings } from './lib/stores';
   import { ensureSeeded } from './lib/data/seed';
-  import { loadGame } from './lib/game/state';
+  import { loadGame, resetAllProgress } from './lib/game/state';
   import { loadXray, furiganaOn } from './lib/kanji/xray';
-  import { initSync, authReady, syncSession, syncConfigured } from './lib/sync';
+  import { initSync, authReady, syncSession, syncConfigured, setSignedOutHandler } from './lib/sync';
   import AuthGate from './components/AuthGate.svelte';
   import AccountMenu from './components/AccountMenu.svelte';
   import SaveIndicator from './components/SaveIndicator.svelte';
@@ -23,6 +23,13 @@
   import Nav from './components/Nav.svelte';
 
   let skippedAuth = false;
+
+  // When the user signs out, clear local progress so a guest starts clean, then
+  // reload to reset all in-memory stores.
+  setSignedOutHandler(async () => {
+    await resetAllProgress();
+    setTimeout(() => location.reload(), 200);
+  });
 
   onMount(async () => {
     await loadSettings();

@@ -8,7 +8,9 @@ import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, supabaseConfigured } from './su
 
 export const syncSession = writable<Session | null>(null);
 export const syncConfigured = writable(false);
-export const syncStatus = writable<string>('');
+/** 'idle' | 'pushing' | 'pulling' | 'synced' | 'error' */
+export const syncStatus = writable<string>('idle');
+export const lastSyncError = writable<string>('');
 /** Set once the initial session has been resolved (so the gate can render). */
 export const authReady = writable(false);
 
@@ -44,11 +46,31 @@ export async function initSync(): Promise<void> {
   const { data } = await client.auth.getSession();
   syncSession.set(data.session);
   authReady.set(true);
-  client.auth.onAuthStateChange((_e, session) => {
+
+  let prevUserId = data.session?.user?.id ?? null;
+  client.auth.onAuthStateChange((event, session) => {
+    const newUserId = session?.user?.id ?? null;
     syncSession.set(session);
-    // Auto-pull right after a fresh sign-in.
-    if (session) void pull().catch(() => {});
+
+    if (event === 'SIGNED_IN' && newUserId && newUserId !== prevUserId) {
+      // A user just signed in → load THEIR cloud data over the local state.
+      void pull().catch((e) => {
+        lastSyncError.set(e instanceof Error ? e.message : String(e));
+        syncStatus.set('error');
+      });
+    } else if (event === 'SIGNED_OUT') {
+      // Logged out → wipe progress so a guest starts clean.
+      void onSignedOut?.();
+    }
+    prevUserId = newUserId;
   });
+}
+
+// Set by the app so sync can clear local progress on sign-out without a
+// circular import to the game-state module.
+let onSignedOut: (() => Promise<void>) | null = null;
+export function setSignedOutHandler(fn: () => Promise<void>) {
+  onSignedOut = fn;
 }
 
 export async function signUpWithPassword(email: string, password: string): Promise<string> {
@@ -88,13 +110,21 @@ export async function push(): Promise<void> {
   const { data: u } = await client.auth.getUser();
   if (!u.user) throw new Error('Not signed in');
   syncStatus.set('pushing');
-  const blob = await exportBackup();
-  const payload = JSON.parse(await blob.text());
-  const { error } = await client
-    .from('saves')
-    .upsert({ user_id: u.user.id, data: payload, updated_at: new Date().toISOString() });
-  if (error) throw error;
-  syncStatus.set('synced');
+  try {
+    const blob = await exportBackup();
+    const payload = JSON.parse(await blob.text());
+    const { error } = await client
+      .from('saves')
+      .upsert({ user_id: u.user.id, data: payload, updated_at: new Date().toISOString() });
+    if (error) throw error;
+    lastSyncError.set('');
+    syncStatus.set('synced');
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    lastSyncError.set(msg);
+    syncStatus.set('error');
+    throw e;
+  }
 }
 
 /** Pull the cloud save down and merge into the local database. */
@@ -115,18 +145,21 @@ export async function pull(): Promise<boolean> {
   }
   const file = new File([JSON.stringify(data.data)], 'cloud.json', { type: 'application/json' });
   await importBackup(file);
+  lastSyncError.set('');
   syncStatus.set('synced');
+  // Reload so all in-memory stores (game state, settings) reflect pulled data.
+  setTimeout(() => location.reload(), 300);
   return true;
 }
 
-/** Push silently if signed in (used on app changes). */
+/** Push in the background if signed in. Errors are reflected in syncStatus. */
 export async function autoPush(): Promise<void> {
+  if (!client) return;
+  const { data } = await client.auth.getUser();
+  if (!data.user) return; // not signed in → nothing to sync
   try {
-    if (client) {
-      const { data } = await client.auth.getUser();
-      if (data.user) await push();
-    }
+    await push();
   } catch {
-    /* offline or not configured — ignore */
+    // push() already set syncStatus='error' and lastSyncError; stay quiet here.
   }
 }
