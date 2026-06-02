@@ -24,6 +24,7 @@
     "vite-plugin-pwa": "^0.21.1"
   },
   "dependencies": {
+    "@sglkc/kuromoji": "^1.1.0",
     "@supabase/supabase-js": "^2.106.2",
     "dexie": "^4.0.10",
     "fflate": "^0.8.2",

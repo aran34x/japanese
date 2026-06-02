@@ -32,7 +32,19 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,wasm}'],
-        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
+        // Cache the kuromoji dictionary files at runtime (first use) so furigana
+        // works offline afterwards without bloating the precache.
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.includes('/dict/'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'kuromoji-dict',
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 90 }
+            }
+          }
+        ]
       }
     })
   ],
