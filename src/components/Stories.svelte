@@ -3,6 +3,7 @@
   import { STORIES, type Story } from '../lib/data/stories';
   import { speakJa } from '../lib/speech';
   import { confetti } from '../lib/confetti';
+  import { game, markStoryDone } from '../lib/game/state';
   import { fly, scale } from 'svelte/transition';
 
   type View = 'list' | 'read' | 'quiz' | 'done';
@@ -10,63 +11,121 @@
   let story: Story | null = null;
   const it = () => $settings.uiLang === 'it';
 
+  $: isDone = (id: string) => $game.storiesDone.includes(id);
+
   // Per-line reveal state for translations.
   let showTrans: Record<number, boolean> = {};
-  function resetReveal() {
-    showTrans = {};
-  }
 
   let qIndex = 0;
-  let picked: number | null = null;
+  let picked: number | null = null;   // for mcq
+  let typed = '';                     // for typing
+  let answered = false;
+  let lastCorrect = false;
   let correctCount = 0;
 
   function open(s: Story) {
     story = s;
-    resetReveal();
+    showTrans = {};
     view = 'read';
   }
   function startQuiz() {
     qIndex = 0;
-    picked = null;
+    resetQuestion();
     correctCount = 0;
     view = 'quiz';
   }
-  function answer(i: number) {
-    if (picked !== null || !story) return;
-    picked = i;
-    const correct = story.questions[qIndex].options[i].correct;
+  function resetQuestion() {
+    picked = null;
+    typed = '';
+    answered = false;
+    lastCorrect = false;
+  }
+
+  function normalize(s: string): string {
+    return s.trim().toLowerCase().replace(/[。、.!?]/g, '');
+  }
+
+  async function finishQuestion(correct: boolean) {
+    answered = true;
+    lastCorrect = correct;
     if (correct) {
       correctCount++;
       confetti({ count: 50 });
     }
-    setTimeout(() => {
+    setTimeout(async () => {
       if (!story) return;
       if (qIndex + 1 >= story.questions.length) {
+        // Pass = at least half correct; mark done + reward stamp.
+        if (correctCount >= Math.ceil(story.questions.length / 2)) {
+          await markStoryDone(story.id, 60);
+        }
         view = 'done';
       } else {
         qIndex++;
-        picked = null;
+        resetQuestion();
       }
-    }, 900);
+    }, 1000);
   }
+
+  function answerMcq(i: number) {
+    if (answered || !story) return;
+    picked = i;
+    const q = story.questions[qIndex];
+    if (q.type === 'mcq') finishQuestion(q.options[i].correct);
+  }
+
+  function checkTyped() {
+    if (answered || !story) return;
+    const q = story.questions[qIndex];
+    if (q.type !== 'type') return;
+    const ok = q.answers.some((a) => normalize(a) === normalize(typed));
+    finishQuestion(ok);
+  }
+
+  $: passedCount = $game.storiesDone.length;
 </script>
 
 {#if view === 'list'}
   <section in:fly={{ y: 12, duration: 180 }} class="space-y-3">
     <p class="text-sm text-slate-400">
       {it()
-        ? 'Leggi una storia semplice, poi rispondi a domande su ciò che hai letto.'
-        : 'Read a simple story, then answer questions about what you read.'}
+        ? 'Leggi una storia, poi rispondi alle domande. Le storie diventano più difficili.'
+        : 'Read a story, then answer the questions. Stories get progressively harder.'}
     </p>
-    {#each STORIES as s}
+
+    <!-- Stamp album -->
+    <div class="rounded-2xl bg-slate-800 p-4">
+      <div class="mb-2 text-sm font-semibold">
+        🏅 {it() ? 'Album dei timbri' : 'Stamp album'}
+        <span class="text-xs text-slate-400">{passedCount}/{STORIES.length}</span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        {#each STORIES as s}
+          <div
+            class="grid h-10 w-10 place-items-center rounded-full text-xl {isDone(s.id)
+              ? 'bg-gradient-to-br from-amber-400 to-pink-500'
+              : 'bg-slate-900 text-slate-700'}"
+            title={isDone(s.id) ? s.title[$settings.uiLang] : '???'}
+          >{isDone(s.id) ? s.emoji : '?'}</div>
+        {/each}
+      </div>
+    </div>
+
+    {#each STORIES as s, i}
       <button
         class="flex w-full items-center gap-4 rounded-2xl bg-slate-800 p-4 text-left active:scale-[0.98]"
         on:click={() => open(s)}
       >
-        <span class="text-4xl">{s.emoji}</span>
-        <span class="flex-1">
-          <span class="block font-semibold">{s.title[$settings.uiLang]}</span>
-          <span class="text-xs text-slate-400">{s.level} · {s.lines.length} {it() ? 'frasi' : 'lines'}</span>
+        <!-- Hide the emoji until the story is completed. -->
+        <span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-slate-900 text-2xl">
+          {isDone(s.id) ? s.emoji : '📕'}
+        </span>
+        <span class="min-w-0 flex-1">
+          <span class="block font-jp text-base font-semibold">{s.titleJp}</span>
+          <span class="block text-xs text-slate-400">
+            {s.level} · {s.lines.length} {it() ? 'frasi' : 'lines'} · {s.questions.length} Q
+            {#if isDone(s.id)}· ✓{/if}
+          </span>
         </span>
         <span class="text-slate-500">›</span>
       </button>
@@ -77,8 +136,9 @@
   <section in:fly={{ y: 12, duration: 180 }} class="space-y-4">
     <button class="text-sm text-slate-400" on:click={() => (view = 'list')}>← {$t('back')}</button>
     <div class="text-center">
-      <div class="text-5xl">{story.emoji}</div>
-      <h2 class="mt-2 text-xl font-bold">{story.title[$settings.uiLang]}</h2>
+      <div class="text-5xl">{isDone(story.id) ? story.emoji : '📕'}</div>
+      <h2 class="mt-2 font-jp text-2xl font-bold">{story.titleJp}</h2>
+      <div class="text-sm text-slate-400">{story.title[$settings.uiLang]} · {story.level}</div>
     </div>
     <div class="space-y-3">
       {#each story.lines as line, i}
@@ -109,6 +169,7 @@
   </section>
 
 {:else if view === 'quiz' && story}
+  {@const q = story.questions[qIndex]}
   <section class="space-y-4">
     <div class="flex items-center justify-between text-sm">
       <button class="text-slate-400" on:click={() => (view = 'read')}>← {it() ? 'Rileggi' : 'Reread'}</button>
@@ -117,30 +178,69 @@
     {#key qIndex}
       <div in:fly={{ y: 14, duration: 160 }}>
         <div class="rounded-2xl bg-slate-800 p-5 text-center">
-          <div class="text-lg font-medium">{story.questions[qIndex].q[$settings.uiLang]}</div>
+          <div class="text-lg font-medium">{q.q[$settings.uiLang]}</div>
         </div>
-        <div class="mt-3 grid gap-2">
-          {#each story.questions[qIndex].options as opt, i}
-            <button
-              disabled={picked !== null}
-              class="rounded-xl px-4 py-3 text-left text-lg transition-colors
-                {picked === i && opt.correct ? 'bg-green-600 text-white' : ''}
-                {picked === i && !opt.correct ? 'bg-rose-700 text-white' : ''}
-                {picked !== null && picked !== i && opt.correct ? 'bg-green-600/40' : ''}
-                {picked === null ? 'bg-slate-800 active:bg-slate-700' : ''}"
-              on:click={() => answer(i)}>{opt[$settings.uiLang]}</button>
-          {/each}
-        </div>
+
+        {#if q.type === 'mcq'}
+          <div class="mt-3 grid gap-2">
+            {#each q.options as opt, i}
+              <button
+                disabled={answered}
+                class="rounded-xl px-4 py-3 text-left text-lg transition-colors
+                  {picked === i && opt.correct ? 'bg-green-600 text-white' : ''}
+                  {picked === i && !opt.correct ? 'bg-rose-700 text-white' : ''}
+                  {answered && picked !== i && opt.correct ? 'bg-green-600/40' : ''}
+                  {!answered ? 'bg-slate-800 active:bg-slate-700' : ''}"
+                on:click={() => answerMcq(i)}>{opt[$settings.uiLang]}</button>
+            {/each}
+          </div>
+        {:else}
+          <!-- typing question -->
+          <input
+            bind:value={typed}
+            disabled={answered}
+            placeholder={it() ? 'Scrivi la risposta…' : 'Type your answer…'}
+            on:keydown={(e) => e.key === 'Enter' && checkTyped()}
+            class="mt-3 w-full rounded-xl bg-slate-800 px-4 py-3 text-lg outline-none focus:ring-2 focus:ring-pink-500" />
+          {#if q.hint && !answered}
+            <div class="mt-1 text-xs text-slate-500">💡 {q.hint[$settings.uiLang]}</div>
+          {/if}
+          {#if !answered}
+            <button class="mt-2 w-full rounded-xl bg-indigo-500 py-3 font-semibold" on:click={checkTyped}>
+              {it() ? 'Verifica' : 'Check'}
+            </button>
+          {/if}
+          {#if answered}
+            <div class="mt-2 rounded-xl p-3 text-center text-sm {lastCorrect ? 'bg-green-900/40 text-green-300' : 'bg-rose-900/40 text-rose-300'}">
+              {lastCorrect ? '✓' : '✗'} {q.answers[0]}
+            </div>
+          {/if}
+        {/if}
       </div>
     {/key}
   </section>
 
 {:else if view === 'done' && story}
+  {@const passed = correctCount >= Math.ceil(story.questions.length / 2)}
   <section class="grid place-items-center py-12 text-center" in:scale={{ start: 0.8, duration: 300 }}>
-    <div class="text-6xl">{correctCount === story.questions.length ? '🏆' : '📖'}</div>
-    <h2 class="mt-3 text-xl font-bold">
+    {#if passed}
+      <div class="grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-amber-400 to-pink-500 text-5xl shadow-lg">
+        {story.emoji}
+      </div>
+      <div class="mt-3 text-sm font-bold text-amber-300">
+        🏅 {it() ? 'Timbro ottenuto!' : 'Stamp earned!'}
+      </div>
+    {:else}
+      <div class="text-6xl">📖</div>
+    {/if}
+    <h2 class="mt-2 text-xl font-bold">
       {correctCount}/{story.questions.length} {it() ? 'corrette' : 'correct'}
     </h2>
+    {#if !passed}
+      <p class="mt-1 text-sm text-slate-400">
+        {it() ? 'Riprova per ottenere il timbro!' : 'Try again to earn the stamp!'}
+      </p>
+    {/if}
     <div class="mt-5 flex gap-3">
       <button class="rounded-xl bg-indigo-500 px-5 py-3 font-semibold" on:click={() => { if (story) open(story); }}>
         {it() ? 'Rileggi' : 'Read again'}

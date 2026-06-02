@@ -55,11 +55,24 @@
             <span class="font-jp text-3xl leading-none">{item.ch}</span>
             <div class="min-w-0 flex-1">
               {#if item.info}
-                <div class="flex flex-wrap gap-x-2 text-xs">
-                  {#if item.info.kun.length}<span class="text-pink-300">訓 {item.info.kun.slice(0, 2).join('、')}</span>{/if}
-                  {#if item.info.on.length}<span class="text-sky-300">音 {item.info.on.slice(0, 2).join('、')}</span>{/if}
+                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs">
+                  {#if item.info.kun.length}
+                    <span class="text-pink-300">
+                      <span class="text-slate-500">{it() ? 'kun (nativo):' : 'kun (native):'}</span>
+                      {item.info.kun.slice(0, 2).join('、')}
+                    </span>
+                  {/if}
+                  {#if item.info.on.length}
+                    <span class="text-sky-300">
+                      <span class="text-slate-500">{it() ? 'on (cinese):' : 'on (Chinese):'}</span>
+                      {item.info.on.slice(0, 2).join('、')}
+                    </span>
+                  {/if}
                 </div>
-                <div class="truncate text-sm text-slate-200">{item.info.meanings.slice(0, 4).join(', ')}</div>
+                <div class="truncate text-sm text-slate-200">
+                  <span class="text-slate-500">{it() ? 'significato:' : 'meaning:'}</span>
+                  {item.info.meanings.slice(0, 4).join(', ')}
+                </div>
               {:else}
                 <div class="text-xs text-slate-500">…</div>
               {/if}

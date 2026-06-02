@@ -22,6 +22,8 @@ export interface GameState {
   unlockedPeople: string[];
   /** ids of fictional characters whose challenge has been cleared. */
   unlockedFictional: string[];
+  /** ids of stories whose quiz has been passed (earns a stamp). */
+  storiesDone: string[];
 }
 
 export const DEFAULT_GAME: GameState = {
@@ -37,7 +39,8 @@ export const DEFAULT_GAME: GameState = {
   achievements: [],
   unlockedCharacters: ['mochi'],
   unlockedPeople: [],
-  unlockedFictional: []
+  unlockedFictional: [],
+  storiesDone: []
 };
 
 export const game = writable<GameState>(DEFAULT_GAME);
@@ -172,6 +175,16 @@ export async function unlockFictional(id: string, xp: number, name: string) {
     g.unlockedFictional.includes(id)
       ? g
       : { ...g, xp: g.xp + xp, unlockedFictional: [...g.unlockedFictional, id] }
+  );
+}
+
+/** Mark a story as completed (quiz passed) and award XP (idempotent). */
+export async function markStoryDone(id: string, xp: number) {
+  const before = get(game);
+  if (before.storiesDone.includes(id)) return;
+  pushToast({ kind: 'achievement', title: 'storyStamp', subtitle: '+' + xp + ' XP', icon: '📖' });
+  await mutateGame((g) =>
+    g.storiesDone.includes(id) ? g : { ...g, xp: g.xp + xp, storiesDone: [...g.storiesDone, id] }
   );
 }
 
