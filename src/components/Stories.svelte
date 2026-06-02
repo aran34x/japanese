@@ -4,6 +4,7 @@
   import { speakJa } from '../lib/speech';
   import { confetti } from '../lib/confetti';
   import KanjiText from './KanjiText.svelte';
+  import KanjiGloss from './KanjiGloss.svelte';
   import { fly, scale } from 'svelte/transition';
 
   type View = 'list' | 'read' | 'quiz' | 'done';
@@ -11,12 +12,21 @@
   let story: Story | null = null;
   const it = () => $settings.uiLang === 'it';
 
+  // Per-line reveal state for translations and kanji glosses.
+  let showTrans: Record<number, boolean> = {};
+  let showGloss: Record<number, boolean> = {};
+  function resetReveal() {
+    showTrans = {};
+    showGloss = {};
+  }
+
   let qIndex = 0;
   let picked: number | null = null;
   let correctCount = 0;
 
   function open(s: Story) {
     story = s;
+    resetReveal();
     view = 'read';
   }
   function startQuiz() {
@@ -75,15 +85,31 @@
       <h2 class="mt-2 text-xl font-bold">{story.title[$settings.uiLang]}</h2>
     </div>
     <div class="space-y-3">
-      {#each story.lines as line}
-        <button
-          class="block w-full rounded-xl bg-slate-800 p-4 text-left active:bg-slate-700"
-          on:click={() => speakJa(line.reading)}
-        >
-          <div class="font-jp"><KanjiText text={line.jp} size="text-lg" /></div>
+      {#each story.lines as line, i}
+        <div class="rounded-xl bg-slate-800 p-4">
+          <div class="flex items-start gap-2">
+            <div class="flex-1 font-jp"><KanjiText text={line.jp} size="text-lg" /></div>
+            <button class="shrink-0 rounded-lg bg-slate-700 px-2 py-1 text-sm" title="🔊" on:click={() => speakJa(line.reading)}>🔊</button>
+            <button
+              class="shrink-0 rounded-lg px-2 py-1 text-sm {showGloss[i] ? 'bg-pink-500 text-white' : 'bg-slate-700'}"
+              title={it() ? 'Significati kanji' : 'Kanji meanings'}
+              on:click={() => (showGloss = { ...showGloss, [i]: !showGloss[i] })}>漢</button>
+          </div>
           <div class="mt-1 text-xs text-pink-300">{line.reading}</div>
-          <div class="mt-1 text-sm text-slate-400">{$settings.uiLang === 'it' ? line.it : line.en}</div>
-        </button>
+
+          <KanjiGloss text={line.jp} open={showGloss[i]} />
+
+          {#if showTrans[i]}
+            <div class="mt-2 text-sm text-slate-300" in:fly={{ y: 4, duration: 120 }}>
+              {$settings.uiLang === 'it' ? line.it : line.en}
+            </div>
+          {:else}
+            <button
+              class="mt-2 text-xs text-slate-500 underline"
+              on:click={() => (showTrans = { ...showTrans, [i]: true })}
+            >{it() ? 'Mostra traduzione' : 'Show translation'}</button>
+          {/if}
+        </div>
       {/each}
     </div>
     <button
