@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.16.0';
+export const APP_VERSION = '0.17.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.17.0',
+    date: '2026-06-02',
+    title: { en: 'Furigana & kanji meanings now work everywhere', it: 'Furigana e significati kanji ovunque' },
+    changes: [
+      { en: 'The ふ button now adds readings above every kanji across the whole app.', it: 'Il pulsante ふ ora aggiunge la lettura sopra ogni kanji in tutta l\'app.' },
+      { en: 'The 漢 button opens a panel listing every kanji on screen with its meaning.', it: 'Il pulsante 漢 apre un pannello con ogni kanji sullo schermo e il suo significato.' }
+    ]
+  },
   {
     version: '0.16.0',
     date: '2026-06-02',

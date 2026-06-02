@@ -3,8 +3,6 @@
   import { STORIES, type Story } from '../lib/data/stories';
   import { speakJa } from '../lib/speech';
   import { confetti } from '../lib/confetti';
-  import KanjiText from './KanjiText.svelte';
-  import KanjiGloss from './KanjiGloss.svelte';
   import { fly, scale } from 'svelte/transition';
 
   type View = 'list' | 'read' | 'quiz' | 'done';
@@ -12,12 +10,10 @@
   let story: Story | null = null;
   const it = () => $settings.uiLang === 'it';
 
-  // Per-line reveal state for translations and kanji glosses.
+  // Per-line reveal state for translations.
   let showTrans: Record<number, boolean> = {};
-  let showGloss: Record<number, boolean> = {};
   function resetReveal() {
     showTrans = {};
-    showGloss = {};
   }
 
   let qIndex = 0;
@@ -88,16 +84,10 @@
       {#each story.lines as line, i}
         <div class="rounded-xl bg-slate-800 p-4">
           <div class="flex items-start gap-2">
-            <div class="flex-1 font-jp"><KanjiText text={line.jp} size="text-lg" /></div>
+            <div class="flex-1 font-jp text-lg">{line.jp}</div>
             <button class="shrink-0 rounded-lg bg-slate-700 px-2 py-1 text-sm" title="🔊" on:click={() => speakJa(line.reading)}>🔊</button>
-            <button
-              class="shrink-0 rounded-lg px-2 py-1 text-sm {showGloss[i] ? 'bg-pink-500 text-white' : 'bg-slate-700'}"
-              title={it() ? 'Significati kanji' : 'Kanji meanings'}
-              on:click={() => (showGloss = { ...showGloss, [i]: !showGloss[i] })}>漢</button>
           </div>
           <div class="mt-1 text-xs text-pink-300">{line.reading}</div>
-
-          <KanjiGloss text={line.jp} open={showGloss[i]} />
 
           {#if showTrans[i]}
             <div class="mt-2 text-sm text-slate-300" in:fly={{ y: 4, duration: 120 }}>

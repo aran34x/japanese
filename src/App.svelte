@@ -6,10 +6,12 @@
   import { ensureSeeded } from './lib/data/seed';
   import { loadGame, resetAllProgress } from './lib/game/state';
   import { loadXray, furiganaOn } from './lib/kanji/xray';
+  import { enableFurigana, disableFurigana } from './lib/kanji/furigana';
   import { initSync, authReady, syncSession, syncConfigured, setSignedOutHandler } from './lib/sync';
   import AuthGate from './components/AuthGate.svelte';
   import AccountMenu from './components/AccountMenu.svelte';
   import SaveIndicator from './components/SaveIndicator.svelte';
+  import KanjiSheet from './components/KanjiSheet.svelte';
   import Home from './components/Home.svelte';
   import Study from './components/Study.svelte';
   import Stories from './components/Stories.svelte';
@@ -23,6 +25,13 @@
   import Nav from './components/Nav.svelte';
 
   let skippedAuth = false;
+  let kanjiSheetOpen = false;
+
+  // Toggle global furigana annotation across the whole app.
+  $: if (typeof document !== 'undefined') {
+    if ($furiganaOn) enableFurigana();
+    else disableFurigana();
+  }
 
   // When the user signs out, clear local progress so a guest starts clean, then
   // reload to reset all in-memory stores.
@@ -63,6 +72,10 @@
           class="grid h-9 w-9 place-items-center rounded-full text-sm font-bold {$furiganaOn ? 'bg-pink-500 text-white' : 'bg-slate-800 text-slate-300'}"
           title="Furigana"
           on:click={() => furiganaOn.update((v) => !v)}>ふ</button>
+        <button
+          class="grid h-9 w-9 place-items-center rounded-full bg-slate-800 text-sm font-bold text-slate-300"
+          title="Kanji meanings on screen"
+          on:click={() => (kanjiSheetOpen = true)}>漢</button>
         <div class="flex gap-1 rounded-full bg-slate-800 p-1 text-xs">
           <button
             class="rounded-full px-3 py-1 {$settings.uiLang === 'en' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
@@ -102,6 +115,7 @@
     <Nav />
     <Toasts />
     <WhatsNew />
+    <KanjiSheet open={kanjiSheetOpen} onClose={() => (kanjiSheetOpen = false)} />
   </div>
 {:else}
   <div class="grid min-h-screen place-items-center text-slate-400">読み込み中…</div>
