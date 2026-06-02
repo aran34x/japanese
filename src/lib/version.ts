@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.13.0';
+export const APP_VERSION = '0.14.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.14.0',
+    date: '2026-06-02',
+    title: { en: 'Kanji X-ray now works everywhere', it: 'I Raggi-X Kanji ora funzionano ovunque' },
+    changes: [
+      { en: 'With 🔍 on, hover (or tap) ANY kanji anywhere in the app to see its reading & meaning.', it: 'Con la 🔍 attiva, passa sopra (o tocca) QUALSIASI kanji ovunque per vederne lettura e significato.' },
+      { en: 'A global lens follows your cursor — no longer limited to stories.', it: 'Una lente globale segue il cursore — non più solo nelle storie.' }
+    ]
+  },
   {
     version: '0.13.0',
     date: '2026-06-02',
