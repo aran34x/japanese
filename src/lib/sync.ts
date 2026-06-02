@@ -3,6 +3,7 @@
 // JSON row per user (last-write-wins), reusing the local backup serialization.
 import { createClient, type SupabaseClient, type Session } from '@supabase/supabase-js';
 import { writable } from 'svelte/store';
+import { db } from './db';
 import { exportBackup, importBackup } from './backup';
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, supabaseConfigured } from './supabase-config';
 
@@ -45,6 +46,35 @@ export async function initSync(): Promise<void> {
   syncConfigured.set(true);
   const { data } = await client.auth.getSession();
   syncSession.set(data.session);
+
+  // Reconcile the local database's "owner" with the current identity so a guest
+  // never inherits a previous account's data (and vice-versa). The owner tag is
+  // stored locally; 'guest' means no account.
+  const currentOwner = data.session?.user?.id ?? 'guest';
+  const storedOwner = (await db.meta.get('dataOwner'))?.value as string | undefined;
+  if (storedOwner !== undefined && storedOwner !== currentOwner) {
+    // Identity changed since this device last ran → reset to a clean slate.
+    await onSignedOut?.();
+    await db.meta.put({ key: 'dataOwner', value: currentOwner });
+    if (currentOwner !== 'guest') {
+      // Signed-in identity: pull their cloud save over the clean slate (pull
+      // reloads the page on success). If there's no cloud save yet, reload to
+      // reflect the cleared state.
+      const had = await pull().catch((e) => {
+        lastSyncError.set(e instanceof Error ? e.message : String(e));
+        syncStatus.set('error');
+        return false;
+      });
+      if (!had) location.reload();
+    } else {
+      // Became a guest with leftover account data → reload the clean slate.
+      location.reload();
+    }
+    return; // page is reloading; stop here
+  } else if (storedOwner === undefined) {
+    await db.meta.put({ key: 'dataOwner', value: currentOwner });
+  }
+
   authReady.set(true);
 
   let prevUserId = data.session?.user?.id ?? null;
@@ -53,21 +83,27 @@ export async function initSync(): Promise<void> {
     syncSession.set(session);
 
     if (event === 'SIGNED_IN' && newUserId && newUserId !== prevUserId) {
-      // A user just signed in → load THEIR cloud data over the local state.
-      void pull().catch((e) => {
-        lastSyncError.set(e instanceof Error ? e.message : String(e));
-        syncStatus.set('error');
-      });
+      void (async () => {
+        await db.meta.put({ key: 'dataOwner', value: newUserId });
+        // Load THEIR cloud data over the local state.
+        await pull().catch((e) => {
+          lastSyncError.set(e instanceof Error ? e.message : String(e));
+          syncStatus.set('error');
+        });
+      })();
     } else if (event === 'SIGNED_OUT') {
       // Logged out → wipe progress so a guest starts clean.
-      void onSignedOut?.();
+      void (async () => {
+        await db.meta.put({ key: 'dataOwner', value: 'guest' });
+        await onSignedOut?.();
+      })();
     }
     prevUserId = newUserId;
   });
 }
 
-// Set by the app so sync can clear local progress on sign-out without a
-// circular import to the game-state module.
+// Set by the app so sync can clear local progress without a circular import to
+// the game-state module. Must NOT reload the page itself (initSync awaits it).
 let onSignedOut: (() => Promise<void>) | null = null;
 export function setSignedOutHandler(fn: () => Promise<void>) {
   onSignedOut = fn;
@@ -102,6 +138,8 @@ export async function resetPassword(email: string): Promise<void> {
 export async function signOut(): Promise<void> {
   if (client) await client.auth.signOut();
   syncSession.set(null);
+  // The SIGNED_OUT handler wipes local data; reload so the UI starts clean.
+  setTimeout(() => location.reload(), 300);
 }
 
 /** Push the local save up to the cloud (overwrites the user's row). */

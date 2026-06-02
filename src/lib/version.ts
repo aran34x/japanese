@@ -14,10 +14,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     version: '0.17.0',
     date: '2026-06-02',
-    title: { en: 'Furigana & kanji meanings now work everywhere', it: 'Furigana e significati kanji ovunque' },
+    title: { en: 'Furigana, kanji meanings & proper account isolation', it: 'Furigana, significati kanji e account separati' },
     changes: [
       { en: 'The ふ button now adds readings above every kanji across the whole app.', it: 'Il pulsante ふ ora aggiunge la lettura sopra ogni kanji in tutta l\'app.' },
-      { en: 'The 漢 button opens a panel listing every kanji on screen with its meaning.', it: 'Il pulsante 漢 apre un pannello con ogni kanji sullo schermo e il suo significato.' }
+      { en: 'The 漢 button opens a panel listing every kanji on screen with its meaning.', it: 'Il pulsante 漢 apre un pannello con ogni kanji sullo schermo e il suo significato.' },
+      { en: 'Fixed: a guest device no longer shows a previous account\'s unlocks/progress.', it: 'Corretto: un dispositivo ospite non mostra più sblocchi/progressi di un account precedente.' }
     ]
   },
   {

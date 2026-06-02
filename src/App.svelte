@@ -33,11 +33,10 @@
     else disableFurigana();
   }
 
-  // When the user signs out, clear local progress so a guest starts clean, then
-  // reload to reset all in-memory stores.
+  // Clear local progress so a guest/other identity starts clean. Called by sync
+  // during startup reconciliation (awaited) and on explicit sign-out.
   setSignedOutHandler(async () => {
     await resetAllProgress();
-    setTimeout(() => location.reload(), 200);
   });
 
   onMount(async () => {
