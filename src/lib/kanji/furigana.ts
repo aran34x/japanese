@@ -49,6 +49,9 @@ function annotate(el: HTMLElement, reading: (k: string) => string) {
     const text = textNode.nodeValue ?? '';
     const span = document.createElement('span');
     span.setAttribute('data-furi', '1');
+    // Store the ORIGINAL text so we can restore it exactly. Restoring via
+    // textContent would include the <rt> readings and corrupt the text.
+    span.setAttribute('data-orig', text);
     for (const ch of text) {
       if (isKanji(ch)) {
         const r = reading(ch);
@@ -75,7 +78,8 @@ function removeAll() {
   const r = root();
   if (!r) return;
   r.querySelectorAll('[data-furi]').forEach((span) => {
-    span.replaceWith(document.createTextNode(span.textContent ?? ''));
+    const orig = span.getAttribute('data-orig') ?? span.textContent ?? '';
+    span.replaceWith(document.createTextNode(orig));
   });
 }
 
@@ -92,6 +96,7 @@ async function run() {
       map.set(k, info?.primary ?? '');
     })
   );
+  if (!enabled) return; // toggled off during the async lookups
   observer?.disconnect();
   annotate(r, (k) => map.get(k) ?? '');
   if (enabled) connect();
