@@ -4,6 +4,7 @@ import { kanaTable } from './kana';
 import { kanjiN5 } from './kanji';
 import { vocab, readings } from './vocab';
 import { phrasesN4 } from './phrases';
+import { daysOfWeek, colors, months, grammar } from './topics';
 
 // Deterministic id helper so re-seeding never duplicates builtin cards.
 const id = (s: string) => s;
@@ -24,7 +25,15 @@ export const BUILTIN_DECKS: Deck[] = [
   deck({ id: 'reading', name: { en: 'Reading', it: 'Lettura' }, category: 'reading', builtin: true,
     description: { en: 'Short sentences to read', it: 'Brevi frasi da leggere' } }),
   deck({ id: 'phrases-n4', name: { en: 'Phrases N4', it: 'Frasi N4' }, category: 'reading', builtin: true,
-    description: { en: 'Advanced everyday sentences', it: 'Frasi quotidiane avanzate' } })
+    description: { en: 'Advanced everyday sentences', it: 'Frasi quotidiane avanzate' } }),
+  deck({ id: 'days', name: { en: 'Days & Time', it: 'Giorni e tempo' }, category: 'vocab', builtin: true,
+    description: { en: 'Days of the week and time words', it: 'Giorni della settimana e parole di tempo' } }),
+  deck({ id: 'colors', name: { en: 'Colors', it: 'Colori' }, category: 'vocab', builtin: true,
+    description: { en: 'Common colors', it: 'Colori comuni' } }),
+  deck({ id: 'months', name: { en: 'Months', it: 'Mesi' }, category: 'vocab', builtin: true,
+    description: { en: 'The twelve months', it: 'I dodici mesi' } }),
+  deck({ id: 'grammar', name: { en: 'Grammar', it: 'Grammatica' }, category: 'reading', builtin: true,
+    description: { en: 'Key sentence patterns (must, should, can…)', it: 'Strutture chiave (dovere, potere…)' } })
 ];
 
 function buildCards(): Card[] {
@@ -75,6 +84,29 @@ function buildCards(): Card[] {
     });
   });
 
+  const topicDecks: [string, typeof daysOfWeek, string][] = [
+    ['days', daysOfWeek, 'days'],
+    ['colors', colors, 'colors'],
+    ['months', months, 'months']
+  ];
+  for (const [deckId, list, tag] of topicDecks) {
+    list.forEach((v, i) => {
+      cards.push({
+        id: id(`${deckId}-${i}`), deckId, category: 'vocab',
+        front: v.word, reading: v.reading, romaji: v.romaji,
+        meaning: { en: v.en, it: v.it }, tags: [tag], order: i
+      });
+    });
+  }
+
+  grammar.forEach((g, i) => {
+    cards.push({
+      id: id(`grammar-${i}`), deckId: 'grammar', category: 'reading',
+      front: g.word, reading: g.reading, romaji: g.romaji,
+      meaning: { en: g.en, it: g.it }, tags: ['grammar'], order: i
+    });
+  });
+
   return cards;
 }
 
@@ -83,7 +115,7 @@ function buildCards(): Card[] {
  * progress, so bumping SEED_VERSION safely adds newly-introduced builtin decks
  * for users who already seeded an earlier version.
  */
-const SEED_VERSION = 2;
+const SEED_VERSION = 3;
 export async function ensureSeeded(): Promise<void> {
   const row = await db.meta.get('seedVersion');
   let current = (row?.value as number) ?? 0;

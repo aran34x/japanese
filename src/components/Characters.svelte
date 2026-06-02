@@ -182,7 +182,7 @@
                 {picked === i && opt.correct ? 'bg-green-600 text-white' : ''}
                 {picked === i && !opt.correct ? 'bg-rose-700 text-white' : ''}
                 {picked !== i ? 'bg-slate-800 active:bg-slate-700' : ''}"
-              on:click={() => answer(i)}>{opt.text}</button>
+              on:click={() => answer(i)}>{opt.text ?? opt[$settings.uiLang]}</button>
           {/each}
         </div>
       </div>

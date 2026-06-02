@@ -143,7 +143,10 @@ export const CHARACTERS_FICTIONAL: FictionalChar[] = [
 
 // ---- Challenge generation (name-reading + franchise) ------------------------
 export interface FChoice {
-  text: string;
+  // Either a fixed `text` (e.g. romaji) or a localized en/it pair.
+  text?: string;
+  en?: string;
+  it?: string;
   correct: boolean;
 }
 export interface FQuestion {
@@ -174,16 +177,18 @@ export function buildCharChallenge(ch: FictionalChar): FQuestion[] {
     ])
   };
 
-  // Q2 — recognise the Japanese spelling of the name (in the original script)
+  // Q2 — a simple comprehension question about who this character is, using
+  // their real fact vs. other characters' facts as distractors.
+  const factWrong = others
+    .filter((o) => o.fact.en !== ch.fact.en)
+    .slice(0, 3)
+    .map((o) => ({ en: o.fact.en, it: o.fact.it, correct: false }));
   const q2: FQuestion = {
     instruction: {
-      en: `Which is "${ch.name}" written in Japanese?`,
-      it: `Qual è "${ch.name}" scritto in giapponese?`
+      en: `Which is true about ${ch.name}?`,
+      it: `Cosa è vero su ${ch.name}?`
     },
-    options: shuffle([
-      { text: ch.ja, correct: true },
-      ...others.slice(0, 3).map((o) => ({ text: o.ja, correct: false }))
-    ])
+    options: shuffle([{ en: ch.fact.en, it: ch.fact.it, correct: true }, ...factWrong])
   };
 
   return [q1, q2];

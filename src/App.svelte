@@ -11,6 +11,7 @@
   import SaveIndicator from './components/SaveIndicator.svelte';
   import Home from './components/Home.svelte';
   import Study from './components/Study.svelte';
+  import Stories from './components/Stories.svelte';
   import Decks from './components/Decks.svelte';
   import Stats from './components/Stats.svelte';
   import SettingsScreen from './components/SettingsScreen.svelte';
@@ -68,6 +69,8 @@
             <Adventure />
           {:else if $route === 'study'}
             <Study />
+          {:else if $route === 'stories'}
+            <Stories />
           {:else if $route === 'decks'}
             <Decks />
           {:else if $route === 'stats'}

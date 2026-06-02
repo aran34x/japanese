@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.11.1';
+export const APP_VERSION = '0.12.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.12.0',
+    date: '2026-06-02',
+    title: { en: 'Story mode + new topic decks', it: 'Modalità storie + nuovi mazzi' },
+    changes: [
+      { en: 'New Story mode: read a simple story, then answer comprehension questions.', it: 'Nuova modalità Storie: leggi una storia semplice, poi rispondi a domande di comprensione.' },
+      { en: 'New decks: Days & Time, Colors, Months, and Grammar patterns (must/should/can…).', it: 'Nuovi mazzi: Giorni e tempo, Colori, Mesi e strutture grammaticali.' },
+      { en: 'Character challenges now ask a real fact about the character, not the name twice.', it: 'Le sfide dei personaggi ora chiedono un fatto reale, non due volte il nome.' },
+      { en: 'Imported Anki decks (e.g. Core 2000) now keep their furigana reading.', it: 'I mazzi Anki importati (es. Core 2000) ora mantengono la lettura furigana.' }
+    ]
+  },
   {
     version: '0.11.0',
     date: '2026-06-01',
