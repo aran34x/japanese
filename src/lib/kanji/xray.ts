@@ -1,16 +1,12 @@
 import { writable } from 'svelte/store';
 import { db } from '../db';
 
-// Global Kanji X-ray toggle. Persisted so it stays on between sessions.
-export const xrayOn = writable(false);
-export const xrayFurigana = writable(true);
+// Furigana display toggle (persisted). When on, kanji show their reading above.
+export const furiganaOn = writable(false);
 
 export async function loadXray() {
-  const on = await db.meta.get('xrayOn');
-  const furi = await db.meta.get('xrayFurigana');
-  if (on?.value !== undefined) xrayOn.set(!!on.value);
-  if (furi?.value !== undefined) xrayFurigana.set(!!furi.value);
+  const f = await db.meta.get('furiganaOn');
+  if (f?.value !== undefined) furiganaOn.set(!!f.value);
 }
 
-xrayOn.subscribe((v) => void db.meta.put({ key: 'xrayOn', value: v }).catch(() => {}));
-xrayFurigana.subscribe((v) => void db.meta.put({ key: 'xrayFurigana', value: v }).catch(() => {}));
+furiganaOn.subscribe((v) => void db.meta.put({ key: 'furiganaOn', value: v }).catch(() => {}));

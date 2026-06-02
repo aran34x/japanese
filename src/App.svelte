@@ -5,7 +5,7 @@
   import { loadSettings } from './lib/stores';
   import { ensureSeeded } from './lib/data/seed';
   import { loadGame } from './lib/game/state';
-  import { loadXray, xrayOn } from './lib/kanji/xray';
+  import { loadXray, furiganaOn } from './lib/kanji/xray';
   import { initSync, authReady, syncSession, syncConfigured } from './lib/sync';
   import AuthGate from './components/AuthGate.svelte';
   import AccountMenu from './components/AccountMenu.svelte';
@@ -20,7 +20,6 @@
   import Adventure from './components/Adventure.svelte';
   import Toasts from './components/Toasts.svelte';
   import WhatsNew from './components/WhatsNew.svelte';
-  import KanjiLens from './components/KanjiLens.svelte';
   import Nav from './components/Nav.svelte';
 
   let skippedAuth = false;
@@ -54,9 +53,9 @@
       <div class="flex items-center gap-2">
         <SaveIndicator />
         <button
-          class="grid h-9 w-9 place-items-center rounded-full text-lg {$xrayOn ? 'bg-pink-500 text-white' : 'bg-slate-800 text-slate-300'}"
-          title="Kanji X-ray"
-          on:click={() => xrayOn.update((v) => !v)}>🔍</button>
+          class="grid h-9 w-9 place-items-center rounded-full text-sm font-bold {$furiganaOn ? 'bg-pink-500 text-white' : 'bg-slate-800 text-slate-300'}"
+          title="Furigana"
+          on:click={() => furiganaOn.update((v) => !v)}>ふ</button>
         <div class="flex gap-1 rounded-full bg-slate-800 p-1 text-xs">
           <button
             class="rounded-full px-3 py-1 {$settings.uiLang === 'en' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
@@ -96,7 +95,6 @@
     <Nav />
     <Toasts />
     <WhatsNew />
-    <KanjiLens />
   </div>
 {:else}
   <div class="grid min-h-screen place-items-center text-slate-400">読み込み中…</div>

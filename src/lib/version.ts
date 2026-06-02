@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.14.0';
+export const APP_VERSION = '0.15.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.15.0',
+    date: '2026-06-02',
+    title: { en: 'Furigana toggle & hidden story translations', it: 'Interruttore furigana e traduzioni nascoste' },
+    changes: [
+      { en: 'Replaced the magnifying lens with a simple ふ button to show/hide furigana above kanji.', it: 'Sostituita la lente con un semplice pulsante ふ per mostrare/nascondere la furigana.' },
+      { en: 'In stories, a 漢 button per line lists all kanji meanings beside the text.', it: 'Nelle storie, un pulsante 漢 per riga elenca i significati dei kanji accanto al testo.' },
+      { en: 'Story translations are now hidden until you tap "Show translation".', it: 'Le traduzioni delle storie sono nascoste finché non tocchi "Mostra traduzione".' }
+    ]
+  },
   {
     version: '0.14.0',
     date: '2026-06-02',
