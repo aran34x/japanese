@@ -5,6 +5,7 @@
   import { loadSettings } from './lib/stores';
   import { ensureSeeded } from './lib/data/seed';
   import { loadGame } from './lib/game/state';
+  import { loadXray, xrayOn } from './lib/kanji/xray';
   import { initSync, authReady, syncSession, syncConfigured } from './lib/sync';
   import AuthGate from './components/AuthGate.svelte';
   import AccountMenu from './components/AccountMenu.svelte';
@@ -27,6 +28,7 @@
     await loadSettings();
     await ensureSeeded();
     await loadGame();
+    await loadXray();
     ready.set(true);
     // Initialise cloud sync (resolves the session and sets authReady).
     void initSync();
@@ -50,6 +52,10 @@
       </button>
       <div class="flex items-center gap-2">
         <SaveIndicator />
+        <button
+          class="grid h-9 w-9 place-items-center rounded-full text-lg {$xrayOn ? 'bg-pink-500 text-white' : 'bg-slate-800 text-slate-300'}"
+          title="Kanji X-ray"
+          on:click={() => xrayOn.update((v) => !v)}>🔍</button>
         <div class="flex gap-1 rounded-full bg-slate-800 p-1 text-xs">
           <button
             class="rounded-full px-3 py-1 {$settings.uiLang === 'en' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"

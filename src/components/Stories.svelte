@@ -3,6 +3,7 @@
   import { STORIES, type Story } from '../lib/data/stories';
   import { speakJa } from '../lib/speech';
   import { confetti } from '../lib/confetti';
+  import KanjiText from './KanjiText.svelte';
   import { fly, scale } from 'svelte/transition';
 
   type View = 'list' | 'read' | 'quiz' | 'done';
@@ -79,7 +80,7 @@
           class="block w-full rounded-xl bg-slate-800 p-4 text-left active:bg-slate-700"
           on:click={() => speakJa(line.reading)}
         >
-          <div class="font-jp text-lg">{line.jp}</div>
+          <div class="font-jp"><KanjiText text={line.jp} size="text-lg" /></div>
           <div class="mt-1 text-xs text-pink-300">{line.reading}</div>
           <div class="mt-1 text-sm text-slate-400">{$settings.uiLang === 'it' ? line.it : line.en}</div>
         </button>
