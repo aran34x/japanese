@@ -100,7 +100,33 @@ export const strings: Dict = {
   skip: { en: 'Skip', it: 'Salta' },
   go: { en: 'GO!', it: 'VIA!' },
   timeUp: { en: "Time's up!", it: 'Tempo scaduto!' },
-  earnedAch: { en: 'Achievement unlocked', it: 'Obiettivo sbloccato' }
+  earnedAch: { en: 'Achievement unlocked', it: 'Obiettivo sbloccato' },
+
+  // Icons / Characters (real & fictional figures)
+  openWikipedia: { en: 'Open on Wikipedia', it: 'Apri su Wikipedia' },
+  replayChallenge: { en: 'Replay challenge', it: 'Rigioca la sfida' },
+  takeChallenge: { en: 'Take the challenge', it: 'Affronta la sfida' },
+  miniLesson: { en: 'Mini-lesson', it: 'Mini-lezione' },
+  gotItRetry: { en: 'Got it — retry', it: 'Ho capito — riprova' },
+  unlocked: { en: 'Unlocked!', it: 'Sbloccato!' },
+  viewBio: { en: 'View bio', it: 'Vedi bio' },
+  replay: { en: 'Replay', it: 'Rigioca' },
+  iconsIntro: {
+    en: 'Challenge real figures of Japanese culture. Photos & bios live from Wikipedia.',
+    it: 'Sfida figure reali della cultura giapponese. Foto e bio dal vivo da Wikipedia.'
+  },
+  iconsLockedHint: {
+    en: 'Beat the challenge to reveal the photo and biography.',
+    it: 'Supera la sfida per svelare la foto e la biografia.'
+  },
+  charsIntro: {
+    en: 'Fictional characters: read their real Japanese names. Live bios from Wikipedia (no copyrighted art).',
+    it: 'Personaggi di fantasia: leggi i loro nomi giapponesi reali. Bio dal vivo da Wikipedia (niente immagini protette).'
+  },
+  charsLockedHint: {
+    en: 'Read the Japanese name to unlock the character and its bio.',
+    it: 'Leggi il nome giapponese per sbloccare il personaggio e la sua bio.'
+  }
 };
 
 export function translate(key: string, lang: Lang): string {
