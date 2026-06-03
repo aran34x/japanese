@@ -102,7 +102,7 @@
     <div class="text-center">
       <div class="text-5xl">{isDone(story.id) ? story.emoji : '📕'}</div>
       <h2 class="mt-2 font-jp text-2xl font-bold">{story.titleJp}</h2>
-      <div class="text-sm text-slate-400">{story.title[$settings.uiLang]} · {story.level}</div>
+      <div class="text-sm text-slate-400">{isDone(story.id) ? story.title[$settings.uiLang] + ' · ' : ''}{story.level}</div>
     </div>
     <div class="space-y-3">
       {#each story.lines as line, i}

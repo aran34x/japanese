@@ -4,6 +4,7 @@
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
   import Backdrop from './Backdrop.svelte';
+  import { checkForUpdates } from '../lib/sw-update';
 
   let open = false;
   let busy = false;
@@ -31,6 +32,16 @@
 
   const doSignOut = () => act(async () => { await signOut(); open = false; }, '');
 
+  let updateLabel = '🔄 Check for updates';
+  async function doCheckUpdates() {
+    updateLabel = '⟳ Checking…';
+    checkForUpdates();
+    await new Promise((r) => setTimeout(r, 1500));
+    updateLabel = '✓ Up to date';
+    await new Promise((r) => setTimeout(r, 2000));
+    updateLabel = '🔄 Check for updates';
+  }
+
   function toggleTheme() {
     settings.update((s) => ({ ...s, theme: s.theme === 'dark' ? 'light' : 'dark' }));
   }
@@ -54,7 +65,7 @@
   {#if open}
     <Backdrop onClose={close} />
     <div
-      class="absolute right-0 top-11 z-50 w-64 rounded-2xl bg-slate-800 p-3 shadow-2xl ring-1 ring-slate-700"
+      class="absolute right-0 top-11 z-[200] w-64 rounded-2xl bg-slate-800 p-3 shadow-2xl ring-1 ring-slate-700"
       transition:fly={{ y: -8, duration: 160 }}
     >
       <!-- Language -->
@@ -113,6 +124,10 @@
           → {$t('signIn')}
         </button>
       {/if}
+
+      <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-xs text-slate-400 hover:bg-slate-700" on:click={doCheckUpdates}>
+        {updateLabel}
+      </button>
 
       {#if msg}<div class="mt-1 px-2 text-xs text-pink-300">{msg}</div>{/if}
     </div>

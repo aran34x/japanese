@@ -217,10 +217,15 @@
   </section>
 {:else if phase === 'running' && current}
   <section class="space-y-4">
-    <div class="h-2 overflow-hidden rounded-full bg-slate-800">
-      <div class="h-full bg-gradient-to-r from-pink-400 to-indigo-400 transition-all" style="width:{progress}%"></div>
+    <div class="flex items-center gap-3">
+      <button class="text-xs text-slate-500 hover:text-slate-300 active:scale-95" on:click={() => (phase = 'menu')}>
+        ← {$t('back')}
+      </button>
+      <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-800">
+        <div class="h-full bg-gradient-to-r from-pink-400 to-indigo-400 transition-all" style="width:{progress}%"></div>
+      </div>
+      <div class="text-xs text-slate-500">{index + 1} / {queue.length}</div>
     </div>
-    <div class="text-center text-xs text-slate-500">{index + 1} / {queue.length}</div>
 
     {#key index}
       <div in:fly={{ y: 16, duration: 180 }}>

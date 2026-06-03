@@ -1,5 +1,6 @@
 <script lang="ts">
   import { route, navigate, t } from '../lib/stores';
+  import { UI } from '../lib/ui-config';
   const items = [
     { id: 'home', icon: '🏠', key: 'home' },
     { id: 'adventure', icon: '⚔️', key: 'adventure' },
@@ -13,7 +14,7 @@
   <div class="grid grid-cols-5">
     {#each items as item}
       <button
-        class="flex flex-col items-center gap-0.5 py-2 text-xs transition-colors {$route === item.id
+        class="flex flex-col items-center gap-0.5 {UI.navItemPad} text-xs transition-colors {$route === item.id
           ? 'text-pink-400'
           : 'text-slate-400'}"
         on:click={() => navigate(item.id)}

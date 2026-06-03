@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import { ready, route, navigate, t, settings } from './lib/stores';
+  import { UI } from './lib/ui-config';
   import { loadSettings } from './lib/stores';
   import { ensureSeeded } from './lib/data/seed';
   import { loadGame, resetAllProgress } from './lib/game/state';
@@ -19,6 +20,7 @@
   import Stats from './components/Stats.svelte';
   import SettingsScreen from './components/SettingsScreen.svelte';
   import { ensureAnkiDecks } from './lib/data/anki-seed';
+  import { checkForUpdates } from './lib/sw-update';
   import Adventure from './components/Adventure.svelte';
   import Toasts from './components/Toasts.svelte';
   import WhatsNew from './components/WhatsNew.svelte';
@@ -54,6 +56,8 @@
     void ensureAnkiDecks();
     // Initialise cloud sync (resolves the session and sets authReady).
     void initSync();
+    // Check for a new app version silently on every launch.
+    void checkForUpdates();
   });
 
   // Show the login gate on startup until the user logs in or chooses to skip.
@@ -67,7 +71,7 @@
 {:else if $ready}
   <div class="mx-auto flex min-h-screen max-w-2xl flex-col lg:max-w-5xl">
     <header class="fixed inset-x-0 top-0 z-50 border-b border-slate-800 bg-slate-900/95 backdrop-blur">
-      <div class="mx-auto flex max-w-2xl items-center justify-between px-4 py-3 lg:max-w-5xl">
+      <div class="mx-auto flex max-w-2xl items-center justify-between px-4 {UI.topbarPadding} lg:max-w-5xl">
         <button
           class="grid h-9 w-9 place-items-center rounded-full bg-slate-800 text-lg"
           title="Home"
@@ -87,7 +91,7 @@
       </div>
     </header>
 
-    <main class="flex-1 px-4 pb-24 pt-16">
+    <main class="flex-1 px-4 pb-24 {UI.mainTopPad}">
       {#key $route}
         <div in:fade={{ duration: 220, delay: 60 }} out:fade={{ duration: 100 }}>
           {#if $route === 'adventure'}

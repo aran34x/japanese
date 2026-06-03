@@ -30,7 +30,7 @@
     { id: 'quest' as Tab, label: $t('adventure') },
     { id: 'icons' as Tab, label: $t('icons') },
     { id: 'characters' as Tab, label: $t('charactersTab') },
-    { id: 'collection' as Tab, label: $t('collection') },
+    { id: 'collection' as Tab, label: $t('heroes') },
     { id: 'achievements' as Tab, label: $t('achievements') }
   ];
 
@@ -48,6 +48,13 @@
   function onDone(e: CustomEvent<{ xp: number }>) {
     lastXp = e.detail.xp;
     view = 'result';
+  }
+
+  function onImgError(e: Event) {
+    const img = e.currentTarget as HTMLImageElement;
+    img.style.display = 'none';
+    const fallback = img.nextElementSibling as HTMLElement | null;
+    if (fallback) fallback.style.display = 'grid';
   }
 </script>
 
@@ -163,8 +170,18 @@
       {#each ACHIEVEMENTS as a}
         {@const earned = $game.achievements.includes(a.id)}
         <div class="flex items-center gap-3 rounded-xl p-3 {earned ? 'bg-amber-500/15' : 'bg-slate-800 opacity-60'}">
-          <div class="grid h-11 w-11 place-items-center rounded-xl bg-slate-900 text-2xl {earned ? '' : 'grayscale'}">
-            {earned ? a.icon : '🔒'}
+          <div class="h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-slate-900 {earned ? '' : 'grayscale'}">
+            {#if earned && a.imageUrl}
+              <img
+                src={a.imageUrl}
+                alt={a.name.en}
+                class="h-full w-full object-cover"
+                on:error={onImgError}
+              />
+              <div class="hidden h-full w-full place-items-center text-2xl">{a.icon}</div>
+            {:else}
+              <div class="grid h-full w-full place-items-center text-2xl">{earned ? a.icon : '🔒'}</div>
+            {/if}
           </div>
           <div class="flex-1">
             <div class="text-sm font-semibold {earned ? 'text-amber-300' : 'text-slate-400'}">{a.name[$settings.uiLang]}</div>

@@ -1,12 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { t, navigate } from '../lib/stores';
+  import { t, navigate, settings } from '../lib/stores';
   import { deckCounts } from '../lib/session';
+  import { game, characterForXp, nextUnlock } from '../lib/game/state';
+  import CharacterPortrait from './CharacterPortrait.svelte';
 
   let counts = { due: 0, new: 0, learning: 0, total: 0 };
   onMount(async () => {
     counts = await deckCounts([]);
   });
+
+  $: cur = characterForXp($game.xp);
+  $: nx = nextUnlock($game.xp);
 </script>
 
 <section class="space-y-6">
@@ -35,16 +40,34 @@
     </button>
   </div>
 
+  <!-- Level / Adventure card -->
   <button
-    class="flex w-full items-center gap-4 rounded-2xl bg-gradient-to-r from-pink-600 to-amber-500 p-4 text-left shadow-lg active:scale-[0.98]"
+    class="w-full rounded-2xl bg-slate-800 p-4 text-left shadow-lg active:scale-[0.98]"
     on:click={() => navigate('adventure')}
   >
-    <span class="text-4xl">⚔️</span>
-    <span class="flex-1">
-      <span class="block text-lg font-bold">{$t('adventure')}</span>
-      <span class="block text-sm text-pink-100">Level up · unlock heroes · battle bosses</span>
-    </span>
-    <span class="text-2xl">›</span>
+    <div class="flex items-center gap-4">
+      <div class="shrink-0">
+        <CharacterPortrait character={cur.character} size={64} glow={false} />
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-baseline justify-between">
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">{$t('level')} {cur.index + 1}</div>
+          <div class="text-xs text-slate-500">{Math.round($game.xp).toLocaleString()} XP</div>
+        </div>
+        <div class="text-lg font-black leading-tight">{cur.character.name}</div>
+        <div class="text-sm text-pink-300">{cur.character.title[$settings.uiLang]}</div>
+        <!-- XP progress bar -->
+        <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-700">
+          <div class="h-full rounded-full bg-gradient-to-r from-pink-400 to-amber-300 transition-all" style="width:{nx.progress * 100}%"></div>
+        </div>
+        {#if nx.next}
+          {@const xpLeft = Math.ceil(nx.next.xpRequired - $game.xp)}
+          <div class="mt-1 text-xs text-slate-500">{xpLeft.toLocaleString()} XP {$t('toNextHero')} ???</div>
+        {:else}
+          <div class="mt-1 text-xs text-amber-400">✦ {$t('level')} max</div>
+        {/if}
+      </div>
+    </div>
   </button>
 
   <div>
@@ -69,10 +92,4 @@
     </div>
   </div>
 
-  <button
-    class="w-full rounded-xl border border-dashed border-slate-600 py-3 text-slate-300 active:scale-[0.98]"
-    on:click={() => navigate('import')}
-  >
-    ⬆ {$t('importTitle')}
-  </button>
 </section>

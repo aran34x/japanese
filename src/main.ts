@@ -1,6 +1,7 @@
 import './app.css';
 import App from './App.svelte';
 import { registerSW } from 'virtual:pwa-register';
+import { registerUpdateTrigger } from './lib/sw-update';
 
 // Auto-update: register the service worker and, whenever a new version is
 // available, activate it and reload so the user always gets the latest build
@@ -12,6 +13,8 @@ const updateSW = registerSW({
     updateSW(true);
   }
 });
+
+registerUpdateTrigger(() => updateSW());
 
 // Also proactively check for updates every time the tab becomes visible again
 // (e.g. reopening the installed PWA from the Android home screen).

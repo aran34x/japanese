@@ -14,55 +14,63 @@ html, body {
   color: #e2e8f0;
   font-family: 'Noto Sans JP', system-ui, -apple-system, sans-serif;
   -webkit-tap-highlight-color: transparent;
+  /* Disable pull-to-refresh on PWA */
+  overscroll-behavior-y: contain;
 }
 
-/* ── Light mode (Japan flag: white + red) ──────────────────────── */
+/* ── Light mode — soft, warm, low-contrast ─────────────────────── */
+/* Inspired by iOS: warm off-white bg, muted indigo accents, no harsh red */
 :root.light {
   color-scheme: light;
 }
 
 :root.light body {
-  background: #ffffff;
-  color: #0f172a;
+  background: #f2f2f7;   /* iOS system background — warm light gray */
+  color: #1c1c1e;        /* iOS label — near-black, not pure black */
 }
 
 /* Surfaces */
-:root.light .bg-slate-950  { background-color: #f8fafc; }
-:root.light .bg-slate-900  { background-color: #f1f5f9; }
-:root.light .bg-slate-800  { background-color: #ffffff; }
-:root.light .bg-slate-700  { background-color: #f1f5f9; }
+:root.light .bg-slate-950  { background-color: #f2f2f7; }
+:root.light .bg-slate-900  { background-color: #f2f2f7; }
+:root.light .bg-slate-800  { background-color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+:root.light .bg-slate-700  { background-color: #e5e5ea; }
 
 /* Opacity-modified backgrounds (header, nav) */
-:root.light .bg-slate-900\/95 { background-color: rgba(255,255,255,0.95); }
+:root.light .bg-slate-900\/95 { background-color: rgba(242,242,247,0.95); }
 
 /* Text */
-:root.light .text-slate-400 { color: #64748b; }
-:root.light .text-slate-300 { color: #374151; }
-:root.light .text-slate-200 { color: #1f2937; }
-:root.light .text-white     { color: #0f172a; }
+:root.light .text-slate-400 { color: #8e8e93; }   /* iOS secondary label */
+:root.light .text-slate-300 { color: #48484a; }   /* iOS tertiary label */
+:root.light .text-slate-200 { color: #1c1c1e; }
+:root.light .text-slate-500 { color: #aeaeb2; }   /* iOS quaternary label */
+/* text-white is intentionally NOT overridden — it's used for contrast on
+   colored backgrounds (gradient cards, buttons) and must stay white. */
 
-/* Borders & rings */
-:root.light .border-slate-800  { border-color: #e2e8f0; }
-:root.light .border-slate-700  { border-color: #cbd5e1; }
-:root.light .ring-slate-700    { --tw-ring-color: #cbd5e1; }
+/* Borders */
+:root.light .border-slate-800  { border-color: rgba(60,60,67,0.13); }
+:root.light .border-slate-700  { border-color: rgba(60,60,67,0.09); }
+:root.light .ring-slate-700    { --tw-ring-color: rgba(60,60,67,0.15); }
 
-/* Japan red accents */
-:root.light .bg-indigo-500  { background-color: #BC002D; }
-:root.light .bg-indigo-600  { background-color: #9B0024; }
-:root.light .text-pink-400  { color: #BC002D; }
-:root.light .text-pink-300  { color: #BC002D; }
-:root.light .text-indigo-300{ color: #BC002D; }
-:root.light .bg-pink-500    { background-color: #BC002D; }
-:root.light .text-green-400 { color: #15803d; }
-:root.light .text-rose-400  { color: #be123c; }
-:root.light .text-rose-300  { color: #be123c; }
-:root.light .bg-rose-700    { background-color: #be123c; }
-:root.light .focus\:ring-pink-500:focus { --tw-ring-color: #BC002D; }
-:root.light .bg-green-900\/40  { background-color: rgba(187,247,208,0.5); }
-:root.light .text-green-300    { color: #15803d; }
-:root.light .bg-rose-900\/40   { background-color: rgba(255,228,230,0.5); }
-:root.light .text-rose-300     { color: #be123c; }
-:root.light .accent-pink-500   { accent-color: #BC002D; }
+/* Muted indigo accents (not harsh red) */
+:root.light .bg-indigo-500  { background-color: #5856d6; }   /* iOS indigo */
+:root.light .bg-indigo-600  { background-color: #4845b8; }
+:root.light .text-pink-400  { color: #5856d6; }
+:root.light .text-pink-300  { color: #5856d6; }
+:root.light .text-indigo-300{ color: #5856d6; }
+:root.light .bg-pink-500    { background-color: #5856d6; }
+:root.light .text-amber-300 { color: #d97706; }
+:root.light .text-amber-400 { color: #b45309; }
+:root.light .bg-amber-500\/15 { background-color: rgba(245,158,11,0.1); }
+:root.light .text-green-400 { color: #16a34a; }
+:root.light .text-green-300 { color: #16a34a; }
+:root.light .bg-green-900\/40  { background-color: rgba(187,247,208,0.6); }
+:root.light .text-rose-400  { color: #e11d48; }
+:root.light .text-rose-300  { color: #e11d48; }
+:root.light .bg-rose-700    { background-color: #e11d48; }
+:root.light .bg-rose-900\/40   { background-color: rgba(255,228,230,0.7); }
+/* text-indigo-200 not overridden — used as light label inside colored gradient cards */
+:root.light .focus\:ring-pink-500:focus { --tw-ring-color: #5856d6; }
+:root.light .accent-pink-500 { accent-color: #5856d6; }
 
 /* ── Shared ────────────────────────────────────────────────────── */
 #app {

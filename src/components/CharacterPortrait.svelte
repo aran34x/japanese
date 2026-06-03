@@ -4,6 +4,9 @@
   export let locked = false;
   export let size = 160;
   export let glow = true;
+
+  let imgFailed = false;
+  $: useImage = !locked && !!character.imageUrl && !imgFailed;
 </script>
 
 <div
@@ -16,20 +19,39 @@
       style="background:{character.color};opacity:0.25"
     ></div>
   {/if}
-  <svg
-    viewBox="0 0 100 100"
-    class="relative z-10 h-full w-full {locked ? 'silhouette' : ''}"
-    style={locked ? '' : `filter: drop-shadow(0 4px 12px ${character.color}55)`}
-  >
-    {@html character.svg}
-  </svg>
+
+  {#if useImage}
+    <!-- Wikipedia photo clipped to circle with colour-matched ring -->
+    <div
+      class="relative z-10 overflow-hidden rounded-full"
+      style="width:{size}px;height:{size}px;
+             outline:2px solid {character.color}66;
+             box-shadow:0 4px 20px {character.color}55"
+    >
+      <img
+        src={character.imageUrl}
+        alt={character.name}
+        class="h-full w-full object-cover"
+        on:error={() => (imgFailed = true)}
+      />
+    </div>
+  {:else}
+    <!-- SVG: used for locked silhouette OR as fallback when image fails -->
+    <svg
+      viewBox="0 0 100 100"
+      class="relative z-10 h-full w-full {locked ? 'silhouette' : ''}"
+      style={locked ? '' : `filter: drop-shadow(0 4px 12px ${character.color}55)`}
+    >
+      {@html character.svg}
+    </svg>
+  {/if}
+
   {#if locked}
     <div class="absolute z-20 text-3xl font-black text-slate-300/70">?</div>
   {/if}
 </div>
 
 <style>
-  /* Turn any colored SVG into a clean dark silhouette. */
   .silhouette {
     filter: brightness(0) saturate(0);
     opacity: 0.45;

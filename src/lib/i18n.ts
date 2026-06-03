@@ -79,6 +79,7 @@ export const strings: Dict = {
 
   adventure: { en: 'Adventure', it: 'Avventura' },
   collection: { en: 'Collection', it: 'Collezione' },
+  heroes: { en: 'Heroes', it: 'Eroi' },
   achievements: { en: 'Achievements', it: 'Obiettivi' },
   icons: { en: 'Icons', it: 'Icone' },
   charactersTab: { en: 'Characters', it: 'Personaggi' },
