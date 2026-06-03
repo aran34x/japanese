@@ -79,11 +79,7 @@
 
 {#if view === 'grid'}
   <section in:fly={{ y: 12, duration: 180 }}>
-    <p class="mb-3 text-sm text-slate-400">
-      {$settings.uiLang === 'it'
-        ? 'Personaggi di fantasia: leggi i loro nomi giapponesi reali. Bio dal vivo da Wikipedia (niente immagini protette).'
-        : 'Fictional characters: read their real Japanese names. Live bios from Wikipedia (no copyrighted art).'}
-    </p>
+    <p class="mb-3 text-sm text-slate-400">{$t('charsIntro')}</p>
     <div class="mb-4 flex flex-wrap gap-2">
       {#each franchises as f}
         <button
@@ -139,21 +135,17 @@
       <p class="rounded-xl bg-amber-500/10 p-3 text-sm text-amber-200">💡 {ch.fact[$settings.uiLang]}</p>
       {#if bio?.pageUrl}
         <a href={bio.pageUrl} target="_blank" rel="noopener" class="block text-center text-sm text-sky-400 underline">
-          {$settings.uiLang === 'it' ? 'Apri su Wikipedia' : 'Open on Wikipedia'} ↗
+          {$t('openWikipedia')} ↗
         </a>
       {/if}
       <button class="w-full rounded-xl bg-slate-700 py-3 font-semibold" on:click={startChallenge}>
-        ↺ {$settings.uiLang === 'it' ? 'Rigioca' : 'Replay'}
+        ↺ {$t('replay')}
       </button>
     {:else}
-      <p class="text-center text-sm text-slate-400">
-        {$settings.uiLang === 'it'
-          ? 'Leggi il nome giapponese per sbloccare il personaggio e la sua bio.'
-          : 'Read the Japanese name to unlock the character and its bio.'}
-      </p>
+      <p class="text-center text-sm text-slate-400">{$t('charsLockedHint')}</p>
       <button
         class="w-full rounded-xl bg-gradient-to-r from-pink-500 to-indigo-500 py-3 text-lg font-bold active:scale-[0.98]"
-        on:click={startChallenge}>⚔ {$settings.uiLang === 'it' ? 'Affronta la sfida' : 'Take the challenge'}</button>
+        on:click={startChallenge}>⚔ {$t('takeChallenge')}</button>
     {/if}
   </section>
 
@@ -190,7 +182,7 @@
 
     {#if showLesson && lesson}
       <div in:scale={{ start: 0.9, duration: 200 }} class="rounded-2xl border border-amber-500/30 bg-slate-900 p-4">
-        <div class="mb-2 font-bold text-amber-300">📖 {$settings.uiLang === 'it' ? 'Mini-lezione' : 'Mini-lesson'}</div>
+        <div class="mb-2 font-bold text-amber-300">📖 {$t('miniLesson')}</div>
         {#each lesson.vocab as v}
           <div class="flex items-center gap-3 rounded-lg bg-slate-800 px-3 py-2">
             <span class="font-jp text-xl">{v.jp}</span>
@@ -200,7 +192,7 @@
         {/each}
         <p class="mt-3 text-sm italic text-slate-400">{lesson.tip[$settings.uiLang]}</p>
         <button class="mt-3 w-full rounded-xl bg-indigo-500 py-2 font-semibold" on:click={retry}>
-          {$settings.uiLang === 'it' ? 'Ho capito — riprova' : 'Got it — retry'}
+          {$t('gotItRetry')}
         </button>
       </div>
     {/if}
@@ -213,11 +205,11 @@
     <div class="text-xl font-black">{ch.name}</div>
     <div class="font-jp text-pink-300">{ch.ja}</div>
     <div class="mt-1 text-sm text-slate-400">
-      {$settings.uiLang === 'it' ? 'Sbloccato!' : 'Unlocked!'} +{ch.xp} XP
+      {$t('unlocked')} +{ch.xp} XP
     </div>
     <div class="mt-5 flex gap-3">
       <button class="rounded-xl bg-indigo-500 px-5 py-3 font-semibold" on:click={() => ch && openDetail(ch)}>
-        {$settings.uiLang === 'it' ? 'Vedi bio' : 'View bio'}
+        {$t('viewBio')}
       </button>
       <button class="rounded-xl bg-slate-700 px-5 py-3 font-semibold" on:click={() => (view = 'grid')}>{$t('back')}</button>
     </div>

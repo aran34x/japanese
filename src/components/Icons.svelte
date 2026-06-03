@@ -91,9 +91,7 @@
 {#if view === 'grid'}
   <section in:fly={{ y: 12, duration: 180 }}>
     <p class="mb-3 text-sm text-slate-400">
-      {$settings.uiLang === 'it'
-        ? 'Sfida figure reali della cultura giapponese. Foto e bio dal vivo da Wikipedia.'
-        : 'Challenge real figures of Japanese culture. Photos & bios live from Wikipedia.'}
+      {$t('iconsIntro')}
     </p>
     <div class="mb-4 flex flex-wrap gap-2">
       {#each cats as c}
@@ -144,21 +142,19 @@
       {/if}
       {#if bio?.pageUrl}
         <a href={bio.pageUrl} target="_blank" rel="noopener" class="block text-center text-sm text-sky-400 underline">
-          {$settings.uiLang === 'it' ? 'Apri su Wikipedia' : 'Open on Wikipedia'} ↗
+          {$t('openWikipedia')} ↗
         </a>
       {/if}
       <button class="w-full rounded-xl bg-slate-700 py-3 font-semibold" on:click={startChallenge}>
-        ↺ {$settings.uiLang === 'it' ? 'Rigioca la sfida' : 'Replay challenge'}
+        ↺ {$t('replayChallenge')}
       </button>
     {:else}
       <p class="text-center text-sm text-slate-400">
-        {$settings.uiLang === 'it'
-          ? 'Supera la sfida per svelare la foto e la biografia.'
-          : 'Beat the challenge to reveal the photo and biography.'}
+        {$t('iconsLockedHint')}
       </p>
       <button
         class="w-full rounded-xl bg-gradient-to-r from-pink-500 to-indigo-500 py-3 text-lg font-bold active:scale-[0.98]"
-        on:click={startChallenge}>⚔ {$settings.uiLang === 'it' ? 'Affronta la sfida' : 'Take the challenge'}</button>
+        on:click={startChallenge}>⚔ {$t('takeChallenge')}</button>
     {/if}
   </section>
 
@@ -196,7 +192,7 @@
     {#if showLesson && lesson}
       <div in:scale={{ start: 0.9, duration: 200 }} class="rounded-2xl border border-amber-500/30 bg-slate-900 p-4">
         <div class="mb-2 font-bold text-amber-300">
-          📖 {$settings.uiLang === 'it' ? 'Mini-lezione' : 'Mini-lesson'}
+          📖 {$t('miniLesson')}
         </div>
         <div class="space-y-2">
           {#each lesson.vocab as v}
@@ -209,7 +205,7 @@
         </div>
         <p class="mt-3 text-sm italic text-slate-400">{lesson.tip[$settings.uiLang]}</p>
         <button class="mt-3 w-full rounded-xl bg-indigo-500 py-2 font-semibold" on:click={retry}>
-          {$settings.uiLang === 'it' ? 'Ho capito — riprova' : 'Got it — retry'}
+          {$t('gotItRetry')}
         </button>
       </div>
     {/if}
@@ -222,11 +218,11 @@
     <div class="text-xl font-black">{person.name}</div>
     <div class="font-jp text-pink-300">{person.ja}</div>
     <div class="mt-1 text-sm text-slate-400">
-      {$settings.uiLang === 'it' ? 'Sbloccato!' : 'Unlocked!'} +{person.xp} XP
+      {$t('unlocked')} +{person.xp} XP
     </div>
     <div class="mt-5 flex gap-3">
       <button class="rounded-xl bg-indigo-500 px-5 py-3 font-semibold" on:click={() => person && openDetail(person)}>
-        {$settings.uiLang === 'it' ? 'Vedi bio' : 'View bio'}
+        {$t('viewBio')}
       </button>
       <button class="rounded-xl bg-slate-700 px-5 py-3 font-semibold" on:click={() => (view = 'grid')}>
         {$t('back')}
