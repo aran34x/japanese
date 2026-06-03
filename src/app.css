@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Dark mode (default) ───────────────────────────────────────── */
 :root {
   color-scheme: dark;
 }
 
-html,
-body {
+html, body {
   margin: 0;
   height: 100%;
   background: #0f172a;
@@ -16,11 +16,59 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* ── Light mode (Japan flag: white + red) ──────────────────────── */
+:root.light {
+  color-scheme: light;
+}
+
+:root.light body {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+/* Surfaces */
+:root.light .bg-slate-950  { background-color: #f8fafc; }
+:root.light .bg-slate-900  { background-color: #f1f5f9; }
+:root.light .bg-slate-800  { background-color: #ffffff; }
+:root.light .bg-slate-700  { background-color: #f1f5f9; }
+
+/* Opacity-modified backgrounds (header, nav) */
+:root.light .bg-slate-900\/95 { background-color: rgba(255,255,255,0.95); }
+
+/* Text */
+:root.light .text-slate-400 { color: #64748b; }
+:root.light .text-slate-300 { color: #374151; }
+:root.light .text-slate-200 { color: #1f2937; }
+:root.light .text-white     { color: #0f172a; }
+
+/* Borders & rings */
+:root.light .border-slate-800  { border-color: #e2e8f0; }
+:root.light .border-slate-700  { border-color: #cbd5e1; }
+:root.light .ring-slate-700    { --tw-ring-color: #cbd5e1; }
+
+/* Japan red accents */
+:root.light .bg-indigo-500  { background-color: #BC002D; }
+:root.light .bg-indigo-600  { background-color: #9B0024; }
+:root.light .text-pink-400  { color: #BC002D; }
+:root.light .text-pink-300  { color: #BC002D; }
+:root.light .text-indigo-300{ color: #BC002D; }
+:root.light .bg-pink-500    { background-color: #BC002D; }
+:root.light .text-green-400 { color: #15803d; }
+:root.light .text-rose-400  { color: #be123c; }
+:root.light .text-rose-300  { color: #be123c; }
+:root.light .bg-rose-700    { background-color: #be123c; }
+:root.light .focus\:ring-pink-500:focus { --tw-ring-color: #BC002D; }
+:root.light .bg-green-900\/40  { background-color: rgba(187,247,208,0.5); }
+:root.light .text-green-300    { color: #15803d; }
+:root.light .bg-rose-900\/40   { background-color: rgba(255,228,230,0.5); }
+:root.light .text-rose-300     { color: #be123c; }
+:root.light .accent-pink-500   { accent-color: #BC002D; }
+
+/* ── Shared ────────────────────────────────────────────────────── */
 #app {
   min-height: 100%;
 }
 
-/* Smooth, game-like button feedback */
 button {
   touch-action: manipulation;
 }

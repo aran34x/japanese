@@ -33,6 +33,11 @@
     else disableFurigana();
   }
 
+  // Apply theme class to <html> so CSS variables switch.
+  $: if (typeof document !== 'undefined') {
+    document.documentElement.classList.toggle('light', $settings.theme === 'light');
+  }
+
   // Clear local progress so a guest/other identity starts clean. Called by sync
   // during startup reconciliation (awaited) and on explicit sign-out.
   setSignedOutHandler(async () => {
@@ -61,35 +66,28 @@
   <AuthGate on:done={() => (skippedAuth = true)} />
 {:else if $ready}
   <div class="mx-auto flex min-h-screen max-w-2xl flex-col lg:max-w-5xl">
-    <header class="flex items-center justify-between px-4 pb-2 pt-4">
-      <button class="text-left" on:click={() => navigate('home')}>
-        <h1 class="bg-gradient-to-r from-pink-400 to-indigo-400 bg-clip-text text-2xl font-bold text-transparent">
-          日本語 · {$t('appName')}
-        </h1>
-      </button>
-      <div class="flex items-center gap-2">
-        <SaveIndicator />
+    <header class="fixed inset-x-0 top-0 z-50 border-b border-slate-800 bg-slate-900/95 backdrop-blur">
+      <div class="mx-auto flex max-w-2xl items-center justify-between px-4 py-3 lg:max-w-5xl">
         <button
-          class="grid h-9 w-9 place-items-center rounded-full text-sm font-bold {$furiganaOn ? 'bg-pink-500 text-white' : 'bg-slate-800 text-slate-300'}"
-          title="Furigana"
-          on:click={() => furiganaOn.update((v) => !v)}>ふ</button>
-        <button
-          class="grid h-9 w-9 place-items-center rounded-full bg-slate-800 text-sm font-bold text-slate-300"
-          title="Kanji meanings on screen"
-          on:click={() => (kanjiSheetOpen = true)}>漢</button>
-        <div class="flex gap-1 rounded-full bg-slate-800 p-1 text-xs">
+          class="grid h-9 w-9 place-items-center rounded-full bg-slate-800 text-lg"
+          title="Home"
+          on:click={() => navigate('home')}>🏠</button>
+        <div class="flex items-center gap-2">
+          <SaveIndicator />
           <button
-            class="rounded-full px-3 py-1 {$settings.uiLang === 'en' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
-            on:click={() => settings.update((s) => ({ ...s, uiLang: 'en' }))}>EN</button>
+            class="grid h-9 w-9 place-items-center rounded-full text-sm font-bold {$furiganaOn ? 'bg-pink-500 text-white' : 'bg-slate-800 text-slate-300'}"
+            title="Furigana"
+            on:click={() => furiganaOn.update((v) => !v)}>ふ</button>
           <button
-            class="rounded-full px-3 py-1 {$settings.uiLang === 'it' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
-            on:click={() => settings.update((s) => ({ ...s, uiLang: 'it' }))}>IT</button>
+            class="grid h-9 w-9 place-items-center rounded-full bg-slate-800 text-sm font-bold text-slate-300"
+            title="Kanji meanings on screen"
+            on:click={() => (kanjiSheetOpen = true)}>🔍</button>
+          <AccountMenu />
         </div>
-        <AccountMenu />
       </div>
     </header>
 
-    <main class="flex-1 px-4 pb-24">
+    <main class="flex-1 px-4 pb-24 pt-16">
       {#key $route}
         <div in:fade={{ duration: 220, delay: 60 }} out:fade={{ duration: 100 }}>
           {#if $route === 'adventure'}

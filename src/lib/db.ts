@@ -31,7 +31,8 @@ export const DEFAULT_SETTINGS: Settings = {
   meaningLangs: ['en', 'it'],
   newPerDay: 20,
   autoAudio: true,
-  showRomaji: true
+  showRomaji: true,
+  theme: 'dark'
 };
 
 export async function getSettings(): Promise<Settings> {

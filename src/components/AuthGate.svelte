@@ -122,7 +122,7 @@
       <button
         type="submit"
         disabled={busy || !validEmail || !validPw}
-        class="w-full rounded-xl bg-gradient-to-r from-pink-500 to-indigo-500 py-3 text-lg font-bold active:scale-[0.98] disabled:opacity-40"
+        class="w-full rounded-xl bg-indigo-600 py-3 text-lg font-bold active:scale-[0.98] disabled:opacity-40"
       >
         {busy ? '…' : mode === 'signup' ? $t('createAccount') : $t('logIn')}
       </button>

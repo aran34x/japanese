@@ -124,4 +124,5 @@ export interface Settings {
   /** Play audio automatically when available. */
   autoAudio: boolean;
   showRomaji: boolean;
+  theme: 'dark' | 'light';
 }
