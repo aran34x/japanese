@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t, settings } from '../lib/stores';
+  import { translate } from '../lib/i18n';
   import type { Lang } from '../lib/types';
   import { APP_VERSION } from '../lib/version';
   import { resetAllProgress } from '../lib/game/state';
@@ -10,7 +11,7 @@
   async function doReset() {
     await resetAllProgress();
     confirmReset = false;
-    resetMsg = $settings.uiLang === 'it' ? 'Progressi azzerati.' : 'Progress reset to zero.';
+    resetMsg = translate('progressReset', $settings.uiLang);
   }
 
   const langOptions: { code: Lang; label: string }[] = [
@@ -76,25 +77,19 @@
   <CloudSync />
 
   <div class="rounded-2xl border border-rose-900/40 bg-slate-800 p-4">
-    <div class="mb-1 text-sm font-medium text-rose-300">
-      {$settings.uiLang === 'it' ? 'Zona pericolosa' : 'Danger zone'}
-    </div>
-    <p class="mb-3 text-xs text-slate-400">
-      {$settings.uiLang === 'it'
-        ? 'Azzera tutti i progressi: cronologia di studio (SRS), XP, livelli, sblocchi e obiettivi. I mazzi e le impostazioni restano.'
-        : 'Reset all progress: study history (SRS), XP, levels, unlocks and achievements. Your decks and settings are kept.'}
-    </p>
+    <div class="mb-1 text-sm font-medium text-rose-300">{$t('dangerZone')}</div>
+    <p class="mb-3 text-xs text-slate-400">{$t('dangerZoneDesc')}</p>
     {#if !confirmReset}
       <button class="w-full rounded-lg bg-rose-900/50 py-2 text-sm font-semibold text-rose-200" on:click={() => (confirmReset = true)}>
-        ↺ {$settings.uiLang === 'it' ? 'Azzera i progressi' : 'Reset progress'}
+        ↺ {$t('resetProgress')}
       </button>
     {:else}
       <div class="flex gap-2">
         <button class="flex-1 rounded-lg bg-rose-600 py-2 text-sm font-bold text-white" on:click={doReset}>
-          {$settings.uiLang === 'it' ? 'Sì, azzera tutto' : 'Yes, reset everything'}
+          {$t('resetConfirm')}
         </button>
         <button class="flex-1 rounded-lg bg-slate-700 py-2 text-sm font-semibold" on:click={() => (confirmReset = false)}>
-          {$settings.uiLang === 'it' ? 'Annulla' : 'Cancel'}
+          {$t('cancel')}
         </button>
       </div>
     {/if}

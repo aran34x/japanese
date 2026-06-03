@@ -10,7 +10,6 @@
   type View = 'list' | 'read' | 'quiz' | 'done';
   let view: View = 'list';
   let story: Story | null = null;
-  const it = () => $settings.uiLang === 'it';
 
   $: isDone = (id: string) => $game.storiesDone.includes(id);
 
@@ -56,16 +55,12 @@
 
 {#if view === 'list'}
   <section in:fly={{ y: 12, duration: 180 }} class="space-y-3">
-    <p class="text-sm text-slate-400">
-      {it()
-        ? 'Leggi una storia, poi rispondi alle domande. Le storie diventano più difficili.'
-        : 'Read a story, then answer the questions. Stories get progressively harder.'}
-    </p>
+    <p class="text-sm text-slate-400">{$t('storiesIntro')}</p>
 
     <!-- Stamp album -->
     <div class="rounded-2xl bg-slate-800 p-4">
       <div class="mb-2 text-sm font-semibold">
-        🏅 {it() ? 'Album dei timbri' : 'Stamp album'}
+        🏅 {$t('stampAlbum')}
         <span class="text-xs text-slate-400">{passedCount}/{STORIES.length}</span>
       </div>
       <div class="flex flex-wrap gap-2">
@@ -92,7 +87,7 @@
         <span class="min-w-0 flex-1">
           <span class="block font-jp text-base font-semibold">{s.titleJp}</span>
           <span class="block text-xs text-slate-400">
-            {s.level} · {s.lines.length} {it() ? 'frasi' : 'lines'} · {s.questions.length} Q
+            {s.level} · {s.lines.length} {$t('lines')} · {s.questions.length} Q
             {#if isDone(s.id)}· ✓{/if}
           </span>
         </span>
@@ -126,7 +121,7 @@
             <button
               class="mt-2 text-xs text-slate-500 underline"
               on:click={() => (showTrans = { ...showTrans, [i]: true })}
-            >{it() ? 'Mostra traduzione' : 'Show translation'}</button>
+            >{$t('showTranslation')}</button>
           {/if}
         </div>
       {/each}
@@ -134,7 +129,7 @@
     <button
       class="w-full rounded-xl bg-gradient-to-r from-pink-500 to-indigo-500 py-3 text-lg font-bold active:scale-[0.98]"
       on:click={startQuiz}
-    >📝 {it() ? 'Rispondi alle domande' : 'Answer the questions'}</button>
+    >📝 {$t('answerQuestions')}</button>
   </section>
 
 {:else if view === 'quiz' && story}
@@ -173,25 +168,25 @@
         {story.emoji}
       </div>
       <div class="mt-3 text-sm font-bold text-amber-300">
-        🏅 {it() ? 'Timbro ottenuto!' : 'Stamp earned!'}
+        🏅 {$t('stampEarned')}
       </div>
     {:else}
       <div class="text-6xl">📖</div>
     {/if}
     <h2 class="mt-2 text-xl font-bold">
-      {correctCount}/{story.questions.length} {it() ? 'corrette' : 'correct'}
+      {correctCount}/{story.questions.length} {$t('correctCount')}
     </h2>
     {#if !passed}
       <p class="mt-1 text-sm text-slate-400">
-        {it() ? 'Riprova per ottenere il timbro!' : 'Try again to earn the stamp!'}
+        {$t('tryAgainStamp')}
       </p>
     {/if}
     <div class="mt-5 flex gap-3">
       <button class="rounded-xl bg-indigo-500 px-5 py-3 font-semibold" on:click={() => { if (story) open(story); }}>
-        {it() ? 'Rileggi' : 'Read again'}
+        {$t('readAgain')}
       </button>
       <button class="rounded-xl bg-slate-700 px-5 py-3 font-semibold" on:click={() => (view = 'list')}>
-        {it() ? 'Altre storie' : 'More stories'}
+        {$t('moreStories')}
       </button>
     </div>
   </section>

@@ -126,6 +126,77 @@ export const strings: Dict = {
   charsLockedHint: {
     en: 'Read the Japanese name to unlock the character and its bio.',
     it: 'Leggi il nome giapponese per sbloccare il personaggio e la sua bio.'
+  },
+
+  // Settings — danger zone
+  dangerZone: { en: 'Danger zone', it: 'Zona pericolosa' },
+  dangerZoneDesc: {
+    en: 'Reset all progress: study history (SRS), XP, levels, unlocks and achievements. Your decks and settings are kept.',
+    it: 'Azzera tutti i progressi: cronologia di studio (SRS), XP, livelli, sblocchi e obiettivi. I mazzi e le impostazioni restano.'
+  },
+  resetProgress: { en: 'Reset progress', it: 'Azzera i progressi' },
+  resetConfirm: { en: 'Yes, reset everything', it: 'Sì, azzera tutto' },
+  cancel: { en: 'Cancel', it: 'Annulla' },
+  progressReset: { en: 'Progress reset to zero.', it: 'Progressi azzerati.' },
+
+  // Study — select all
+  selectAll: { en: 'Select all', it: 'Seleziona tutto' },
+  unselectAll: { en: 'Unselect all', it: 'Deseleziona tutto' },
+  lines: { en: 'lines', it: 'frasi' },
+
+  // What's new popup
+  whatsNew: { en: "What's new", it: 'Novità' },
+  gotIt: { en: 'Got it!', it: 'Fantastico!' },
+
+  // Stories
+  stampAlbum: { en: 'Stamp album', it: 'Album dei timbri' },
+  stampEarned: { en: 'Stamp earned!', it: 'Timbro ottenuto!' },
+  showTranslation: { en: 'Show translation', it: 'Mostra traduzione' },
+  answerQuestions: { en: 'Answer the questions', it: 'Rispondi alle domande' },
+  correctCount: { en: 'correct', it: 'corrette' },
+  tryAgainStamp: { en: 'Try again to earn the stamp!', it: 'Riprova per ottenere il timbro!' },
+  readAgain: { en: 'Read again', it: 'Rileggi' },
+  moreStories: { en: 'More stories', it: 'Altre storie' },
+
+  // Kanji sheet
+  kanjiOnScreen: { en: 'Kanji on screen', it: 'Kanji sullo schermo' },
+  noKanji: { en: 'No kanji on screen.', it: 'Nessun kanji sullo schermo.' },
+  kunLabel: { en: 'kun (native):', it: 'kun (nativo):' },
+  onLabel: { en: 'on (Chinese):', it: 'on (cinese):' },
+  meaningLabel: { en: 'meaning:', it: 'significato:' },
+
+  // Auth / cloud sync
+  cloudSync: { en: 'Cloud sync', it: 'Sincronizzazione cloud' },
+  on: { en: 'on', it: 'attivo' },
+  syncUnavailable: { en: 'Sync not available yet.', it: 'Sincronizzazione non ancora disponibile.' },
+  logIn: { en: 'Log in', it: 'Accedi' },
+  signUp: { en: 'Sign up', it: 'Registrati' },
+  signIn: { en: 'Sign in', it: 'Accedi' },
+  signOut: { en: 'Sign out', it: 'Esci' },
+  createAccount: { en: 'Create account', it: 'Crea account' },
+  accountCreated: { en: 'Account created.', it: 'Account creato.' },
+  loggedIn: { en: 'Logged in.', it: 'Accesso effettuato.' },
+  confirmEmailThenLogin: { en: 'Confirm your email, then log in.', it: 'Conferma la tua email, poi accedi.' },
+  syncError: { en: 'Sync error', it: 'Errore di sincronizzazione' },
+  syncing: { en: 'Syncing…', it: 'Sincronizzazione…' },
+  allSaved: { en: 'All changes saved automatically', it: 'Tutto salvato automaticamente' },
+  autoSaved: { en: 'Auto-saved', it: 'Salvato automaticamente' },
+  settingsLabel: { en: 'Settings', it: 'Impostazioni' },
+  enterEmailFirst: { en: 'Enter your email first.', it: 'Inserisci prima la tua email.' },
+  resetEmailSent: { en: 'Password reset email sent.', it: 'Email di reset inviata.' },
+  invalidCredentials: { en: 'Invalid email or password.', it: 'Email o password non validi.' },
+  alreadyRegistered: { en: 'Email already registered. Log in.', it: 'Email già registrata. Accedi.' },
+  loginToSave: { en: 'Log in to save your progress everywhere', it: 'Accedi per salvare i progressi ovunque' },
+  rememberMe: { en: 'Remember me on this device', it: 'Ricordami su questo dispositivo' },
+  forgotPassword: { en: 'Forgot password?', it: 'Password dimenticata?' },
+  continueWithout: { en: 'Continue without an account →', it: 'Continua senza account →' },
+  confirmEmailSent: {
+    en: "We've sent a confirmation email. Confirm it, then log in.",
+    it: "Ti abbiamo inviato un'email di conferma. Confermala, poi accedi."
+  },
+  storiesIntro: {
+    en: 'Read a story, then answer the questions. Stories get progressively harder.',
+    it: 'Leggi una storia, poi rispondi alle domande. Le storie diventano più difficili.'
   }
 };
 

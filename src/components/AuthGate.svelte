@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { settings } from '../lib/stores';
+  import { settings, t } from '../lib/stores';
+  import { translate } from '../lib/i18n';
   import {
     signInWithPassword,
     signUpWithPassword,
@@ -12,7 +13,7 @@
   import { fly } from 'svelte/transition';
 
   const dispatch = createEventDispatcher<{ done: void }>();
-  const it = () => $settings.uiLang === 'it';
+  const tr = (k: string) => translate(k, $settings.uiLang);
 
   type Mode = 'login' | 'signup';
   let mode: Mode = 'login';
@@ -40,9 +41,7 @@
       if (mode === 'signup') {
         const r = await signUpWithPassword(email.trim(), password);
         if (r === 'confirm-email') {
-          msg = it()
-            ? 'Ti abbiamo inviato un\'email di conferma. Confermala, poi accedi.'
-            : "We've sent a confirmation email. Confirm it, then log in.";
+          msg = tr('confirmEmailSent');
           mode = 'login';
         } else {
           dispatch('done');
@@ -60,14 +59,14 @@
 
   async function forgot() {
     if (!validEmail) {
-      msg = it() ? 'Inserisci prima la tua email.' : 'Enter your email first.';
+      msg = tr('enterEmailFirst');
       return;
     }
     busy = true;
     msg = '';
     try {
       await resetPassword(email.trim());
-      msg = it() ? 'Email di reset inviata.' : 'Password reset email sent.';
+      msg = tr('resetEmailSent');
     } catch (e) {
       msg = e instanceof Error ? e.message : String(e);
     } finally {
@@ -76,10 +75,8 @@
   }
 
   function friendly(m: string): string {
-    if (/invalid login/i.test(m))
-      return it() ? 'Email o password non validi.' : 'Invalid email or password.';
-    if (/already registered/i.test(m))
-      return it() ? 'Email già registrata. Accedi.' : 'Email already registered. Log in.';
+    if (/invalid login/i.test(m)) return tr('invalidCredentials');
+    if (/already registered/i.test(m)) return tr('alreadyRegistered');
     return m;
   }
 </script>
@@ -91,18 +88,16 @@
         <span class="bg-gradient-to-r from-pink-400 to-indigo-400 bg-clip-text text-transparent">日本語</span>
       </div>
       <div class="mt-1 text-lg font-bold">Nihongo Quest</div>
-      <p class="mt-1 text-sm text-slate-400">
-        {it() ? 'Accedi per salvare i progressi ovunque' : 'Log in to save your progress everywhere'}
-      </p>
+      <p class="mt-1 text-sm text-slate-400">{$t('loginToSave')}</p>
     </div>
 
     <div class="mb-4 flex gap-1 rounded-full bg-slate-800 p-1 text-sm">
       <button
         class="flex-1 rounded-full py-2 font-medium {mode === 'login' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
-        on:click={() => { mode = 'login'; msg = ''; }}>{it() ? 'Accedi' : 'Log in'}</button>
+        on:click={() => { mode = 'login'; msg = ''; }}>{$t('logIn')}</button>
       <button
         class="flex-1 rounded-full py-2 font-medium {mode === 'signup' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
-        on:click={() => { mode = 'signup'; msg = ''; }}>{it() ? 'Registrati' : 'Sign up'}</button>
+        on:click={() => { mode = 'signup'; msg = ''; }}>{$t('signUp')}</button>
     </div>
 
     <form on:submit|preventDefault={submit} class="space-y-3">
@@ -117,32 +112,32 @@
         bind:value={password}
         type="password"
         autocomplete={mode === 'signup' ? 'new-password' : 'current-password'}
-        placeholder={it() ? 'Password (min 6)' : 'Password (min 6)'}
+        placeholder="Password (min 6)"
         class="w-full rounded-xl bg-slate-800 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-500"
       />
       <label class="flex items-center gap-2 px-1 text-sm text-slate-300">
         <input type="checkbox" bind:checked={remember} on:change={onRemember} class="h-4 w-4 accent-pink-500" />
-        {it() ? 'Ricordami su questo dispositivo' : 'Remember me on this device'}
+        {$t('rememberMe')}
       </label>
       <button
         type="submit"
         disabled={busy || !validEmail || !validPw}
         class="w-full rounded-xl bg-gradient-to-r from-pink-500 to-indigo-500 py-3 text-lg font-bold active:scale-[0.98] disabled:opacity-40"
       >
-        {busy ? '…' : mode === 'signup' ? (it() ? 'Crea account' : 'Create account') : (it() ? 'Accedi' : 'Log in')}
+        {busy ? '…' : mode === 'signup' ? $t('createAccount') : $t('logIn')}
       </button>
     </form>
 
     {#if mode === 'login'}
       <button class="mt-3 w-full text-center text-xs text-slate-500 underline" on:click={forgot}>
-        {it() ? 'Password dimenticata?' : 'Forgot password?'}
+        {$t('forgotPassword')}
       </button>
     {/if}
 
     {#if msg}<div class="mt-3 rounded-lg bg-slate-800 p-3 text-center text-sm text-pink-300">{msg}</div>{/if}
 
     <button class="mt-6 w-full text-center text-sm text-slate-400 underline" on:click={() => dispatch('done')}>
-      {it() ? 'Continua senza account →' : 'Continue without an account →'}
+      {$t('continueWithout')}
     </button>
   </div>
 </div>

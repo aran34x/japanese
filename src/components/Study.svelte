@@ -184,9 +184,7 @@
     <div class="flex items-center justify-between">
       <h2 class="text-lg font-semibold">{$t('chooseDeck')}</h2>
       <button class="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-pink-300" on:click={toggleAll}>
-        {allSelected
-          ? ($settings.uiLang === 'it' ? 'Deseleziona tutto' : 'Unselect all')
-          : ($settings.uiLang === 'it' ? 'Seleziona tutto' : 'Select all')}
+        {allSelected ? $t('unselectAll') : $t('selectAll')}
       </button>
     </div>
     <div class="space-y-2">

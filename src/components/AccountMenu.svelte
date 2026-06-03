@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { settings, navigate } from '../lib/stores';
+  import { navigate, t } from '../lib/stores';
   import { syncSession, syncConfigured, signOut, syncStatus, initSync } from '../lib/sync';
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
@@ -7,7 +7,6 @@
   let open = false;
   let busy = false;
   let msg = '';
-  const it = () => $settings.uiLang === 'it';
 
   onMount(initSync);
 
@@ -45,7 +44,7 @@
     <button
       class="rounded-full bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200"
       on:click={() => navigate('settings')}
-    >{it() ? 'Accedi' : 'Sign in'}</button>
+    >{$t('signIn')}</button>
   {/if}
 
   {#if open}
@@ -60,20 +59,20 @@
         <div class="min-w-0">
           <div class="truncate text-sm font-semibold">{email}</div>
           {#if $syncStatus === 'error'}
-            <div class="text-xs text-rose-400">⚠ {it() ? 'Errore sync' : 'Sync error'}</div>
+            <div class="text-xs text-rose-400">⚠ {$t('syncError')}</div>
           {:else if $syncStatus === 'pushing' || $syncStatus === 'pulling'}
-            <div class="text-xs text-slate-400">⟳ {it() ? 'Sincronizzazione…' : 'Syncing…'}</div>
+            <div class="text-xs text-slate-400">⟳ {$t('syncing')}</div>
           {:else}
-            <div class="text-xs text-green-400">● {it() ? 'Salvato automaticamente' : 'Auto-saved'}</div>
+            <div class="text-xs text-green-400">● {$t('autoSaved')}</div>
           {/if}
         </div>
       </div>
 
       <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-700" on:click={() => { navigate('settings'); close(); }}>
-        ⚙️ {it() ? 'Impostazioni' : 'Settings'}
+        ⚙️ {$t('settingsLabel')}
       </button>
       <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-rose-300 hover:bg-slate-700 disabled:opacity-50" disabled={busy} on:click={doSignOut}>
-        ⎋ {it() ? 'Esci' : 'Sign out'}
+        ⎋ {$t('signOut')}
       </button>
       {#if msg}<div class="mt-1 px-2 text-xs text-pink-300">{msg}</div>{/if}
     </div>
