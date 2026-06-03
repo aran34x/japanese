@@ -26,8 +26,8 @@
 
   async function loadMedia() {
     revoke();
-    audioUrl = await mediaUrl(card.audioId);
-    imageUrl = await mediaUrl(card.imageId);
+    audioUrl = card.audioUrl ?? await mediaUrl(card.audioId);
+    imageUrl = card.imageUrl ?? await mediaUrl(card.imageId);
   }
   function revoke() {
     if (audioUrl) URL.revokeObjectURL(audioUrl);

@@ -26,10 +26,14 @@ export interface Card {
   meaning: Partial<Record<Lang, string>>;
   /** Free-form notes / example sentence per language. */
   notes?: Partial<Record<Lang, string>>;
-  /** Optional media references (ids into the media store). */
+  /** Optional media references (ids into the media store, for user-imported blobs). */
   audioId?: string;
   imageId?: string;
   videoId?: string;
+  /** Direct URLs for Supabase-hosted media (built-in Anki decks). Preferred over blob IDs. */
+  audioUrl?: string;
+  imageUrl?: string;
+  videoUrl?: string;
   /** Tags for filtering (e.g. "jlpt-n5", "greetings"). */
   tags: string[];
   /** Ordering hint within a deck. */

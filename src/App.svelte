@@ -18,7 +18,7 @@
   import Decks from './components/Decks.svelte';
   import Stats from './components/Stats.svelte';
   import SettingsScreen from './components/SettingsScreen.svelte';
-  import ImportScreen from './components/ImportScreen.svelte';
+  import { ensureAnkiDecks } from './lib/data/anki-seed';
   import Adventure from './components/Adventure.svelte';
   import Toasts from './components/Toasts.svelte';
   import WhatsNew from './components/WhatsNew.svelte';
@@ -45,6 +45,8 @@
     await loadGame();
     await loadXray();
     ready.set(true);
+    // Seed built-in Anki decks in background (fetches JSON + media URLs from Supabase).
+    void ensureAnkiDecks();
     // Initialise cloud sync (resolves the session and sets authReady).
     void initSync();
   });
@@ -102,8 +104,6 @@
             <Stats />
           {:else if $route === 'settings'}
             <SettingsScreen />
-          {:else if $route === 'import'}
-            <ImportScreen />
           {:else}
             <Home />
           {/if}
