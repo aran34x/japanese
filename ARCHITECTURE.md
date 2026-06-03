@@ -87,28 +87,27 @@ To add a story: append an object to `STORIES`. No other change needed.
 
 ---
 
-## 4. GAME CONTENT — `src/lib/game/` (heroes, people, characters, quests)
+## 4. GAME CONTENT & LOGIC — `src/lib/data/game/` + `src/lib/game/`
 
-These mix **content data** with a little generation logic. When you reorganize,
-the data arrays are the parts to pull out.
+The big roster arrays now live as **pure data** in `src/lib/data/game/`, and the
+matching `src/lib/game/` module keeps the generation/helper logic and re-exports
+the data (so existing imports keep working).
 
-| File | Content (data) | Logic it also contains |
-|------|----------------|------------------------|
-| `characters.ts` | `CHARACTERS[]` — the original SVG hero ladder (Mochi-chan → Amaterasu), drawn as inline SVG | `characterForXp`, `nextUnlock` |
-| `people.ts` | `PEOPLE[]` — real Japanese figures (musicians, directors, etc.) + `ROLES` + `CATEGORY_META` | `buildPersonChallenge`, `buildPersonLesson` |
-| `fictional.ts` | `CHARACTERS_FICTIONAL[]` — pop-culture characters + `FRANCHISE_META` | `buildCharChallenge`, `buildCharLesson` |
-| `achievements.ts` | `ACHIEVEMENTS[]` — badge definitions + unlock tests | `newlyEarned` |
-| `encounters.ts` | `BOSSES[]` + encounter definitions | `rollEncounter` |
-| `tracks.ts` | `HOSTS[]` + `TRACK_META` — Music/Anime/Videogame cultural hosts & facts | — |
-| `state.ts` | — | **The game-state engine**: XP, levels, unlocks, achievements, streaks, stories; `mutateGame`, `markStoryDone`, `unlockPerson`, `unlockFictional`, `resetAllProgress`, debounced cloud push |
+| Data file (`data/game/`) | Logic file (`game/`) | Content / logic |
+|--------------------------|----------------------|-----------------|
+| `characters.ts` — `CHARACTERS[]`, the original SVG hero ladder (Mochi-chan → Amaterasu) + `GameCharacter` type | `characters.ts` | `characterForXp`, `nextUnlock` |
+| `people.ts` — `PEOPLE[]` real figures + `ROLES`, `CATEGORY_META`, types | `people.ts` | `buildPersonChallenge`, `buildPersonLesson` |
+| `fictional.ts` — `CHARACTERS_FICTIONAL[]` + `FRANCHISE_META`, types | `fictional.ts` | `buildCharChallenge`, `buildCharLesson` |
+| — | `achievements.ts` | `ACHIEVEMENTS[]` + `newlyEarned` (still combined; small) |
+| — | `encounters.ts` | `BOSSES[]` + `rollEncounter` (still combined; small) |
+| — | `tracks.ts` | `HOSTS[]` + `TRACK_META` — pure data, no logic |
+| — | `state.ts` | **The game-state engine**: XP, levels, unlocks, achievements, streaks, stories; `mutateGame`, `markStoryDone`, `unlockPerson`, `unlockFictional`, `resetAllProgress`, debounced cloud push |
+
+To **edit roster content**, change the arrays in `src/lib/data/game/`. To change
+how challenges are generated, edit the matching `src/lib/game/` file.
 
 `state.ts` is the **single source of truth** for all gamification progress
 (`GameState`). It persists to IndexedDB and triggers cloud sync.
-
-> **Future split suggestion:** move the `*[]` data arrays from
-> `characters/people/fictional/achievements/encounters/tracks` into a
-> `data/game/` folder, leaving the `build*`/helper functions behind. The data
-> shapes are already isolated at the top of each file.
 
 ---
 
