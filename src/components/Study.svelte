@@ -3,10 +3,11 @@
   import { t, settings } from '../lib/stores';
   import { db } from '../lib/db';
   import { buildQueue, type QueueItem } from '../lib/session';
-  import { makeExercise, normalize } from '../lib/exercises/generator';
+  import { makeExercise } from '../lib/exercises/generator';
   import { schedule, previewInterval } from '../lib/srs';
   import type { Deck, Exercise, ExerciseKind, Grade } from '../lib/types';
   import Flashcard from './Flashcard.svelte';
+  import QuizQuestion from './QuizQuestion.svelte';
   import { fly, fade } from 'svelte/transition';
   import { confetti } from '../lib/confetti';
   import { markSaving, markSaved } from '../lib/saveStatus';
@@ -30,9 +31,6 @@
   let pool: Exercise['card'][] = [];
   let index = 0;
   let current: Exercise | null = null;
-  let answered = false;
-  let lastCorrect = false;
-  let typed = '';
   let sessionStats = { reviewed: 0, correct: 0 };
 
   onMount(async () => {
@@ -112,8 +110,6 @@
   }
 
   function loadCurrent() {
-    answered = false;
-    typed = '';
     const item = queue[index];
     current = makeExercise(item.card, pool, $settings.meaningLangs, kindForMode(item.card));
   }
@@ -140,28 +136,18 @@
     loadCurrent();
   }
 
-  function onCorrect() {
-    confetti();
-    // Auto-advance shortly after a correct answer.
-    setTimeout(() => continueAfterAnswer(), 750);
-  }
-
-  function answerMcq(correct: boolean) {
-    if (answered) return;
-    answered = true;
+  // QuizQuestion reports the result. Correct → confetti + auto-advance; wrong →
+  // wait for the user to tap Next (continueAfterAnswer).
+  let lastCorrect = false;
+  function onAnswer(correct: boolean) {
     lastCorrect = correct;
-    if (correct) onCorrect();
+    if (correct) {
+      confetti();
+      setTimeout(() => continueAfterAnswer(), 750);
+    }
   }
 
-  function checkTyped() {
-    if (answered || !current) return;
-    answered = true;
-    const ans = normalize(typed);
-    lastCorrect = (current.answers ?? []).some((a) => a === ans);
-    if (lastCorrect) onCorrect();
-  }
-
-  // For auto/quiz/typing we auto-map correctness to a grade then continue.
+  // Map correctness to an SRS grade and continue.
   async function continueAfterAnswer() {
     await grade(lastCorrect ? 'good' : 'again');
   }
@@ -242,60 +228,34 @@
       <div in:fly={{ y: 16, duration: 180 }}>
         {#if current.kind === 'flashcard'}
           <Flashcard exercise={current} on:grade={(e) => grade(e.detail)} />
-        {:else if current.kind.startsWith('mcq')}
-          <div class="rounded-2xl bg-slate-800 p-6 text-center">
-            <div class="mb-1 text-xs uppercase tracking-wide text-slate-500">
-              {$t(current.instructionKey || 'meaning')}
-            </div>
-            <div class="py-6 font-jp text-5xl">{current.prompt}</div>
-          </div>
-          <div class="mt-3 grid gap-2">
-            {#each current.options ?? [] as opt}
-              <button
-                disabled={answered}
-                class="rounded-xl px-4 py-3 text-left text-lg transition-colors
-                  {answered && opt.correct ? 'bg-green-600' : ''}
-                  {answered && !opt.correct ? 'bg-slate-800 opacity-50' : ''}
-                  {!answered ? 'bg-slate-800 active:bg-slate-700' : ''}"
-                on:click={() => answerMcq(opt.correct)}>{opt.text}</button>
-            {/each}
-          </div>
         {:else}
-          <!-- typing -->
-          <div class="rounded-2xl bg-slate-800 p-6 text-center">
-            <div class="mb-1 text-xs uppercase tracking-wide text-slate-500">
-              {$t(current.instructionKey || 'meaning')}
-            </div>
-            <div class="py-6 font-jp text-5xl">{current.prompt}</div>
-          </div>
-          <input
-            bind:value={typed}
-            disabled={answered}
-            placeholder={$t('typeAnswer')}
-            on:keydown={(e) => e.key === 'Enter' && checkTyped()}
-            class="mt-3 w-full rounded-xl bg-slate-800 px-4 py-3 text-lg outline-none focus:ring-2 focus:ring-pink-500" />
-          {#if !answered}
-            <button class="mt-2 w-full rounded-xl bg-indigo-500 py-3 font-semibold" on:click={checkTyped}>
-              {$t('check')}
-            </button>
-          {/if}
-        {/if}
-
-        {#if answered && current.kind !== 'flashcard'}
-          <div class="mt-4 rounded-xl p-4 text-center {lastCorrect ? 'bg-green-900/40' : 'bg-rose-900/40'}">
-            <div class="font-semibold {lastCorrect ? 'text-green-400' : 'text-rose-400'}">
-              {lastCorrect ? '✓ ' + $t('correct') : '✗ ' + $t('incorrect')}
-            </div>
-            <div class="mt-1 text-sm text-slate-300">
-              {current.card.front} — {current.card.reading ?? ''}
-              {#if current.card.meaning[$settings.uiLang]}· {current.card.meaning[$settings.uiLang]}{/if}
-            </div>
-            {#if !lastCorrect}
-              <button class="mt-3 w-full rounded-xl bg-slate-700 py-2 font-medium" on:click={continueAfterAnswer}>
-                {$t('next')} →
-              </button>
+          <QuizQuestion
+            prompt={current.prompt}
+            instruction={$t(current.instructionKey || 'meaning')}
+            options={current.options ? current.options.map((o) => ({ label: o.text, correct: o.correct })) : null}
+            answers={current.answers ?? []}
+            speakText={current.card.reading || current.card.front}
+            on:answer={(e) => onAnswer(e.detail.correct)}
+            let:answered
+            let:correct
+          >
+            {#if answered}
+              <div class="mt-4 rounded-xl p-4 text-center {correct ? 'bg-green-900/40' : 'bg-rose-900/40'}">
+                <div class="font-semibold {correct ? 'text-green-400' : 'text-rose-400'}">
+                  {correct ? '✓ ' + $t('correct') : '✗ ' + $t('incorrect')}
+                </div>
+                <div class="mt-1 text-sm text-slate-300">
+                  {current.card.front} — {current.card.reading ?? ''}
+                  {#if current.card.meaning[$settings.uiLang]}· {current.card.meaning[$settings.uiLang]}{/if}
+                </div>
+                {#if !correct}
+                  <button class="mt-3 w-full rounded-xl bg-slate-700 py-2 font-medium" on:click={continueAfterAnswer}>
+                    {$t('next')} →
+                  </button>
+                {/if}
+              </div>
             {/if}
-          </div>
+          </QuizQuestion>
         {/if}
       </div>
     {/key}
