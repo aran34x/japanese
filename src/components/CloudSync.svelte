@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { settings } from '../lib/stores';
+  import { settings, t } from '../lib/stores';
+  import { translate } from '../lib/i18n';
   import {
     initSync,
     signInWithPassword,
@@ -17,7 +18,6 @@
   let email = '';
   let password = '';
   let mode: 'login' | 'signup' = 'login';
-  const it = () => $settings.uiLang === 'it';
 
   onMount(initSync);
 
@@ -34,37 +34,37 @@
     }
   }
 
+  const tr = (k: string) => translate(k, $settings.uiLang);
   async function auth() {
     if (mode === 'signup') {
       await run(async () => {
         const r = await signUpWithPassword(email.trim(), password);
-        if (r === 'confirm-email')
-          msg = it() ? 'Conferma la tua email, poi accedi.' : 'Confirm your email, then log in.';
-      }, it() ? 'Account creato.' : 'Account created.');
+        if (r === 'confirm-email') msg = tr('confirmEmailThenLogin');
+      }, tr('accountCreated'));
     } else {
-      await run(() => signInWithPassword(email.trim(), password), it() ? 'Accesso effettuato.' : 'Logged in.');
+      await run(() => signInWithPassword(email.trim(), password), tr('loggedIn'));
     }
   }
 </script>
 
 <div class="rounded-2xl bg-slate-800 p-4">
   <div class="mb-1 flex items-center gap-2 text-sm font-medium">
-    ☁️ {it() ? 'Sincronizzazione cloud' : 'Cloud sync'}
+    ☁️ {$t('cloudSync')}
     {#if $syncSession}
-      <span class="ml-auto rounded-full bg-green-600/30 px-2 py-0.5 text-xs text-green-300">● {it() ? 'attivo' : 'on'}</span>
+      <span class="ml-auto rounded-full bg-green-600/30 px-2 py-0.5 text-xs text-green-300">● {$t('on')}</span>
     {/if}
   </div>
 
   {#if !$syncConfigured}
     <p class="text-xs text-slate-400">
-      {it() ? 'Sincronizzazione non ancora disponibile.' : 'Sync not available yet.'}
+      {$t('syncUnavailable')}
     </p>
   {:else if !$syncSession}
     <div class="mb-2 flex gap-1 rounded-full bg-slate-900 p-1 text-xs">
       <button class="flex-1 rounded-full py-1 {mode === 'login' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
-        on:click={() => { mode = 'login'; msg = ''; }}>{it() ? 'Accedi' : 'Log in'}</button>
+        on:click={() => { mode = 'login'; msg = ''; }}>{$t('logIn')}</button>
       <button class="flex-1 rounded-full py-1 {mode === 'signup' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
-        on:click={() => { mode = 'signup'; msg = ''; }}>{it() ? 'Registrati' : 'Sign up'}</button>
+        on:click={() => { mode = 'signup'; msg = ''; }}>{$t('signUp')}</button>
     </div>
     <input
       bind:value={email}
@@ -85,24 +85,24 @@
       disabled={busy || !email.includes('@') || password.length < 6}
       on:click={auth}
     >
-      {mode === 'signup' ? (it() ? 'Crea account' : 'Create account') : (it() ? 'Accedi' : 'Log in')}
+      {mode === 'signup' ? $t('createAccount') : $t('logIn')}
     </button>
   {:else}
     <div class="truncate text-xs text-slate-400">{$syncSession.user.email}</div>
     <div class="mt-2 flex items-center gap-2 text-xs">
       {#if $syncStatus === 'error'}
-        <span class="text-rose-400">⚠ {it() ? 'Errore di sincronizzazione' : 'Sync error'}</span>
+        <span class="text-rose-400">⚠ {$t('syncError')}</span>
       {:else if $syncStatus === 'pushing' || $syncStatus === 'pulling'}
-        <span class="text-slate-400">⟳ {it() ? 'Sincronizzazione…' : 'Syncing…'}</span>
+        <span class="text-slate-400">⟳ {$t('syncing')}</span>
       {:else}
-        <span class="text-green-400">✓ {it() ? 'Tutto salvato automaticamente' : 'All changes saved automatically'}</span>
+        <span class="text-green-400">✓ {$t('allSaved')}</span>
       {/if}
     </div>
     {#if $syncStatus === 'error' && $lastSyncError}
       <div class="mt-1 rounded-lg bg-rose-900/40 p-2 text-[11px] text-rose-200">{$lastSyncError}</div>
     {/if}
     <button class="mt-3 w-full text-center text-xs text-slate-500 underline" on:click={signOut}>
-      {it() ? 'Esci' : 'Sign out'}
+      {$t('signOut')}
     </button>
   {/if}
 

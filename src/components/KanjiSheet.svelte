@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { settings } from '../lib/stores';
+  import { t } from '../lib/stores';
   import { lookupKanji, isKanji, type KanjiInfo } from '../lib/kanji/dict';
   import { fly, fade } from 'svelte/transition';
 
   export let open = false;
   export let onClose: () => void;
 
-  const it = () => $settings.uiLang === 'it';
   let items: { ch: string; info: KanjiInfo | null }[] = [];
   let loading = false;
 
@@ -40,13 +39,13 @@
     transition:fly={{ y: 300, duration: 250 }}
   >
     <div class="mb-3 flex items-center justify-between">
-      <h3 class="text-lg font-bold">漢 {it() ? 'Kanji sullo schermo' : 'Kanji on screen'}</h3>
+      <h3 class="text-lg font-bold">漢 {$t('kanjiOnScreen')}</h3>
       <button class="rounded-full bg-slate-800 px-3 py-1 text-sm" on:click={onClose}>✕</button>
     </div>
 
     {#if items.length === 0}
       <p class="py-6 text-center text-sm text-slate-400">
-        {loading ? '…' : it() ? 'Nessun kanji sullo schermo.' : 'No kanji on screen.'}
+        {loading ? '…' : $t('noKanji')}
       </p>
     {:else}
       <div class="grid gap-2 sm:grid-cols-2">
@@ -58,19 +57,19 @@
                 <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs">
                   {#if item.info.kun.length}
                     <span class="text-pink-300">
-                      <span class="text-slate-500">{it() ? 'kun (nativo):' : 'kun (native):'}</span>
+                      <span class="text-slate-500">{$t('kunLabel')}</span>
                       {item.info.kun.slice(0, 2).join('、')}
                     </span>
                   {/if}
                   {#if item.info.on.length}
                     <span class="text-sky-300">
-                      <span class="text-slate-500">{it() ? 'on (cinese):' : 'on (Chinese):'}</span>
+                      <span class="text-slate-500">{$t('onLabel')}</span>
                       {item.info.on.slice(0, 2).join('、')}
                     </span>
                   {/if}
                 </div>
                 <div class="truncate text-sm text-slate-200">
-                  <span class="text-slate-500">{it() ? 'significato:' : 'meaning:'}</span>
+                  <span class="text-slate-500">{$t('meaningLabel')}</span>
                   {item.info.meanings.slice(0, 4).join(', ')}
                 </div>
               {:else}

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { settings } from '../lib/stores';
+  import { settings, t } from '../lib/stores';
   import { db } from '../lib/db';
   import { CHANGELOG, APP_VERSION } from '../lib/version';
   import { fly, fade } from 'svelte/transition';
@@ -41,7 +41,7 @@
     <div class="w-full max-w-sm rounded-3xl bg-slate-900 p-5 shadow-2xl ring-1 ring-slate-700" in:fly={{ y: 24, duration: 250 }}>
       <div class="mb-1 text-center text-3xl">🎉</div>
       <div class="text-center text-lg font-bold">
-        {$settings.uiLang === 'it' ? 'Novità' : "What's new"}
+        {$t('whatsNew')}
         <span class="text-sm font-normal text-slate-500">v{APP_VERSION}</span>
       </div>
 
@@ -61,7 +61,7 @@
       </div>
 
       <button class="mt-5 w-full rounded-xl bg-gradient-to-r from-pink-500 to-indigo-500 py-3 font-bold active:scale-[0.98]" on:click={dismiss}>
-        {$settings.uiLang === 'it' ? 'Fantastico!' : 'Got it!'}
+        {$t('gotIt')}
       </button>
     </div>
   </div>
