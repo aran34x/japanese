@@ -4,6 +4,7 @@
   import { speakJa } from '../lib/speech';
   import { confetti } from '../lib/confetti';
   import { game, markStoryDone } from '../lib/game/state';
+  import QuizQuestion from './QuizQuestion.svelte';
   import { fly, scale } from 'svelte/transition';
 
   type View = 'list' | 'read' | 'quiz' | 'done';
@@ -17,10 +18,6 @@
   let showTrans: Record<number, boolean> = {};
 
   let qIndex = 0;
-  let picked: number | null = null;   // for mcq
-  let typed = '';                     // for typing
-  let answered = false;
-  let lastCorrect = false;
   let correctCount = 0;
 
   function open(s: Story) {
@@ -30,24 +27,12 @@
   }
   function startQuiz() {
     qIndex = 0;
-    resetQuestion();
     correctCount = 0;
     view = 'quiz';
   }
-  function resetQuestion() {
-    picked = null;
-    typed = '';
-    answered = false;
-    lastCorrect = false;
-  }
 
-  function normalize(s: string): string {
-    return s.trim().toLowerCase().replace(/[。、.!?]/g, '');
-  }
-
-  async function finishQuestion(correct: boolean) {
-    answered = true;
-    lastCorrect = correct;
+  // Called by QuizQuestion when a question is answered. Advances after a beat.
+  async function onAnswer(correct: boolean) {
     if (correct) {
       correctCount++;
       confetti({ count: 50 });
@@ -62,24 +47,8 @@
         view = 'done';
       } else {
         qIndex++;
-        resetQuestion();
       }
     }, 1000);
-  }
-
-  function answerMcq(i: number) {
-    if (answered || !story) return;
-    picked = i;
-    const q = story.questions[qIndex];
-    if (q.type === 'mcq') finishQuestion(q.options[i].correct);
-  }
-
-  function checkTyped() {
-    if (answered || !story) return;
-    const q = story.questions[qIndex];
-    if (q.type !== 'type') return;
-    const ok = q.answers.some((a) => normalize(a) === normalize(typed));
-    finishQuestion(ok);
   }
 
   $: passedCount = $game.storiesDone.length;
@@ -172,50 +141,26 @@
   {@const q = story.questions[qIndex]}
   <section class="space-y-4">
     <div class="flex items-center justify-between text-sm">
-      <button class="text-slate-400" on:click={() => (view = 'read')}>← {it() ? 'Rileggi' : 'Reread'}</button>
+      <button class="text-slate-400" on:click={() => (view = 'read')}>← {$t('back')}</button>
       <span class="text-slate-400">{qIndex + 1} / {story.questions.length}</span>
     </div>
     {#key qIndex}
       <div in:fly={{ y: 14, duration: 160 }}>
-        <div class="rounded-2xl bg-slate-800 p-5 text-center">
-          <div class="text-lg font-medium">{q.q[$settings.uiLang]}</div>
-        </div>
-
-        {#if q.type === 'mcq'}
-          <div class="mt-3 grid gap-2">
-            {#each q.options as opt, i}
-              <button
-                disabled={answered}
-                class="rounded-xl px-4 py-3 text-left text-lg transition-colors
-                  {picked === i && opt.correct ? 'bg-green-600 text-white' : ''}
-                  {picked === i && !opt.correct ? 'bg-rose-700 text-white' : ''}
-                  {answered && picked !== i && opt.correct ? 'bg-green-600/40' : ''}
-                  {!answered ? 'bg-slate-800 active:bg-slate-700' : ''}"
-                on:click={() => answerMcq(i)}>{opt[$settings.uiLang]}</button>
-            {/each}
-          </div>
-        {:else}
-          <!-- typing question -->
-          <input
-            bind:value={typed}
-            disabled={answered}
-            placeholder={it() ? 'Scrivi la risposta…' : 'Type your answer…'}
-            on:keydown={(e) => e.key === 'Enter' && checkTyped()}
-            class="mt-3 w-full rounded-xl bg-slate-800 px-4 py-3 text-lg outline-none focus:ring-2 focus:ring-pink-500" />
-          {#if q.hint && !answered}
-            <div class="mt-1 text-xs text-slate-500">💡 {q.hint[$settings.uiLang]}</div>
-          {/if}
-          {#if !answered}
-            <button class="mt-2 w-full rounded-xl bg-indigo-500 py-3 font-semibold" on:click={checkTyped}>
-              {it() ? 'Verifica' : 'Check'}
-            </button>
-          {/if}
-          {#if answered}
-            <div class="mt-2 rounded-xl p-3 text-center text-sm {lastCorrect ? 'bg-green-900/40 text-green-300' : 'bg-rose-900/40 text-rose-300'}">
-              {lastCorrect ? '✓' : '✗'} {q.answers[0]}
+        <QuizQuestion
+          prompt={q.q[$settings.uiLang]}
+          options={q.type === 'mcq' ? q.options.map((o) => ({ label: o[$settings.uiLang], correct: o.correct })) : null}
+          answers={q.type === 'type' ? q.answers : []}
+          hint={q.type === 'type' && q.hint ? q.hint[$settings.uiLang] : ''}
+          on:answer={(e) => onAnswer(e.detail.correct)}
+          let:answered
+          let:correct
+        >
+          {#if answered && q.type === 'type'}
+            <div class="mt-2 rounded-xl p-3 text-center text-sm {correct ? 'bg-green-900/40 text-green-300' : 'bg-rose-900/40 text-rose-300'}">
+              {correct ? '✓' : '✗'} {q.answers[0]}
             </div>
           {/if}
-        {/if}
+        </QuizQuestion>
       </div>
     {/key}
   </section>
