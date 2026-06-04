@@ -1,14 +1,14 @@
-// Logic for fictional pop-culture characters. DATA (FRANCHISE_META,
+// Logic for fictional pop-culture characters. DATA (FICTIONAL_CATEGORIES,
 // CHARACTERS_FICTIONAL, types) lives in src/lib/data/game/fictional.ts.
 import type { Localized } from './tracks';
 import {
-  FRANCHISE_META, CHARACTERS_FICTIONAL,
-  type Franchise, type FictionalChar
+  FICTIONAL_CATEGORIES, CHARACTERS_FICTIONAL,
+  type FictionalCategory, type FictionalChar
 } from '../data/game/fictional';
-export { FRANCHISE_META, CHARACTERS_FICTIONAL };
-export type { Franchise, FictionalChar };
+export { FICTIONAL_CATEGORIES, CHARACTERS_FICTIONAL };
+export type { FictionalCategory, FictionalChar };
 
-// ---- Challenge generation (name-reading + franchise) ------------------------
+// ---- Challenge generation (name-reading) ------------------------
 export interface FChoice {
   // Either a fixed `text` (e.g. romaji) or a localized en/it pair.
   text?: string;
@@ -31,56 +31,84 @@ function shuffle<T>(a: T[]): T[] {
   return r;
 }
 
-const POPULAR_IDS = ['pikachu', 'goku', 'naruto', 'luffy', 'mario', 'miku', 'doraemon', 'link'];
+const POPULAR_IDS = ['pikachu', 'goku', 'naruto', 'luffy', 'mario', 'miku', 'doraemon', 'link', 'totoro', 'usagi', 'shinji', 'tanjiro', 'charizard', 'mewtwo', 'vegeta'];
 
 export function buildCharChallenge(ch: FictionalChar): FQuestion[] {
   const others = shuffle(CHARACTERS_FICTIONAL.filter((x) => x.id !== ch.id));
-  const isPopular = POPULAR_IDS.includes(ch.id);
-  const franchise = FRANCHISE_META[ch.franchise];
+  const popIndex = POPULAR_IDS.indexOf(ch.id);
+  const isPopular = popIndex !== -1;
+  // Scale difficulty based on popularity: min 3 questions, max 10.
+  // The earlier in POPULAR_IDS (or if not in it), the fewer questions.
+  let numQuestions = 3;
+  if (isPopular) {
+    numQuestions += Math.floor((popIndex / POPULAR_IDS.length) * 7);
+  }
+  
+  const optionsCount = isPopular ? 5 : 3;
 
-  // --- Q1: Franchise (Easy) ---
-  const franchiseWrong = shuffle(Object.values(FRANCHISE_META).filter((f) => f.label !== franchise.label))
-    .slice(0, isPopular ? 4 : 3)
-    .map((f) => ({ text: `${f.emoji} ${f.label}`, correct: false }));
+  const questions: FQuestion[] = [];
 
-  const q1: FQuestion = {
-    instruction: {
-      en: 'Which franchise does this mystery character belong to?',
-      it: 'A quale franchise appartiene questo personaggio misterioso?'
-    },
-    options: shuffle([{ text: `${franchise.emoji} ${franchise.label}`, correct: true }, ...franchiseWrong])
-  };
+  // Generate dynamic language questions based on 'trait'
+  // We want to avoid repetitive formats, so we cycle through different types of vocab tasks.
+  for (let i = 0; i < numQuestions - 1; i++) {
+    const format = i % 3; 
 
-  // --- Q2: Fact (Medium) ---
-  // If popular, try to pick distractors from the same franchise for higher difficulty
-  let distractors = others.filter((o) => o.franchise === ch.franchise);
-  if (distractors.length < 3) distractors = others;
+    if (format === 0) {
+      // Format 0: Match Japanese trait to meaning
+      const traitWrong = shuffle(CHARACTERS_FICTIONAL.filter((x) => x.trait.ja !== ch.trait.ja))
+        .slice(0, optionsCount - 1)
+        .map((x) => ({ en: x.trait.en, it: x.trait.it, correct: false }));
+      
+      questions.push({
+        instruction: {
+          en: `This mystery character is associated with this word. What does it mean?`,
+          it: `Questo personaggio misterioso è associato a questa parola. Cosa significa?`
+        },
+        show: ch.trait.ja,
+        options: shuffle([{ en: ch.trait.en, it: ch.trait.it, correct: true }, ...traitWrong])
+      });
+    } else if (format === 1) {
+      // Format 1: Match meaning to Japanese trait
+      const traitWrong = shuffle(CHARACTERS_FICTIONAL.filter((x) => x.trait.ja !== ch.trait.ja))
+        .slice(0, optionsCount - 1)
+        .map((x) => ({ text: x.trait.ja, correct: false }));
 
-  const factWrong = shuffle(distractors.filter((o) => o.fact.en !== ch.fact.en))
-    .slice(0, isPopular ? 4 : 3)
-    .map((o) => ({ en: o.fact.en, it: o.fact.it, correct: false }));
+      questions.push({
+        instruction: {
+          en: `Which Japanese word means "${ch.trait.en}"?`,
+          it: `Quale parola giapponese significa "${ch.trait.it}"?`
+        },
+        options: shuffle([{ text: ch.trait.ja, correct: true }, ...traitWrong])
+      });
+    } else {
+      // Format 2: Match trait reading
+      const traitWrong = shuffle(CHARACTERS_FICTIONAL.filter((x) => x.trait.reading !== ch.trait.reading))
+        .slice(0, optionsCount - 1)
+        .map((x) => ({ text: x.trait.reading, correct: false }));
 
-  const q2: FQuestion = {
-    instruction: {
-      en: `Which is true about this character?`,
-      it: `Cosa è vero su questo personaggio?`
-    },
-    options: shuffle([{ en: ch.fact.en, it: ch.fact.it, correct: true }, ...factWrong])
-  };
+      questions.push({
+        instruction: {
+          en: `How do you read the word associated with this character?`,
+          it: `Come si legge la parola associata a questo personaggio?`
+        },
+        show: ch.trait.ja,
+        options: shuffle([{ text: ch.trait.reading, correct: true }, ...traitWrong])
+      });
+    }
+  }
 
-  // --- Q3: Name Reading (Hard - Final Reveal) ---
-  // Popular characters get more options for the name matching
-  const nameWrong = others.slice(0, isPopular ? 5 : 3).map((o) => ({ text: o.romaji, correct: false }));
-  const q3: FQuestion = {
+  // --- Q Final: Name Reading (Hard - Final Reveal) ---
+  const nameWrong = others.slice(0, optionsCount - 1).map((o) => ({ text: o.romaji, correct: false }));
+  questions.push({
     instruction: {
       en: 'The identity is revealed! Match the name to its reading:',
       it: 'L\'identità è svelata! Abbina il nome alla sua lettura:'
     },
     show: ch.ja,
     options: shuffle([{ text: ch.romaji, correct: true }, ...nameWrong])
-  };
+  });
 
-  return [q1, q2, q3];
+  return questions;
 }
 
 export interface FLesson {

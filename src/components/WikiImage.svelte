@@ -35,7 +35,7 @@
       alt={title}
       loading="lazy"
       class="h-full w-full object-cover transition-all duration-500 {blurred
-        ? 'scale-110 blur-xl brightness-75'
+        ? 'scale-150 blur-[40px] grayscale brightness-50'
         : ''}"
     />
   {:else}

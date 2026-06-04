@@ -4,12 +4,10 @@
   import { speakJa } from '../lib/speech';
   import {
     PEOPLE,
-    CATEGORY_META,
     ROLES,
     buildPersonChallenge,
     buildPersonLesson,
     type RealPerson,
-    type PersonCategory,
     type PQuestion
   } from '../lib/game/people';
   import { getWiki, type WikiInfo } from '../lib/game/wiki';
@@ -18,11 +16,9 @@
 
   type View = 'grid' | 'detail' | 'challenge' | 'cleared';
   let view: View = 'grid';
-  let cat: PersonCategory = 'music';
   let person: RealPerson | null = null;
 
-  const cats = Object.keys(CATEGORY_META) as PersonCategory[];
-  $: roster = PEOPLE.filter((p) => p.category === cat);
+  $: roster = PEOPLE;
   $: isUnlocked = (p: RealPerson) => $game.unlockedPeople.includes(p.id);
 
   // --- detail bio ---
@@ -91,25 +87,20 @@
 
 {#if view === 'grid'}
   <section in:fly={{ y: 12, duration: 180 }}>
-    <p class="mb-3 text-sm text-slate-400">
-      {$t('iconsIntro')}
-    </p>
-    <div class="mb-4 flex flex-wrap gap-2">
-      {#each cats as c}
-        <button
-          class="rounded-full px-3 py-1.5 text-sm font-medium {cat === c
-            ? 'bg-indigo-500 text-white'
-            : 'bg-slate-800 text-slate-300'}"
-          on:click={() => (cat = c)}
-        >{CATEGORY_META[c].emoji} {CATEGORY_META[c].label[$settings.uiLang]}</button>
-      {/each}
+    <div class="mb-4 flex items-center justify-between">
+      <p class="text-sm text-slate-400">
+        {$t('iconsIntro')}
+      </p>
+      <div class="text-sm font-bold text-indigo-400">
+        {PEOPLE.filter(isUnlocked).length} / {PEOPLE.length}
+      </div>
     </div>
 
     <div class="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
       {#each roster as pp (pp.id)}
         <button class="text-center" on:click={() => openDetail(pp)}>
           <div class="aspect-square">
-            <WikiImage title={pp.wiki} blurred={!isUnlocked(pp)} />
+            <WikiImage title={pp.wiki} blurred={!isUnlocked(pp)} rounded="rounded-xl" />
           </div>
           <div class="mt-1 truncate text-xs font-medium {isUnlocked(pp) ? '' : 'text-slate-500'}">
             {isUnlocked(pp) ? pp.name : '???'}
@@ -124,13 +115,13 @@
   <section in:fly={{ y: 12, duration: 180 }} class="space-y-4">
     <button class="text-sm text-slate-400" on:click={() => (view = 'grid')}>← {$t('back')}</button>
     <div class="mx-auto h-44 w-44">
-      <WikiImage title={person.wiki} blurred={!isUnlocked(person)} />
+      <WikiImage title={person.wiki} blurred={!isUnlocked(person)} rounded="rounded-3xl" />
     </div>
     <div class="text-center">
       <div class="text-xl font-bold">{isUnlocked(person) ? person.name : '???'}</div>
       <div class="font-jp text-lg text-pink-300">{isUnlocked(person) ? person.ja : '???'}</div>
       <div class="text-sm text-slate-400">
-        {isUnlocked(person) ? person.reading + ' · ' : ''}{roleLabel(person)}
+        {isUnlocked(person) ? person.reading + ' · ' : ''}{isUnlocked(person) ? roleLabel(person) : '???'}
       </div>
     </div>
 
@@ -173,11 +164,21 @@
             {questions[qIndex].instruction[$settings.uiLang]}
           </div>
           {#if questions[qIndex].show}
-            <div class="py-4 font-jp text-5xl">{questions[qIndex].show}</div>
+            <div class="flex items-center justify-center gap-4 py-4">
+              <div class="font-jp text-5xl">{questions[qIndex].show}</div>
+              {#if /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(questions[qIndex].show) && qIndex < questions.length - 1}
+                <button
+                  class="rounded-xl bg-slate-700 p-3 text-xl transition-colors active:bg-slate-600"
+                  title="🔊"
+                  on:click={() => speakJa(questions[qIndex].show)}
+                >🔊</button>
+              {/if}
+            </div>
           {/if}
         </div>
         <div class="mt-3 grid gap-2">
           {#each questions[qIndex].options as opt, i}
+            {@const txt = opt.text ?? opt[$settings.uiLang] ?? ''}
             <div class="flex items-stretch gap-2">
               <button
                 disabled={picked !== null && !wrong}
@@ -185,12 +186,12 @@
                   {picked === i && opt.correct ? 'bg-green-600 text-white' : ''}
                   {picked === i && !opt.correct ? 'bg-rose-700 text-white' : ''}
                   {picked !== i ? 'bg-slate-800 active:bg-slate-700' : ''}"
-                on:click={() => answer(i)}>{opt.text}</button>
-              {#if /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(opt.text)}
+                on:click={() => answer(i)}>{txt}</button>
+              {#if /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(txt)}
                 <button
                   class="shrink-0 rounded-xl bg-slate-800 px-3 active:bg-slate-700"
                   title="🔊"
-                  on:click|stopPropagation={() => speakJa(opt.text)}>🔊</button>
+                  on:click|stopPropagation={() => speakJa(txt)}>🔊</button>
               {/if}
             </div>
           {/each}

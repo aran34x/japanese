@@ -145,6 +145,8 @@ export const strings: Dict = {
     en: 'Read the Japanese name to unlock the character and its bio.',
     it: 'Leggi il nome giapponese per sbloccare il personaggio e la sua bio.'
   },
+  fictional: { en: 'Fictional', it: 'Di fantasia' },
+  realPeople: { en: 'Real People', it: 'Persone reali' },
 
   // Settings — danger zone
   dangerZone: { en: 'Danger zone', it: 'Zona pericolosa' },

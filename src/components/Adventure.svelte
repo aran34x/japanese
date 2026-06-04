@@ -7,14 +7,17 @@
   import { CHARACTERS } from '../lib/game/characters';
   import { ACHIEVEMENTS } from '../lib/game/achievements';
   import CharacterPortrait from './CharacterPortrait.svelte';
+  import LevelCoin3D from './LevelCoin3D.svelte';
   import AdventureSession from './AdventureSession.svelte';
   import Icons from './Icons.svelte';
   import Characters from './Characters.svelte';
   import { fly } from 'svelte/transition';
 
-  type Tab = 'quest' | 'icons' | 'characters' | 'collection' | 'achievements';
-  let tab: Tab = 'quest';
-  type View = 'hub' | 'deck' | 'session' | 'result';
+  type Tab = 'adventure' | 'characters' | 'achievements';
+  let tab: Tab = 'adventure';
+  type CharSubTab = 'real' | 'fictional';
+  let charSub: CharSubTab = 'fictional';
+  type View = 'hub' | 'deck' | 'session' | 'result' | 'levels';
   let view: View = 'hub';
 
   let decks: Deck[] = [];
@@ -27,10 +30,8 @@
   });
 
   $: tabs = [
-    { id: 'quest' as Tab, label: $t('adventure') },
-    { id: 'icons' as Tab, label: $t('icons') },
+    { id: 'adventure' as Tab, label: $t('adventure') },
     { id: 'characters' as Tab, label: $t('charactersTab') },
-    { id: 'collection' as Tab, label: $t('heroes') },
     { id: 'achievements' as Tab, label: $t('achievements') }
   ];
 
@@ -108,61 +109,94 @@
     {/each}
   </div>
 
-  {#if tab === 'quest'}
-    <section class="space-y-5 text-center" in:fly={{ y: 12, duration: 200 }}>
-      <div class="relative grid place-items-center rounded-3xl bg-gradient-to-b from-slate-800 to-slate-900 p-6">
-        <CharacterPortrait character={cur.character} size={190} />
-        <div class="mt-2 text-2xl font-black">{cur.character.name}</div>
-        <div class="text-sm text-pink-300">{cur.character.title[$settings.uiLang]}</div>
-        <div class="mt-1 inline-block rounded-full bg-slate-700 px-3 py-0.5 text-xs">
-          {$t('level')} {curUnlockedIndex + 1} · {$t('powerLevel')} {cur.character.power}
+  {#if tab === 'adventure'}
+    {#if view === 'levels'}
+      <section class="space-y-4" in:fly={{ y: 12, duration: 180 }}>
+        <button class="text-sm text-slate-400" on:click={() => (view = 'hub')}>← {$t('back')}</button>
+        <h2 class="text-xl font-bold">{$t('heroes')}</h2>
+        <div class="grid grid-cols-3 gap-3">
+          {#each CHARACTERS as c, i}
+            {@const unlocked = i <= curUnlockedIndex}
+            <div class="flex flex-col items-center rounded-2xl bg-slate-800 p-2 text-center">
+              <LevelCoin3D character={c} level={i + 1} size={78} interactive={false} autoSpin={false} showImage={unlocked} />
+              <div class="mt-1 text-xs font-semibold {unlocked ? '' : 'text-slate-500'}">
+                {unlocked ? c.name : '???'}
+              </div>
+              <div class="text-[10px] text-slate-500">{unlocked ? '⚡' + c.power : '🔒'}</div>
+            </div>
+          {/each}
         </div>
-        <p class="mt-3 max-w-sm text-sm italic text-slate-400">"{cur.character.blurb[$settings.uiLang]}"</p>
-      </div>
-
-      <!-- XP progress to next hero -->
-      {#if nx.next}
-        <div class="rounded-2xl bg-slate-800 p-4">
-          <div class="mb-2 flex items-center justify-between text-xs text-slate-400">
-            <span>{Math.round($game.xp).toLocaleString()} XP</span>
-            <span>{Math.round(nx.next.xpRequired).toLocaleString()} XP · {$t('toNextHero')}</span>
-          </div>
-          <div class="h-3 overflow-hidden rounded-full bg-slate-700">
-            <div class="h-full bg-gradient-to-r from-pink-400 to-amber-300 transition-all" style="width:{nx.progress * 100}%"></div>
-          </div>
-          <div class="mt-3 flex items-center gap-3 opacity-80">
-            <div class="scale-75"><CharacterPortrait character={nx.next} size={56} locked glow={false} /></div>
+      </section>
+    {:else}
+      <section class="space-y-5 text-center" in:fly={{ y: 12, duration: 200 }}>
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-b from-slate-800 to-slate-900 p-6">
+          <div class="mb-4 flex items-center justify-between">
             <div class="text-left">
-              <div class="text-sm font-semibold text-slate-300">??? <span class="text-xs">({$t('locked')})</span></div>
-              <div class="text-xs text-slate-500">{$t('powerLevel')} {nx.next.power}</div>
+              <div class="text-xs font-bold uppercase tracking-wider text-slate-500">My Level</div>
+              <div class="text-lg font-black text-indigo-400">"{cur.character.title[$settings.uiLang]}"</div>
+            </div>
+            <button class="text-xs font-bold text-pink-400 underline" on:click={() => (view = 'levels')}>Next Levels →</button>
+          </div>
+          <div class="grid place-items-center">
+            <LevelCoin3D character={cur.character} level={curUnlockedIndex + 1} size={190} />
+          </div>
+          <div class="mt-4 text-2xl font-black">{cur.character.name}</div>
+          <div class="mt-1 inline-block rounded-full bg-slate-700 px-3 py-0.5 text-xs">
+            {$t('level')} {curUnlockedIndex + 1} · {$t('powerLevel')} {cur.character.power}
+          </div>
+          <p class="mt-3 max-w-sm text-sm italic text-slate-400">"{cur.character.blurb[$settings.uiLang]}"</p>
+        </div>
+
+        <!-- XP progress to next hero -->
+        {#if nx.next}
+          <div class="rounded-2xl bg-slate-800 p-4">
+            <div class="mb-2 flex items-center justify-between text-xs text-slate-400">
+              <span>{Math.round($game.xp).toLocaleString()} XP</span>
+              <span>{Math.round(nx.next.xpRequired).toLocaleString()} XP · {$t('toNextHero')}</span>
+            </div>
+            <div class="h-3 overflow-hidden rounded-full bg-slate-700">
+              <div class="h-full bg-gradient-to-r from-pink-400 to-amber-300 transition-all" style="width:{nx.progress * 100}%"></div>
+            </div>
+            <div class="mt-3 flex items-center gap-3 opacity-80">
+              <div class="scale-75"><CharacterPortrait character={nx.next} size={56} locked glow={false} /></div>
+              <div class="text-left">
+                <div class="text-sm font-semibold text-slate-300">??? <span class="text-xs">({$t('locked')})</span></div>
+                <div class="text-xs text-slate-500">{$t('powerLevel')} {nx.next.power}</div>
+              </div>
             </div>
           </div>
-        </div>
-      {/if}
+        {/if}
 
-      <button
-        class="w-full rounded-2xl bg-gradient-to-r from-pink-500 to-indigo-500 py-4 text-lg font-bold shadow-lg active:scale-[0.98]"
-        on:click={() => (view = 'deck')}>⚔ {$t('continueQuest')}</button>
-    </section>
-
-  {:else if tab === 'icons'}
-    <Icons />
+        <button
+          class="w-full rounded-2xl bg-gradient-to-r from-pink-500 to-indigo-500 py-4 text-lg font-bold shadow-lg active:scale-[0.98]"
+          on:click={() => (view = 'deck')}>⚔ {$t('continueQuest')}</button>
+      </section>
+    {/if}
 
   {:else if tab === 'characters'}
-    <Characters />
+    <section class="space-y-4" in:fly={{ y: 12, duration: 200 }}>
+      <div class="flex gap-2 rounded-xl bg-slate-900/50 p-1">
+        <button
+          class="flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-bold transition-all {charSub === 'fictional' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800'}"
+          on:click={() => charSub = 'fictional'}
+        >
+          <span class="text-base">🎭</span>
+          <span>{$t('fictional')}</span>
+        </button>
+        <button
+          class="flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-bold transition-all {charSub === 'real' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800'}"
+          on:click={() => charSub = 'real'}
+        >
+          <span class="text-base">👤</span>
+          <span>{$t('realPeople')}</span>
+        </button>
+      </div>
 
-  {:else if tab === 'collection'}
-    <section class="grid grid-cols-3 gap-3" in:fly={{ y: 12, duration: 200 }}>
-      {#each CHARACTERS as c, i}
-        {@const unlocked = i <= curUnlockedIndex}
-        <div class="flex flex-col items-center rounded-2xl bg-slate-800 p-2 text-center">
-          <CharacterPortrait character={c} size={84} locked={!unlocked} glow={false} />
-          <div class="mt-1 text-xs font-semibold {unlocked ? '' : 'text-slate-500'}">
-            {unlocked ? c.name : '???'}
-          </div>
-          <div class="text-[10px] text-slate-500">{unlocked ? '⚡' + c.power : '🔒'}</div>
-        </div>
-      {/each}
+      {#if charSub === 'fictional'}
+        <Characters />
+      {:else}
+        <Icons />
+      {/if}
     </section>
 
   {:else}

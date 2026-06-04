@@ -29,80 +29,120 @@ function shuffle<T>(a: T[]): T[] {
   return r;
 }
 
+const POPULAR_IDS = ['sak-r', 'hisai-j', 'miya-h', 'kuro-a', 'miya-s', 'hoku-k', 'utada', 'ohtani', 'oda-n', 'toriyama', 'anno', 'ichiro', 'ieyasu', 'mifune', 'kusama'];
+
 /** Build the (deterministic-in-spirit) scripted challenge for a person. */
 export function buildPersonChallenge(person: RealPerson): PQuestion[] {
-  const others = shuffle(PEOPLE.filter((x) => x.id !== person.id));
+  const others = PEOPLE.filter((x) => x.id !== person.id);
+  const popIndex = POPULAR_IDS.indexOf(person.id);
+  const isPopular = popIndex !== -1;
   const role = ROLES[person.role];
-  const cat = CATEGORY_META[person.category];
 
-  // --- Q1: Profession (Easy) ---
-  const roleWrong = shuffle(Object.values(ROLES).filter((r) => r.ja !== role.ja))
-    .slice(0, 3)
-    .map((r) => ({ text: r.ja, correct: false }));
+  let numQuestions = 3;
+  if (isPopular) {
+    numQuestions += Math.floor((popIndex / POPULAR_IDS.length) * 7);
+  }
+  const optionsCount = isPopular ? 5 : 3;
 
-  const q1: PQuestion = {
-    instruction: {
-      en: `This mystery person is a ${role.en}. Which word means "${role.en}"?`,
-      it: `Questa persona misteriosa è un ${role.it}. Quale parola significa "${role.it}"?`
-    },
-    options: shuffle([{ text: role.ja, correct: true }, ...roleWrong])
-  };
+  // Pseudo-random based on ID
+  const seed = person.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const getFormat = (index: number) => (seed + index) % 5;
 
-  // --- Q2: Fact or Category (Medium) ---
-  let q2: PQuestion;
-  if (person.fact) {
-    const factWrong = others
-      .filter((o) => o.fact && o.fact.en !== person.fact?.en)
-      .slice(0, 3)
-      .map((o) => ({ text: o.fact!.en, correct: false })); // Note: Simple string for fact text here, assuming PChoice.text is used
-
-    // Since PChoice.text is used in Icons.svelte, we need to handle localization here or in the component.
-    // Looking at Icons.svelte: {opt.text} is used. PChoice only has 'text'.
-    // Wait, fictional.ts uses {opt.text ?? opt[$settings.uiLang]}.
-    // Let's check Icons.svelte again. It uses {opt.text}.
-    // I should probably update PChoice to support localization if I want to use facts.
-    // Or just use the current language for the fact text in the generator.
-
-    q2 = {
-      instruction: {
-        en: 'Which of these is true about this person?',
-        it: 'Quale di queste affermazioni è vera su questa persona?'
-      },
-      options: shuffle([
-        { text: person.fact.en, correct: true },
-        ...factWrong
-      ])
-    };
-  } else {
-    // Fallback: Category question
-    const catWrong = shuffle(Object.values(CATEGORY_META).filter((c) => c.emoji !== cat.emoji))
-      .slice(0, 3)
-      .map((c) => ({ text: `${c.emoji} ${c.label.en}`, correct: false }));
-
-    q2 = {
-      instruction: {
-        en: 'Which category does this person belong to?',
-        it: 'A quale categoria appartiene questa persona?'
-      },
-      options: shuffle([
-        { text: `${cat.emoji} ${cat.label.en}`, correct: true },
-        ...catWrong
-      ])
-    };
+  const testedTraits = [person.trait];
+  const testedRoles = [role];
+  const shuffledOthers = shuffle(others);
+  
+  const vocabCount = Math.max(0, numQuestions - 3);
+  for (let i = 0; i < vocabCount; i++) {
+     if (i % 2 === 0) {
+       testedTraits.unshift(shuffledOthers[i].trait);
+     } else {
+       testedRoles.unshift(ROLES[shuffledOthers[i].role]);
+     }
   }
 
-  // --- Q3: Name Reading (Hard - Final Boss) ---
-  const nameWrong = others.slice(0, 3).map((o) => ({ text: o.romaji, correct: false }));
-  const q3: PQuestion = {
+  // Safe pools
+  const safePeopleForTraits = PEOPLE.filter(x => !testedTraits.some(t => t.ja === x.trait.ja));
+  const safeRoles = Object.values(ROLES).filter(r => !testedRoles.some(tr => tr.ja === r.ja));
+
+  const questions: PQuestion[] = [];
+  
+  let traitIdx = 0;
+  let roleIdx = 0;
+
+  for (let i = 0; i < numQuestions - 1; i++) {
+    const isMainRole = i === numQuestions - 2;
+    const isMainTrait = i === numQuestions - 3;
+    
+    let isTestingTrait = true;
+    if (isMainRole) isTestingTrait = false;
+    else if (isMainTrait) isTestingTrait = true;
+    else {
+       isTestingTrait = (i % 2 === 0);
+    }
+    
+    const format = getFormat(i);
+    
+    if (isTestingTrait) {
+       const targetTrait = testedTraits[traitIdx++];
+       const prefixEn = isMainTrait ? "This mystery person is associated with this word." : "Vocabulary Check:";
+       const prefixIt = isMainTrait ? "Questa persona misteriosa è associata a questa parola." : "Controllo Vocabolario:";
+       
+       if (format === 0 || format === 3) {
+          const wrongs = shuffle(safePeopleForTraits).slice(0, optionsCount - 1).map(x => ({ text: x.trait.en, correct: false }));
+          questions.push({
+            instruction: { en: `${prefixEn} What does it mean?`, it: `${prefixIt} Cosa significa?` },
+            show: targetTrait.ja,
+            options: shuffle([{ text: targetTrait.en, correct: true }, ...wrongs])
+          });
+       } else if (format === 1) {
+          const wrongs = shuffle(safePeopleForTraits).slice(0, optionsCount - 1).map(x => ({ text: x.trait.ja, correct: false }));
+          questions.push({
+            instruction: { en: `${prefixEn} Which Japanese word means "${targetTrait.en}"?`, it: `${prefixIt} Quale parola giapponese significa "${targetTrait.it}"?` },
+            options: shuffle([{ text: targetTrait.ja, correct: true }, ...wrongs])
+          });
+       } else {
+          const wrongs = shuffle(safePeopleForTraits).slice(0, optionsCount - 1).map(x => ({ text: x.trait.reading, correct: false }));
+          questions.push({
+            instruction: { en: `${prefixEn} How do you read it?`, it: `${prefixIt} Come si legge?` },
+            show: targetTrait.ja,
+            options: shuffle([{ text: targetTrait.reading, correct: true }, ...wrongs])
+          });
+       }
+    } else {
+       const targetRole = testedRoles[roleIdx++];
+       const prefixEn = isMainRole ? "This mystery person has this profession." : "Vocabulary Check:";
+       const prefixIt = isMainRole ? "Questa persona misteriosa ha questa professione." : "Controllo Vocabolario:";
+       
+       if (format % 2 === 0) {
+          const wrongs = shuffle(safeRoles).slice(0, optionsCount - 1).map(x => ({ text: x.ja, correct: false }));
+          questions.push({
+            instruction: { en: `${prefixEn} Which Japanese word means "${targetRole.en}"?`, it: `${prefixIt} Quale parola giapponese significa "${targetRole.it}"?` },
+            options: shuffle([{ text: targetRole.ja, correct: true }, ...wrongs])
+          });
+       } else {
+          const wrongs = shuffle(safeRoles).slice(0, optionsCount - 1).map(x => ({ text: x.reading, correct: false }));
+          questions.push({
+            instruction: { en: `${prefixEn} How do you read this profession?`, it: `${prefixIt} Come si legge questa professione?` },
+            show: targetRole.ja,
+            options: shuffle([{ text: targetRole.reading, correct: true }, ...wrongs])
+          });
+       }
+    }
+  }
+
+  // --- Q Final: Name Reading (Hard - Final Reveal) ---
+  const nameWrong = shuffle(others).slice(0, optionsCount - 1).map((o) => ({ text: o.romaji, correct: false }));
+  questions.push({
     instruction: {
       en: 'The identity is revealed! Match the name to its reading:',
       it: 'L\'identità è svelata! Abbina il nome alla sua lettura:'
     },
     show: person.ja,
     options: shuffle([{ text: person.romaji, correct: true }, ...nameWrong])
-  };
+  });
 
-  return [q1, q2, q3];
+  return questions;
 }
 
 export interface PersonLesson {

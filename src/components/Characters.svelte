@@ -4,23 +4,24 @@
   import { speakJa } from '../lib/speech';
   import {
     CHARACTERS_FICTIONAL,
-    FRANCHISE_META,
+    FICTIONAL_CATEGORIES,
     buildCharChallenge,
     buildCharLesson,
     type FictionalChar,
-    type Franchise,
+    type FictionalCategory,
     type FQuestion
   } from '../lib/game/fictional';
   import { getWiki, type WikiInfo } from '../lib/game/wiki';
+  import WikiImage from './WikiImage.svelte';
   import { fly, scale } from 'svelte/transition';
 
   type View = 'grid' | 'detail' | 'challenge' | 'cleared';
   let view: View = 'grid';
-  let fr: Franchise = 'pokemon';
+  let cat: FictionalCategory = 'games';
   let ch: FictionalChar | null = null;
 
-  const franchises = Object.keys(FRANCHISE_META) as Franchise[];
-  $: roster = CHARACTERS_FICTIONAL.filter((x) => x.franchise === fr);
+  const categories = Object.keys(FICTIONAL_CATEGORIES) as FictionalCategory[];
+  $: roster = CHARACTERS_FICTIONAL.filter((x) => x.category === cat);
   $: isUnlocked = (x: FictionalChar) => $game.unlockedFictional.includes(x.id);
 
   let bio: WikiInfo | undefined;
@@ -69,7 +70,10 @@
   }
 
   function retry() {
-    if (ch) questions[qIndex] = buildCharChallenge(ch)[qIndex];
+    if (ch) {
+        const fresh = buildCharChallenge(ch);
+        questions[qIndex] = fresh[qIndex];
+    }
     picked = null;
     wrong = false;
     showLesson = false;
@@ -82,33 +86,30 @@
   <section in:fly={{ y: 12, duration: 180 }}>
     <p class="mb-3 text-sm text-slate-400">{$t('charsIntro')}</p>
     <div class="mb-4 flex flex-wrap gap-2">
-      {#each franchises as f}
+      {#each categories as c}
+        {@const totalInCat = CHARACTERS_FICTIONAL.filter(x => x.category === c).length}
+        {@const unlockedInCat = CHARACTERS_FICTIONAL.filter(x => x.category === c && isUnlocked(x)).length}
         <button
-          class="rounded-full px-3 py-1.5 text-sm font-medium {fr === f
+          class="rounded-full px-3 py-1.5 text-sm font-medium {cat === c
             ? 'bg-indigo-500 text-white'
             : 'bg-slate-800 text-slate-300'}"
-          on:click={() => (fr = f)}>{FRANCHISE_META[f].emoji} {FRANCHISE_META[f].label}</button>
+          on:click={() => (cat = c)}>
+          {FICTIONAL_CATEGORIES[c].emoji} {FICTIONAL_CATEGORIES[c].label[$settings.uiLang]} ({unlockedInCat}/{totalInCat})
+        </button>
       {/each}
     </div>
 
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <div class="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
       {#each roster as x (x.id)}
         {@const unlocked = isUnlocked(x)}
-        <button
-          class="flex items-center gap-3 rounded-2xl p-3 text-left active:scale-[0.98]"
-          style="background:linear-gradient(135deg,{x.color}22,#1e293b)"
-          on:click={() => openDetail(x)}
-        >
-          <div
-            class="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl"
-            style="background:{x.color}33"
-          >{unlocked ? x.emoji : '❔'}</div>
-          <div class="min-w-0">
-            <div class="truncate text-sm font-semibold">{unlocked ? x.name : '???'}</div>
-            <div class="truncate font-jp text-sm {unlocked ? 'text-pink-300' : 'text-slate-500'}">
-              {unlocked ? x.ja : '???'}
-            </div>
+        <button class="text-center" on:click={() => openDetail(x)}>
+          <div class="aspect-square overflow-hidden rounded-xl">
+            <WikiImage title={x.wiki} blurred={!unlocked} />
           </div>
+          <div class="mt-1 truncate text-xs font-medium {unlocked ? '' : 'text-slate-500'}">
+            {unlocked ? x.name : '???'}
+          </div>
+          <div class="text-[10px] text-slate-500">{unlocked ? '✓' : '🔒'}</div>
         </button>
       {/each}
     </div>
@@ -118,13 +119,13 @@
   <section in:fly={{ y: 12, duration: 180 }} class="space-y-4">
     <button class="text-sm text-slate-400" on:click={() => (view = 'grid')}>← {$t('back')}</button>
     <div class="grid place-items-center">
-      <div class="grid h-28 w-28 place-items-center rounded-3xl text-6xl" style="background:{ch.color}33">
-        {isUnlocked(ch) ? ch.emoji : '❔'}
+      <div class="h-28 w-28 overflow-hidden rounded-3xl" style="background:{isUnlocked(ch) ? ch.color : '#475569'}33">
+        <WikiImage title={ch.wiki} blurred={!isUnlocked(ch)} />
       </div>
       <div class="mt-3 text-center">
         <div class="text-xl font-bold">{isUnlocked(ch) ? ch.name : '???'}</div>
-        <div class="font-jp text-lg {isUnlocked(ch) ? 'text-pink-300' : 'text-slate-500'}">{isUnlocked(ch) ? ch.ja : '???'}</div>
-        <div class="text-xs text-slate-500">{FRANCHISE_META[ch.franchise].emoji} {FRANCHISE_META[ch.franchise].label}</div>
+        <div class="font-jp text-lg text-pink-300">{isUnlocked(ch) ? ch.ja : '???'}</div>
+        <div class="text-xs text-slate-500">{FICTIONAL_CATEGORIES[ch.category].emoji} {FICTIONAL_CATEGORIES[ch.category].label[$settings.uiLang]}</div>
       </div>
     </div>
 
@@ -164,7 +165,21 @@
             {questions[qIndex].instruction[$settings.uiLang]}
           </div>
           {#if questions[qIndex].show}
-            <div class="py-4 font-jp text-5xl">{questions[qIndex].show}</div>
+            <div class="flex items-center justify-center gap-4 py-4">
+              <div class="font-jp text-5xl">{questions[qIndex].show}</div>
+              {#if /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(questions[qIndex].show) && qIndex < questions.length - 1}
+                <button
+                  class="rounded-xl bg-slate-700 p-3 text-xl transition-colors active:bg-slate-600"
+                  title="🔊"
+                  on:click={() => speakJa(questions[qIndex].show)}
+                >🔊</button>
+              {/if}
+            </div>
+          {/if}
+          {#if qIndex < 2}
+            <div class="mx-auto mt-2 h-24 w-24 overflow-hidden rounded-xl opacity-60">
+              <WikiImage title={ch.wiki} blurred={true} />
+            </div>
           {/if}
         </div>
         <div class="mt-3 grid gap-2">
@@ -210,7 +225,9 @@
 
 {:else if view === 'cleared' && ch}
   <section class="grid place-items-center py-10 text-center" in:scale={{ start: 0.8, duration: 300 }}>
-    <div class="grid h-32 w-32 place-items-center rounded-3xl text-7xl" style="background:{ch.color}33">{ch.emoji}</div>
+    <div class="h-32 w-32 overflow-hidden rounded-3xl" style="background:{ch.color}33">
+      <WikiImage title={ch.wiki} blurred={false} />
+    </div>
     <div class="mt-3 text-2xl">🎉</div>
     <div class="text-xl font-black">{ch.name}</div>
     <div class="font-jp text-pink-300">{ch.ja}</div>

@@ -82,7 +82,7 @@ export const CHARACTERS: GameCharacter[] = [
     xpRequired: 350,
     power: '300',
     color: '#a16207',
-    imageUrl: wiki('Tanuki01 960.jpg'),
+    imageUrl: '/assets/characters/tanuki-trickster.png',
     svg: `${aura('#a16207')}
       <circle cx="50" cy="54" r="30" fill="#b45309"/>
       <path d="M26 40 q-6 -16 6 -18 q4 8 0 16Z" fill="#92400e"/>

@@ -3,7 +3,7 @@
   import { t, navigate, settings } from '../lib/stores';
   import { deckCounts } from '../lib/session';
   import { game, characterForXp, nextUnlock } from '../lib/game/state';
-  import CharacterPortrait from './CharacterPortrait.svelte';
+  import LevelCoin3D from './LevelCoin3D.svelte';
 
   let counts = { due: 0, new: 0, learning: 0, total: 0 };
   onMount(async () => {
@@ -47,7 +47,7 @@
   >
     <div class="flex items-center gap-4">
       <div class="shrink-0">
-        <CharacterPortrait character={cur.character} size={64} glow={false} />
+        <LevelCoin3D character={cur.character} level={cur.index + 1} size={152} />
       </div>
       <div class="min-w-0 flex-1">
         <div class="flex items-baseline justify-between">
