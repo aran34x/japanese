@@ -136,4 +136,6 @@ export interface Settings {
   autoAudio: boolean;
   showRomaji: boolean;
   theme: 'dark' | 'light';
+  /** Kanji enlargement factor in X-ray mode (em multiplier). */
+  xrayKanjiScale: number;
 }

@@ -31,6 +31,16 @@
       return { ...s, meaningLangs: [...set] };
     });
   }
+
+  const kanjiSizes: { value: number; label: string }[] = [
+    { value: 1.0, label: 'S' },
+    { value: 1.15, label: 'M' },
+    { value: 1.3, label: 'L' },
+    { value: 1.6, label: 'XL' }
+  ];
+  function setKanjiScale(v: number) {
+    settings.update((s) => ({ ...s, xrayKanjiScale: v }));
+  }
 </script>
 
 <section class="space-y-5">
@@ -73,6 +83,18 @@
     <span class="text-sm font-medium">{$t('autoAudio')}</span>
     <input type="checkbox" bind:checked={$settings.autoAudio} class="h-5 w-5 accent-pink-500" />
   </label>
+
+  <div class="rounded-2xl bg-slate-800 p-4">
+    <div class="mb-1 text-sm font-medium">🔍 {$t('xrayKanjiSize')}</div>
+    <p class="mb-2 text-xs text-slate-400">{$t('xrayKanjiSizeDesc')}</p>
+    <div class="flex gap-2">
+      {#each kanjiSizes as opt}
+        <button
+          class="flex-1 rounded-lg py-2 text-sm font-semibold {($settings.xrayKanjiScale ?? 1.6) === opt.value ? 'bg-indigo-500 text-white' : 'bg-slate-700'}"
+          on:click={() => setKanjiScale(opt.value)}>{opt.label}</button>
+      {/each}
+    </div>
+  </div>
 
   <CloudSync />
 

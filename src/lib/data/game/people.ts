@@ -187,7 +187,38 @@ export const PEOPLE: RealPerson[] = [
   p('kusama', 'Yayoi Kusama', '草間彌生', 'くさまやよい', 'kusama yayoi', 'art', 'painter',
     { en: 'Contemporary artist famous for polka dots.', it: 'Artista contemporanea famosa per i pois.' }),
   p('murakami-t', 'Takashi Murakami', '村上隆', 'むらかみたかし', 'murakami takashi', 'art', 'painter',
-    { en: 'Contemporary artist behind the "Superflat" style.', it: 'Artista contemporaneo dietro lo stile "Superflat".' })
+    { en: 'Contemporary artist behind the "Superflat" style.', it: 'Artista contemporaneo dietro lo stile "Superflat".' }),
+
+  // ---- New Additions ----
+  p('yonezu', 'Kenshi Yonezu', '米津玄師', 'よねづけんし', 'yonezu kenshi', 'music', 'singer',
+    { en: 'His song "Lemon" is one of the most viewed Japanese music videos.', it: 'La sua canzone "Lemon" è uno dei video musicali giapponesi più visti.' }),
+  p('kyary', 'Kyary Pamyu Pamyu', 'きゃりーぱみゅぱみゅ', 'きゃりーぱみゅぱみゅ', 'kyary pamyu pamyu', 'music', 'singer',
+    { en: 'Known as the "Harajuku Pop Princess".', it: 'Conosciuta come la "Principessa del Pop di Harajuku".' }),
+  p('togashi', 'Yoshihiro Togashi', '冨樫義博', 'とがしよしひろ', 'togashi yoshihiro', 'anime', 'mangaka',
+    { en: 'Creator of YuYu Hakusho and Hunter × Hunter.', it: 'Creatore di YuYu Hakusho e Hunter × Hunter.' }),
+  p('arakawa', 'Hiromu Arakawa', '荒川弘', 'あらかわひろむ', 'arakawa hiromu', 'anime', 'mangaka',
+    { en: 'Creator of Fullmetal Alchemist.', it: 'Creatrice di Fullmetal Alchemist.' }),
+  p('sakurai', 'Masahiro Sakurai', '桜井政博', 'さくらいまさひろ', 'sakurai masahiro', 'games', 'gamedev',
+    { en: 'Creator of Kirby and the Super Smash Bros. series.', it: 'Creatore di Kirby e della serie Super Smash Bros.' }),
+  p('naka', 'Yuji Naka', '中裕司', 'なかゆうじ', 'naka yuji', 'games', 'gamedev',
+    { en: 'Lead programmer of the original Sonic the Hedgehog.', it: 'Programmatore principale dell\'originale Sonic the Hedgehog.' }, 'Yuji Naka'),
+  p('nakata', 'Hidetoshi Nakata', '中田英寿', 'なかたひでとし', 'nakata hidetoshi', 'sports', 'athlete',
+    { en: 'One of the greatest Asian players of all time.', it: 'Uno dei più grandi giocatori asiatici di tutti i tempi.' }),
+  p('asada', 'Mao Asada', '浅田真央', 'あさだまお', 'asada mao', 'sports', 'athlete',
+    { en: 'Three-time World figure skating champion.', it: 'Tre volte campionessa mondiale di pattinaggio di figura.' }),
+  p('yoshimoto', 'Banana Yoshimoto', '吉本ばなな', 'よしもとばなな', 'yoshimoto banana', 'literature', 'author',
+    { en: 'Famous for her novel Kitchen.', it: 'Famosa per il suo romanzo Kitchen.' }),
+  p('shotoku', 'Prince Shotoku', '聖徳太子', 'しょうとくたいし', 'shotoku taishi', 'history', 'educator',
+    { en: 'Semi-legendary regent and politician of the Asuka period.', it: 'Reggente e politico semi-leggendario del periodo Asuka.' }, 'Prince Shōtoku'),
+  p('himiko', 'Himiko', '卑弥呼', 'ひみこ', 'himiko', 'history', 'warlord',
+    { en: 'Shamaness-queen of Yamataikoku in ancient Japan.', it: 'Regina sciamana di Yamataikoku nell\'antico Giappone.' }),
+  p('nara', 'Yoshitomo Nara', '奈良美智', 'ならよしとも', 'nara yoshitomo', 'art', 'painter',
+    { en: 'Known for paintings of children with challenging looks.', it: 'Noto per i dipinti di bambini dagli sguardi di sfida.' }),
+  p('abe-h', 'Hiroshi Abe', '阿部寛', 'あべひろし', 'abe hiroshi', 'film', 'actor',
+    { en: 'Known for roles in Still Walking and Thermae Romae.', it: 'Noto per i ruoli in Aruitemo aruitemo e Thermae Romae.' }),
+  p('ishihara', 'Satomi Ishihara', '石原さとみ', 'いしはらさとみ', 'ishihara satomi', 'film', 'actor'),
+  p('horikoshi', 'Kohei Horikoshi', '堀越耕平', 'ほりこしこうへい', 'horikoshi kohei', 'anime', 'mangaka',
+    { en: 'Creator of My Hero Academia.', it: 'Creatore di My Hero Academia.' })
 ];
 
 export const CATEGORY_META: Record<PersonCategory, { label: Localized; emoji: string; color: string }> = {

@@ -31,34 +31,56 @@ function shuffle<T>(a: T[]): T[] {
   return r;
 }
 
+const POPULAR_IDS = ['pikachu', 'goku', 'naruto', 'luffy', 'mario', 'miku', 'doraemon', 'link'];
+
 export function buildCharChallenge(ch: FictionalChar): FQuestion[] {
   const others = shuffle(CHARACTERS_FICTIONAL.filter((x) => x.id !== ch.id));
+  const isPopular = POPULAR_IDS.includes(ch.id);
+  const franchise = FRANCHISE_META[ch.franchise];
 
-  // Q1 — read the Japanese name
+  // --- Q1: Franchise (Easy) ---
+  const franchiseWrong = shuffle(Object.values(FRANCHISE_META).filter((f) => f.label !== franchise.label))
+    .slice(0, isPopular ? 4 : 3)
+    .map((f) => ({ text: `${f.emoji} ${f.label}`, correct: false }));
+
   const q1: FQuestion = {
-    instruction: { en: 'How is this name read?', it: 'Come si legge questo nome?' },
-    show: ch.ja,
-    options: shuffle([
-      { text: ch.romaji, correct: true },
-      ...others.slice(0, 3).map((o) => ({ text: o.romaji, correct: false }))
-    ])
+    instruction: {
+      en: 'Which franchise does this mystery character belong to?',
+      it: 'A quale franchise appartiene questo personaggio misterioso?'
+    },
+    options: shuffle([{ text: `${franchise.emoji} ${franchise.label}`, correct: true }, ...franchiseWrong])
   };
 
-  // Q2 — a simple comprehension question about who this character is, using
-  // their real fact vs. other characters' facts as distractors.
-  const factWrong = others
-    .filter((o) => o.fact.en !== ch.fact.en)
-    .slice(0, 3)
+  // --- Q2: Fact (Medium) ---
+  // If popular, try to pick distractors from the same franchise for higher difficulty
+  let distractors = others.filter((o) => o.franchise === ch.franchise);
+  if (distractors.length < 3) distractors = others;
+
+  const factWrong = shuffle(distractors.filter((o) => o.fact.en !== ch.fact.en))
+    .slice(0, isPopular ? 4 : 3)
     .map((o) => ({ en: o.fact.en, it: o.fact.it, correct: false }));
+
   const q2: FQuestion = {
     instruction: {
-      en: `Which is true about ${ch.name}?`,
-      it: `Cosa è vero su ${ch.name}?`
+      en: `Which is true about this character?`,
+      it: `Cosa è vero su questo personaggio?`
     },
     options: shuffle([{ en: ch.fact.en, it: ch.fact.it, correct: true }, ...factWrong])
   };
 
-  return [q1, q2];
+  // --- Q3: Name Reading (Hard - Final Reveal) ---
+  // Popular characters get more options for the name matching
+  const nameWrong = others.slice(0, isPopular ? 5 : 3).map((o) => ({ text: o.romaji, correct: false }));
+  const q3: FQuestion = {
+    instruction: {
+      en: 'The identity is revealed! Match the name to its reading:',
+      it: 'L\'identità è svelata! Abbina il nome alla sua lettura:'
+    },
+    show: ch.ja,
+    options: shuffle([{ text: ch.romaji, correct: true }, ...nameWrong])
+  };
+
+  return [q1, q2, q3];
 }
 
 export interface FLesson {

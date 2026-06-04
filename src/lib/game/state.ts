@@ -24,6 +24,8 @@ export interface GameState {
   unlockedFictional: string[];
   /** ids of stories whose quiz has been passed (earns a stamp). */
   storiesDone: string[];
+  /** Cumulative active study time, in seconds. */
+  studySeconds: number;
 }
 
 export const DEFAULT_GAME: GameState = {
@@ -40,7 +42,8 @@ export const DEFAULT_GAME: GameState = {
   unlockedCharacters: ['mochi'],
   unlockedPeople: [],
   unlockedFictional: [],
-  storiesDone: []
+  storiesDone: [],
+  studySeconds: 0
 };
 
 export const game = writable<GameState>(DEFAULT_GAME);
@@ -145,6 +148,24 @@ function scheduleCloudPush() {
   pushTimer = setTimeout(() => {
     void import('../sync').then((m) => m.autoPush());
   }, 5000);
+}
+
+// Accumulate active study time, persisted in batches so rapid answers don't
+// spam IndexedDB. Idle gaps are capped by the caller (per-answer delta).
+let timeBuffer = 0;
+let timeTimer: ReturnType<typeof setTimeout> | null = null;
+export function addStudyTime(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return;
+  timeBuffer += seconds;
+  if (timeTimer) return;
+  timeTimer = setTimeout(async () => {
+    const add = timeBuffer;
+    timeBuffer = 0;
+    timeTimer = null;
+    const next = { ...get(game), studySeconds: (get(game).studySeconds ?? 0) + add };
+    game.set(next);
+    await persist(next);
+  }, 4000);
 }
 
 /** XP for a single correct answer given the current combo streak. */

@@ -66,6 +66,11 @@ export const strings: Dict = {
   newPerDay: { en: 'New cards per day', it: 'Nuove carte al giorno' },
   showRomaji: { en: 'Show romaji', it: 'Mostra romaji' },
   autoAudio: { en: 'Auto-play audio', it: 'Audio automatico' },
+  xrayKanjiSize: { en: 'Kanji X-ray size', it: 'Dimensione X-ray kanji' },
+  xrayKanjiSizeDesc: {
+    en: 'How large kanji grow when the 🔍 hints are on',
+    it: 'Quanto si ingrandiscono i kanji con i suggerimenti 🔍 attivi'
+  },
 
   importTitle: { en: 'Import flashcards', it: 'Importa flashcard' },
   importCsvHelp: {
@@ -78,6 +83,11 @@ export const strings: Dict = {
 
   accuracy: { en: 'Accuracy', it: 'Precisione' },
   reviewsToday: { en: 'Reviews today', it: 'Ripassi oggi' },
+  totalReviews: { en: 'Reviews', it: 'Ripassi' },
+  timeStudied: { en: 'Time studied', it: 'Tempo studio' },
+  cardsLearned: { en: 'Cards started', it: 'Carte iniziate' },
+  struggleCards: { en: 'Struggle cards', it: 'Carte difficili' },
+  noStruggles: { en: 'No struggle cards yet — keep it up!', it: 'Nessuna carta difficile — continua così!' },
   totalCards: { en: 'Total cards', it: 'Carte totali' },
   mature: { en: 'Mature', it: 'Mature' },
   streak: { en: 'Day streak', it: 'Giorni di fila' },

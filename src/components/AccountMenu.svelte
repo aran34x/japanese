@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { navigate, t, settings } from '../lib/stores';
+  import { navigate, t, settings, settingsOpen, statsOpen } from '../lib/stores';
   import { syncSession, syncConfigured, signOut, syncStatus, initSync } from '../lib/sync';
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
@@ -131,10 +131,10 @@
         </div>
       {/if}
 
-      <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-700" on:click={() => { navigate('stats'); close(); }}>
+      <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-700" on:click={() => { statsOpen.set(true); close(); }}>
         📊 {$t('stats')}
       </button>
-      <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-700" on:click={() => { navigate('settings'); close(); }}>
+      <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-700" on:click={() => { settingsOpen.set(true); close(); }}>
         ⚙️ {$t('settingsLabel')}
       </button>
 
@@ -143,7 +143,7 @@
           ⎋ {$t('signOut')}
         </button>
       {:else}
-        <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-indigo-300 hover:bg-slate-700" on:click={() => { navigate('settings'); close(); }}>
+        <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-indigo-300 hover:bg-slate-700" on:click={() => { settingsOpen.set(true); close(); }}>
           → {$t('signIn')}
         </button>
       {/if}

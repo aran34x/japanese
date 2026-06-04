@@ -1,6 +1,7 @@
 <script lang="ts">
   import { settings, t } from '../lib/stores';
   import { game, unlockPerson } from '../lib/game/state';
+  import { speakJa } from '../lib/speech';
   import {
     PEOPLE,
     CATEGORY_META,
@@ -127,7 +128,7 @@
     </div>
     <div class="text-center">
       <div class="text-xl font-bold">{isUnlocked(person) ? person.name : '???'}</div>
-      <div class="font-jp text-lg text-pink-300">{person.ja}</div>
+      <div class="font-jp text-lg text-pink-300">{isUnlocked(person) ? person.ja : '???'}</div>
       <div class="text-sm text-slate-400">
         {isUnlocked(person) ? person.reading + ' · ' : ''}{roleLabel(person)}
       </div>
@@ -177,13 +178,21 @@
         </div>
         <div class="mt-3 grid gap-2">
           {#each questions[qIndex].options as opt, i}
-            <button
-              disabled={picked !== null && !wrong}
-              class="rounded-xl px-4 py-3 text-left text-lg font-jp transition-colors
-                {picked === i && opt.correct ? 'bg-green-600 text-white' : ''}
-                {picked === i && !opt.correct ? 'bg-rose-700 text-white' : ''}
-                {picked !== i ? 'bg-slate-800 active:bg-slate-700' : ''}"
-              on:click={() => answer(i)}>{opt.text}</button>
+            <div class="flex items-stretch gap-2">
+              <button
+                disabled={picked !== null && !wrong}
+                class="flex-1 rounded-xl px-4 py-3 text-left text-lg font-jp transition-colors
+                  {picked === i && opt.correct ? 'bg-green-600 text-white' : ''}
+                  {picked === i && !opt.correct ? 'bg-rose-700 text-white' : ''}
+                  {picked !== i ? 'bg-slate-800 active:bg-slate-700' : ''}"
+                on:click={() => answer(i)}>{opt.text}</button>
+              {#if /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(opt.text)}
+                <button
+                  class="shrink-0 rounded-xl bg-slate-800 px-3 active:bg-slate-700"
+                  title="🔊"
+                  on:click|stopPropagation={() => speakJa(opt.text)}>🔊</button>
+              {/if}
+            </div>
           {/each}
         </div>
       </div>

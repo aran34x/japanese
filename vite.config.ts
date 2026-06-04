@@ -1,14 +1,43 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { VitePWA } from 'vite-plugin-pwa';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
 
 // Base path: set to "/japanese/" when deploying to GitHub Pages project site.
 // Leave as "/" for Vercel/Netlify or local dev. Override with BASE env var.
 const base = process.env.BASE ?? '/';
 
+// The kuromoji dictionary ships as pre-gzipped *.dat.gz files which kuromoji
+// fetches and gunzips itself. Vite's dev server, however, serves any *.gz file
+// with `Content-Encoding: gzip`, so the browser transparently decompresses it —
+// then kuromoji double-gunzips and the tokenizer (furigana) silently fails.
+// This plugin serves /dict/*.gz as raw bytes with no Content-Encoding.
+function serveDictRaw(): Plugin {
+  return {
+    name: 'serve-dict-raw',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url?.split('?')[0] ?? '';
+        if (url.includes('/dict/') && url.endsWith('.gz')) {
+          const file = join(process.cwd(), 'public', url);
+          if (existsSync(file)) {
+            res.setHeader('Content-Type', 'application/octet-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.end(readFileSync(file));
+            return;
+          }
+        }
+        next();
+      });
+    }
+  };
+}
+
 export default defineConfig({
   base,
   plugins: [
+    serveDictRaw(),
     svelte(),
     VitePWA({
       registerType: 'autoUpdate',

@@ -11,6 +11,7 @@
   import { fly, slide } from 'svelte/transition';
   import { confetti } from '../lib/confetti';
   import { markSaving, markSaved } from '../lib/saveStatus';
+  import { addStudyTime } from '../lib/game/state';
 
   type Phase = 'menu' | 'config' | 'running' | 'done';
   type Mode = 'mixed' | 'flashcard' | 'quiz' | 'typing';
@@ -152,12 +153,16 @@
   /** Start a session with exactly one set. */
   const startSingle = (id: string) => start([id]);
 
+  let cardShownAt = 0;
   function loadCurrent() {
     const item = queue[index];
     current = makeExercise(item.card, pool, $settings.meaningLangs, kindForMode(item.card));
+    cardShownAt = Date.now();
   }
 
   async function grade(g: Grade) {
+    // Track active study time (capped per card so idle/AFK doesn't inflate it).
+    if (cardShownAt) addStudyTime(Math.min((Date.now() - cardShownAt) / 1000, 120));
     const item = queue[index];
     const updated = schedule(item.state, g);
     markSaving();

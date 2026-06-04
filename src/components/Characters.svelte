@@ -1,6 +1,7 @@
 <script lang="ts">
   import { settings, t } from '../lib/stores';
   import { game, unlockFictional } from '../lib/game/state';
+  import { speakJa } from '../lib/speech';
   import {
     CHARACTERS_FICTIONAL,
     FRANCHISE_META,
@@ -104,8 +105,8 @@
           >{unlocked ? x.emoji : '❔'}</div>
           <div class="min-w-0">
             <div class="truncate text-sm font-semibold">{unlocked ? x.name : '???'}</div>
-            <div class="truncate font-jp text-sm {unlocked ? 'text-pink-300' : 'blur-sm select-none text-slate-400'}">
-              {x.ja}
+            <div class="truncate font-jp text-sm {unlocked ? 'text-pink-300' : 'text-slate-500'}">
+              {unlocked ? x.ja : '???'}
             </div>
           </div>
         </button>
@@ -122,7 +123,7 @@
       </div>
       <div class="mt-3 text-center">
         <div class="text-xl font-bold">{isUnlocked(ch) ? ch.name : '???'}</div>
-        <div class="font-jp text-lg {isUnlocked(ch) ? 'text-pink-300' : 'blur-md select-none'}">{ch.ja}</div>
+        <div class="font-jp text-lg {isUnlocked(ch) ? 'text-pink-300' : 'text-slate-500'}">{isUnlocked(ch) ? ch.ja : '???'}</div>
         <div class="text-xs text-slate-500">{FRANCHISE_META[ch.franchise].emoji} {FRANCHISE_META[ch.franchise].label}</div>
       </div>
     </div>
@@ -168,13 +169,22 @@
         </div>
         <div class="mt-3 grid gap-2">
           {#each questions[qIndex].options as opt, i}
-            <button
-              disabled={picked !== null && !wrong}
-              class="rounded-xl px-4 py-3 text-left text-lg font-jp transition-colors
-                {picked === i && opt.correct ? 'bg-green-600 text-white' : ''}
-                {picked === i && !opt.correct ? 'bg-rose-700 text-white' : ''}
-                {picked !== i ? 'bg-slate-800 active:bg-slate-700' : ''}"
-              on:click={() => answer(i)}>{opt.text ?? opt[$settings.uiLang]}</button>
+            {@const txt = opt.text ?? opt[$settings.uiLang] ?? ''}
+            <div class="flex items-stretch gap-2">
+              <button
+                disabled={picked !== null && !wrong}
+                class="flex-1 rounded-xl px-4 py-3 text-left text-lg font-jp transition-colors
+                  {picked === i && opt.correct ? 'bg-green-600 text-white' : ''}
+                  {picked === i && !opt.correct ? 'bg-rose-700 text-white' : ''}
+                  {picked !== i ? 'bg-slate-800 active:bg-slate-700' : ''}"
+                on:click={() => answer(i)}>{txt}</button>
+              {#if /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(txt)}
+                <button
+                  class="shrink-0 rounded-xl bg-slate-800 px-3 active:bg-slate-700"
+                  title="🔊"
+                  on:click|stopPropagation={() => speakJa(txt)}>🔊</button>
+              {/if}
+            </div>
           {/each}
         </div>
       </div>

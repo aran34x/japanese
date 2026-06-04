@@ -6,6 +6,10 @@ import { translate } from './i18n';
 export const settings = writable<Settings>(DEFAULT_SETTINGS);
 export const ready = writable(false);
 
+// Whether the Settings / Stats modals are open (overlay the current page).
+export const settingsOpen = writable(false);
+export const statsOpen = writable(false);
+
 // Simple hash-based route: '#/study', '#/decks', etc.
 function readRoute(): string {
   return location.hash.replace(/^#\//, '') || 'home';

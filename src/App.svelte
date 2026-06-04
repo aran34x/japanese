@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { ready, route, navigate, t, settings } from './lib/stores';
+  import { ready, route, navigate, t, settings, settingsOpen, statsOpen } from './lib/stores';
   import { UI } from './lib/ui-config';
+  import Modal from './components/Modal.svelte';
   import { loadSettings } from './lib/stores';
   import { ensureSeeded } from './lib/data/seed';
   import { loadGame, resetAllProgress } from './lib/game/state';
@@ -54,6 +55,11 @@
     document.documentElement.classList.toggle('light', $settings.theme === 'light');
   }
 
+  // User-chosen kanji enlargement factor for X-ray mode.
+  $: if (typeof document !== 'undefined') {
+    document.documentElement.style.setProperty('--xray-kanji-scale', String($settings.xrayKanjiScale ?? 1.6));
+  }
+
   // Clear local progress so a guest/other identity starts clean. Called by sync
   // during startup reconciliation (awaited) and on explicit sign-out.
   setSignedOutHandler(async () => {
@@ -87,20 +93,20 @@
     <header class="fixed inset-x-0 top-0 z-50 border-b border-slate-800 bg-slate-900/95 backdrop-blur">
       <div class="mx-auto flex max-w-2xl items-center justify-between px-4 {UI.topbarPadding} lg:max-w-5xl">
         <button
-          class="grid h-9 w-9 place-items-center rounded-full bg-slate-800 text-lg"
+          class="xray-dim-el grid h-9 w-9 place-items-center rounded-full bg-slate-800 text-lg"
           title="Home"
           on:click={() => navigate('home')}>🏠</button>
         <div class="flex items-center gap-2">
-          <SaveIndicator />
+          <span class="xray-dim-el"><SaveIndicator /></span>
           <button
-            class="grid h-9 w-9 place-items-center rounded-full text-sm font-bold {$furiganaOn ? 'bg-pink-500 text-white' : 'bg-slate-800 text-slate-300'}"
+            class="xray-dim-el grid h-9 w-9 place-items-center rounded-full text-sm font-bold {$furiganaOn ? 'bg-pink-500 text-white' : 'bg-slate-800 text-slate-300'}"
             title="Furigana"
             on:click={toggleFurigana}>ふ</button>
           <button
             class="grid h-9 w-9 place-items-center rounded-full text-sm font-bold {$xrayOn ? 'bg-pink-500 text-white' : 'bg-slate-800 text-slate-300'}"
             title="Kanji X-ray (meanings + readings on screen)"
             on:click={toggleXray}>🔍</button>
-          <AccountMenu />
+          <span class="xray-dim-el"><AccountMenu /></span>
         </div>
       </div>
     </header>
@@ -114,10 +120,6 @@
             <Study />
           {:else if $route === 'stories'}
             <Stories />
-          {:else if $route === 'stats'}
-            <Stats />
-          {:else if $route === 'settings'}
-            <SettingsScreen />
           {:else}
             <Home />
           {/if}
@@ -131,6 +133,13 @@
     {#if $xrayOn}
       <!-- Dims the whole screen; kanji are lifted above it via z-index. -->
       <div class="xray-dim-overlay" transition:fade={{ duration: 200 }}></div>
+    {/if}
+
+    {#if $settingsOpen}
+      <Modal onClose={() => settingsOpen.set(false)}><SettingsScreen /></Modal>
+    {/if}
+    {#if $statsOpen}
+      <Modal onClose={() => statsOpen.set(false)}><Stats /></Modal>
     {/if}
   </div>
 {:else}

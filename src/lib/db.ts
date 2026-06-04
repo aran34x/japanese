@@ -32,7 +32,8 @@ export const DEFAULT_SETTINGS: Settings = {
   newPerDay: 20,
   autoAudio: true,
   showRomaji: true,
-  theme: 'dark'
+  theme: 'dark',
+  xrayKanjiScale: 1.15
 };
 
 export async function getSettings(): Promise<Settings> {

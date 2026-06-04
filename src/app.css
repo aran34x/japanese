@@ -97,7 +97,7 @@ button {
   min-width: var(--xray-slot, 96px); /* fixed floor → zero horizontal jitter */
   padding-top: 2.7rem;               /* reserves vertical room for the hint */
   text-align: center;                /* centre the kanji in its slot */
-  font-size: 1.6em;                  /* enlarge the studied kanji */
+  font-size: calc(var(--xray-kanji-scale, 1.6) * 1em); /* user-chosen size */
   font-weight: 600;
 }
 .xray-anno {
@@ -142,5 +142,8 @@ button {
 :root.light .xray-dim-overlay {
   background: rgba(255, 255, 255, 0.5); /* light veil for light theme */
 }
-.xray-active header { opacity: 0.55; }
+/* Dim the nav and the individual topbar items — but NOT the 🔍 toggle, so it
+   stays bright and easy to find/turn off. (Per-item opacity, because the 🔍 is
+   a sibling and opacity on the whole header couldn't exempt it.) */
 .xray-active nav { opacity: 0.55; z-index: 50; }
+.xray-active .xray-dim-el { opacity: 0.5; transition: opacity 0.2s ease; }

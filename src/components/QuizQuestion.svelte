@@ -28,8 +28,8 @@
   export let promptSpeak = '';
   /** Recorded audio URL for the prompt — preferred over TTS when present. */
   export let promptAudioUrl = '';
-  /** Allow playing the answer OPTIONS aloud (adds a 🔊 per option). */
-  export let answerAudio = false;
+  /** Allow playing the answer OPTIONS aloud (adds a 🔊 per option). Defaults to true if Japanese is detected. */
+  export let answerAudio = true;
   /** Optional hint shown under a typing input before answering. */
   export let hint = '';
   export let compact = false;
@@ -46,6 +46,27 @@
   let correct = false;
   let picked: number | null = null;
   let typed = '';
+
+  function isJapanese(s: string): boolean {
+    return /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(s);
+  }
+
+  /**
+   * Determine if we should show a TTS button for this option.
+   * True if it's Japanese AND not already the main focus of a reading question.
+   */
+  function shouldShowAudio(optLabel: string): boolean {
+    if (!answerAudio || !isJapanese(optLabel)) return false;
+    // If the instruction specifically asks for the reading/pronunciation,
+    // playing the audio would be a spoiler.
+    const lowerInstr = instruction.toLowerCase();
+    const isReadingTask = lowerInstr.includes('reading') || lowerInstr.includes('lettura') || lowerInstr.includes('pronun');
+    if (isReadingTask) {
+        // Simple collision check: if the option text appears in the prompt or vice versa
+        if (optLabel.includes(prompt) || prompt.includes(optLabel)) return false;
+    }
+    return true;
+  }
 
   export function normalize(s: string): string {
     return s.trim().toLowerCase().replace(/\s+/g, ' ').replace(/[。、．.!?]/g, '');
@@ -97,7 +118,7 @@
             {answered && !opt.correct && picked !== i ? 'bg-slate-800 opacity-40' : ''}
             {!answered ? 'bg-slate-800 active:bg-slate-700' : ''}"
           on:click={() => pickOption(i)}>{opt.label}</button>
-        {#if answerAudio}
+        {#if shouldShowAudio(opt.label)}
           <button
             class="shrink-0 rounded-xl bg-slate-800 px-3 active:bg-slate-700"
             title="🔊"
