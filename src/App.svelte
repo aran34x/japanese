@@ -6,17 +6,16 @@
   import { loadSettings } from './lib/stores';
   import { ensureSeeded } from './lib/data/seed';
   import { loadGame, resetAllProgress } from './lib/game/state';
-  import { loadXray, furiganaOn } from './lib/kanji/xray';
+  import { loadXray, furiganaOn, xrayOn } from './lib/kanji/xray';
   import { enableFurigana, disableFurigana } from './lib/kanji/furigana';
+  import { enableXray, disableXray } from './lib/kanji/xray-annotate';
   import { initSync, authReady, syncSession, syncConfigured, setSignedOutHandler } from './lib/sync';
   import AuthGate from './components/AuthGate.svelte';
   import AccountMenu from './components/AccountMenu.svelte';
   import SaveIndicator from './components/SaveIndicator.svelte';
-  import KanjiSheet from './components/KanjiSheet.svelte';
   import Home from './components/Home.svelte';
   import Study from './components/Study.svelte';
   import Stories from './components/Stories.svelte';
-  import Decks from './components/Decks.svelte';
   import Stats from './components/Stats.svelte';
   import SettingsScreen from './components/SettingsScreen.svelte';
   import { ensureAnkiDecks } from './lib/data/anki-seed';
@@ -27,12 +26,27 @@
   import Nav from './components/Nav.svelte';
 
   let skippedAuth = false;
-  let kanjiSheetOpen = false;
 
   // Toggle global furigana annotation across the whole app.
   $: if (typeof document !== 'undefined') {
     if ($furiganaOn) enableFurigana();
     else disableFurigana();
+  }
+
+  // Toggle the kanji X-ray overlay (cycling meaning + readings above each kanji).
+  $: if (typeof document !== 'undefined') {
+    if ($xrayOn) enableXray();
+    else disableXray();
+  }
+
+  // Furigana and X-ray are mutually exclusive (both annotate kanji).
+  function toggleFurigana() {
+    furiganaOn.update((v) => !v);
+    if ($furiganaOn) xrayOn.set(false);
+  }
+  function toggleXray() {
+    xrayOn.update((v) => !v);
+    if ($xrayOn) furiganaOn.set(false);
   }
 
   // Apply theme class to <html> so CSS variables switch.
@@ -81,11 +95,11 @@
           <button
             class="grid h-9 w-9 place-items-center rounded-full text-sm font-bold {$furiganaOn ? 'bg-pink-500 text-white' : 'bg-slate-800 text-slate-300'}"
             title="Furigana"
-            on:click={() => furiganaOn.update((v) => !v)}>ふ</button>
+            on:click={toggleFurigana}>ふ</button>
           <button
-            class="grid h-9 w-9 place-items-center rounded-full bg-slate-800 text-sm font-bold text-slate-300"
-            title="Kanji meanings on screen"
-            on:click={() => (kanjiSheetOpen = true)}>🔍</button>
+            class="grid h-9 w-9 place-items-center rounded-full text-sm font-bold {$xrayOn ? 'bg-pink-500 text-white' : 'bg-slate-800 text-slate-300'}"
+            title="Kanji X-ray (meanings + readings on screen)"
+            on:click={toggleXray}>🔍</button>
           <AccountMenu />
         </div>
       </div>
@@ -100,8 +114,6 @@
             <Study />
           {:else if $route === 'stories'}
             <Stories />
-          {:else if $route === 'decks'}
-            <Decks />
           {:else if $route === 'stats'}
             <Stats />
           {:else if $route === 'settings'}
@@ -116,7 +128,10 @@
     <Nav />
     <Toasts />
     <WhatsNew />
-    <KanjiSheet open={kanjiSheetOpen} onClose={() => (kanjiSheetOpen = false)} />
+    {#if $xrayOn}
+      <!-- Dims the whole screen; kanji are lifted above it via z-index. -->
+      <div class="xray-dim-overlay" transition:fade={{ duration: 200 }}></div>
+    {/if}
   </div>
 {:else}
   <div class="grid min-h-screen place-items-center text-slate-400">読み込み中…</div>

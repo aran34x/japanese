@@ -19,8 +19,6 @@ export function normalize(s: string): string {
   return s.trim().toLowerCase().replace(/\s+/g, ' ').replace(/[。、．]/g, '');
 }
 
-const hasMeaning = (c: Card) => !!(c.meaning.en || c.meaning.it);
-
 /**
  * The only question types that make sense for a given card. This is the
  * "question type category" system: each card category maps to coherent kinds,
@@ -47,13 +45,11 @@ export function allowedKinds(card: Card): ExerciseKind[] {
       // a full sentence: only "what does it mean?" makes sense
       k.push('mcq-jp-to-meaning');
       break;
-    default: {
-      // custom / imported — adapt to whatever fields exist
-      if (hasMeaning(card)) k.push('mcq-jp-to-meaning', 'mcq-meaning-to-jp', 'type-meaning');
-      if (card.reading && card.reading !== card.front) k.push('mcq-jp-to-reading');
-      if (card.romaji) k.push('type-reading');
-      if (k.length === 0) k.push('flashcard');
-    }
+    default:
+      // custom / imported Anki decks → classic flip flashcards only. Their
+      // content doesn't map cleanly to MCQ (distractors become nonsensical),
+      // so we keep the authentic Anki front → back + SRS grading experience.
+      k.push('flashcard');
   }
   return k;
 }
@@ -131,14 +127,28 @@ export function makeExercise(
     chosen = kind;
   }
 
+  // Audio for the prompt is appropriate only when the prompt is Japanese AND
+  // the task isn't "read this" (where hearing it gives away the answer). Prefer
+  // the card's recorded audio, else fall back to TTS in the UI.
+  const jpPrompt = card.reading || card.front;
+
   switch (chosen) {
     case 'mcq-jp-to-meaning':
-      return mcq(card, pool, meaning, card.front, 'mcq-jp-to-meaning', 'q_meaning');
+      // Prompt is Japanese, asking for meaning → speaking it is fine/helpful.
+      return {
+        ...mcq(card, pool, meaning, card.front, 'mcq-jp-to-meaning', 'q_meaning'),
+        promptSpeak: jpPrompt,
+        promptAudioUrl: card.audioUrl
+      };
     case 'mcq-meaning-to-jp':
-      return mcq(card, pool, (c) => c.front, meaning(card), 'mcq-meaning-to-jp', 'q_say');
+      // Prompt is the MEANING (a UI label, not Japanese) → no prompt audio.
+      // Answers are Japanese, so they may be played.
+      return { ...mcq(card, pool, (c) => c.front, meaning(card), 'mcq-meaning-to-jp', 'q_say'), answerAudio: true };
     case 'mcq-jp-to-reading':
-      return mcq(card, pool, readingText, card.front, 'mcq-jp-to-reading', 'q_reading');
+      // "How do you read this?" → never speak the prompt; answers (readings) ok.
+      return { ...mcq(card, pool, readingText, card.front, 'mcq-jp-to-reading', 'q_reading'), answerAudio: true };
     case 'type-reading':
+      // "How do you read this?" (typed) → no audio at all.
       return {
         kind: 'type-reading',
         card,
@@ -147,11 +157,14 @@ export function makeExercise(
         answers: [card.romaji, card.reading].filter(Boolean).map((s) => normalize(s!))
       };
     case 'type-meaning':
+      // Prompt is Japanese, asking for meaning → speaking it is fine.
       return {
         kind: 'type-meaning',
         card,
         prompt: card.front,
         instructionKey: 'q_type_meaning',
+        promptSpeak: jpPrompt,
+        promptAudioUrl: card.audioUrl,
         answers: langs
           .flatMap((l) => (card.meaning[l] ? card.meaning[l]!.split(/[\/,]/) : []))
           .map((s) => normalize(s))

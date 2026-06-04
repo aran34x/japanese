@@ -3,10 +3,10 @@
   export let onClose: () => void = () => {};
 </script>
 
-<!-- z-[199]: above topbar (z-50) and nav — full-app blur -->
-<!-- Dropdown must use z-[200]+ to sit on top -->
+<!-- Full-viewport blur. Portaled to <body> by the caller, so a high z-index
+     here sits above the topbar, nav and all page content. -->
 <div
-  class="fixed inset-0 z-[199] bg-black/40 backdrop-blur-sm"
+  class="fixed inset-0 z-[998] bg-black/40 backdrop-blur-sm"
   transition:fade={{ duration: 150 }}
   on:click={onClose}
   role="presentation"

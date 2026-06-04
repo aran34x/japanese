@@ -7,3 +7,4 @@ dev-dist
 dev.bat
 deploy.bat
 AnkiDecks/
+vite.config.ts.timestamp-*.mjs

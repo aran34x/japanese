@@ -85,9 +85,9 @@
         <div class="text-2xl">⌨️</div>
         <div class="mt-1 font-medium">{$t('typing')}</div>
       </button>
-      <button class="rounded-xl bg-slate-800 p-4 text-left active:scale-[0.98]" on:click={() => navigate('decks')}>
-        <div class="text-2xl">🗂️</div>
-        <div class="mt-1 font-medium">{$t('decks')}</div>
+      <button class="rounded-xl bg-slate-800 p-4 text-left active:scale-[0.98]" on:click={() => navigate('study')}>
+        <div class="text-2xl">⚙️</div>
+        <div class="mt-1 font-medium">Custom</div>
       </button>
     </div>
   </div>

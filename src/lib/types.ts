@@ -113,6 +113,17 @@ export interface Exercise {
   options?: McqOption[];
   /** acceptable answers for typed kinds (lowercased, trimmed) */
   answers?: string[];
+  /**
+   * TTS text to speak for the PROMPT — set only when speaking the prompt is
+   * appropriate (i.e. the prompt is Japanese and it's not a "how do you read
+   * this?" question, where audio would reveal the answer). Undefined = no
+   * prompt audio.
+   */
+  promptSpeak?: string;
+  /** Recorded audio URL for the prompt; preferred over promptSpeak (TTS). */
+  promptAudioUrl?: string;
+  /** Whether the answer OPTIONS may be played aloud (Japanese/reading answers). */
+  answerAudio?: boolean;
 }
 
 export interface Settings {

@@ -85,3 +85,62 @@ button {
   transform-style: preserve-3d;
   perspective: 1000px;
 }
+
+/* ── Kanji X-ray annotation ───────────────────────────────────────
+   The wrapper has an EXPLICIT pixel width (--xray-slot, pre-measured from the
+   widest hint) and reserves vertical room via padding-top. The hint is
+   absolutely positioned, so cycling text can never change the layout. */
+.xray-kanji {
+  position: relative;
+  z-index: 45;                       /* above dim overlay (40), below bars (50) */
+  display: inline-block;
+  min-width: var(--xray-slot, 96px); /* fixed floor → zero horizontal jitter */
+  padding-top: 2.7rem;               /* reserves vertical room for the hint */
+  text-align: center;                /* centre the kanji in its slot */
+  font-size: 1.6em;                  /* enlarge the studied kanji */
+  font-weight: 600;
+}
+.xray-anno {
+  position: absolute;
+  top: 0.1rem;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+  font-weight: 700;
+  pointer-events: none;              /* never intercept taps (e.g. card flip) */
+}
+.xray-read {
+  font-size: 15px;
+  white-space: nowrap;
+}
+.xray-mean {
+  font-size: 14px;
+  white-space: nowrap;
+  color: #ffffff;                    /* meanings in white */
+  font-weight: 600;
+}
+:root.light .xray-mean { color: #1c1c1e; }
+
+/* Extra top room so the first row's hint clears the fixed topbar. */
+.xray-active main { padding-top: calc(4rem + 2.7rem); }
+
+/* Focus mode: a full-screen veil (z-40) dims the content + page; the kanji
+   (z-45) show through it at full brightness, but stay BELOW the topbar/nav
+   (z-50) so they don't bleed over them when scrolled. pointer-events:none keeps
+   the UI underneath clickable. The fixed bars sit above the veil, so they're
+   dimmed with their own opacity instead. */
+.xray-dim-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background: rgba(2, 6, 23, 0.55);   /* dark veil for dark theme */
+}
+:root.light .xray-dim-overlay {
+  background: rgba(255, 255, 255, 0.5); /* light veil for light theme */
+}
+.xray-active header { opacity: 0.55; }
+.xray-active nav { opacity: 0.55; z-index: 50; }

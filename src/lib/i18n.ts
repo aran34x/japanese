@@ -24,6 +24,8 @@ export const strings: Dict = {
   reviewDone: { en: 'Session complete!', it: 'Sessione completata!' },
 
   modes: { en: 'Practice modes', it: 'Modalità di pratica' },
+  mixed: { en: 'Mixed', it: 'Misto' },
+  mixAndMatch: { en: 'Mix decks & modes your way', it: 'Combina mazzi e modalità a piacere' },
   flashcards: { en: 'Flashcards (SRS)', it: 'Flashcard (SRS)' },
   quiz: { en: 'Multiple choice', it: 'Scelta multipla' },
   typing: { en: 'Typing', it: 'Scrittura' },
@@ -50,9 +52,14 @@ export const strings: Dict = {
   q_type_meaning: { en: 'Type the meaning', it: 'Scrivi il significato' },
 
   chooseDeck: { en: 'Choose decks to study', it: 'Scegli i mazzi da studiare' },
+  chooseSet: { en: 'Tap a set to start', it: 'Tocca un set per iniziare' },
+  mixSets: { en: 'Mix multiple sets', it: 'Combina più set' },
   allDecks: { en: 'All decks', it: 'Tutti i mazzi' },
   cards: { en: 'cards', it: 'carte' },
   resetDeck: { en: 'Reset progress', it: 'Azzera progressi' },
+  resetSure: { en: 'Reset?', it: 'Azzerare?' },
+  resetDone: { en: 'Reset ✓', it: 'Azzerato ✓' },
+  deleteSure: { en: 'Delete?', it: 'Eliminare?' },
 
   uiLanguage: { en: 'Interface language', it: 'Lingua interfaccia' },
   meaningLanguages: { en: 'Show meanings in', it: 'Mostra significati in' },

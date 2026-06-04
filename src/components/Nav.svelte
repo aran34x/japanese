@@ -3,15 +3,14 @@
   import { UI } from '../lib/ui-config';
   const items = [
     { id: 'home', icon: '🏠', key: 'home' },
+    { id: 'study', icon: '📚', key: 'study' },
     { id: 'adventure', icon: '⚔️', key: 'adventure' },
-    { id: 'study', icon: '🎯', key: 'study' },
-    { id: 'stories', icon: '📖', key: 'stories' },
-    { id: 'decks', icon: '🗂️', key: 'decks' }
+    { id: 'stories', icon: '📖', key: 'stories' }
   ];
 </script>
 
 <nav class="fixed inset-x-0 bottom-0 mx-auto max-w-2xl border-t border-slate-800 bg-slate-900/95 backdrop-blur lg:max-w-5xl">
-  <div class="grid grid-cols-5">
+  <div class="grid grid-cols-4">
     {#each items as item}
       <button
         class="flex flex-col items-center gap-0.5 {UI.navItemPad} text-xs transition-colors {$route === item.id

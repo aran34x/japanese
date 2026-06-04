@@ -19,7 +19,9 @@
   instruction={$t(exercise.instructionKey || 'meaning')}
   {options}
   answers={exercise.answers ?? []}
-  speakText={exercise.card.reading || exercise.card.front}
+  promptSpeak={exercise.promptSpeak ?? ''}
+  promptAudioUrl={exercise.promptAudioUrl ?? ''}
+  answerAudio={exercise.answerAudio ?? false}
   {compact}
   on:answer={(e) => dispatch('answer', e.detail)}
   let:answered
