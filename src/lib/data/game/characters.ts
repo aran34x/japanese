@@ -40,7 +40,7 @@ export const CHARACTERS: GameCharacter[] = [
     xpRequired: 0,
     power: '5',
     color: '#f9a8d4',
-    imageUrl: wiki('Mochi 002.jpg'),
+    imageUrl: '/assets/characters/mochi-chan.png',
     svg: `${aura('#f9a8d4')}
       <ellipse cx="50" cy="56" rx="30" ry="26" fill="#fdf2f8"/>
       <ellipse cx="50" cy="56" rx="30" ry="26" fill="none" stroke="#f9a8d4" stroke-width="2"/>
@@ -61,7 +61,7 @@ export const CHARACTERS: GameCharacter[] = [
     xpRequired: 120,
     power: '40',
     color: '#94a3b8',
-    imageUrl: wiki('Japanese rice balls (onigiri).jpg'),
+    imageUrl: '/assets/characters/onigiri-apprentice.png',
     svg: `${aura('#94a3b8')}
       <path d="M50 22 L78 74 Q80 80 72 80 L28 80 Q20 80 22 74 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
       <rect x="36" y="62" width="28" height="16" rx="2" fill="#334155"/>
@@ -106,7 +106,7 @@ export const CHARACTERS: GameCharacter[] = [
     xpRequired: 800,
     power: '1,200',
     color: '#15803d',
-    imageUrl: wiki('Water_kappa.jpg'),
+    imageUrl: '/assets/characters/kappa-cadet.png',
     svg: `${aura('#15803d')}
       <circle cx="50" cy="54" r="30" fill="#22c55e"/>
       <ellipse cx="50" cy="30" rx="18" ry="7" fill="#86efac"/>
@@ -127,7 +127,7 @@ export const CHARACTERS: GameCharacter[] = [
     xpRequired: 1800,
     power: '9,001',
     color: '#ea580c',
-    imageUrl: wiki('Kitsune_mask.jpg'),
+    imageUrl: '/assets/characters/kitsune-adept.png',
     svg: `${aura('#ea580c')}
       <g fill="#fb923c" stroke="#c2410c" stroke-width="1.5">
         <path d="M50 70 q-26 6 -30 -8 q14 2 22 0Z"/>
@@ -154,7 +154,7 @@ export const CHARACTERS: GameCharacter[] = [
     xpRequired: 4000,
     power: '50,000',
     color: '#dc2626',
-    imageUrl: wiki('Daruma doll, cut out, 03.jpg'),
+    imageUrl: '/assets/characters/daruma-sensei.png',
     svg: `${aura('#dc2626')}
       <path d="M50 26 q26 0 26 30 q0 24 -26 24 q-26 0 -26 -24 q0 -30 26 -30Z" fill="#dc2626" stroke="#991b1b" stroke-width="2"/>
       <ellipse cx="50" cy="58" rx="20" ry="16" fill="#fcd34d"/>
@@ -175,7 +175,7 @@ export const CHARACTERS: GameCharacter[] = [
     xpRequired: 9000,
     power: '250,000',
     color: '#b91c1c',
-    imageUrl: wiki('The Tengu King Training his Pupils.jpg'),
+    imageUrl: '/assets/characters/tengu-windblade.png',
     svg: `${aura('#b91c1c')}
       <path d="M50 24 q22 0 24 24 q-12 8 -24 8 q-12 0 -24 -8 q2 -24 24 -24Z" fill="#fff"/>
       <circle cx="50" cy="56" r="26" fill="#ef4444"/>
@@ -196,7 +196,7 @@ export const CHARACTERS: GameCharacter[] = [
     xpRequired: 20000,
     power: '1,000,000',
     color: '#2563eb',
-    imageUrl: wiki('Oni-1995.266.53-P8260136-gradient.jpg'),
+    imageUrl: '/assets/characters/oni-berserker.png',
     svg: `${aura('#2563eb')}
       <path d="M34 30 q-6 -14 -12 -16 q2 12 8 18Z" fill="#e5e7eb"/>
       <path d="M66 30 q6 -14 12 -16 q-2 12 -8 18Z" fill="#e5e7eb"/>
@@ -218,7 +218,7 @@ export const CHARACTERS: GameCharacter[] = [
     xpRequired: 45000,
     power: '10,000,000',
     color: '#0891b2',
-    imageUrl: wiki('Karakuri ningyo.jpg'),
+    imageUrl: '/assets/characters/karakuri-mecha.png',
     svg: `${aura('#0891b2')}
       <rect x="26" y="34" width="48" height="44" rx="8" fill="#64748b" stroke="#334155" stroke-width="2"/>
       <rect x="32" y="42" width="36" height="20" rx="4" fill="#0f172a"/>
@@ -241,7 +241,7 @@ export const CHARACTERS: GameCharacter[] = [
     xpRequired: 90000,
     power: '100,000,000',
     color: '#7c3aed',
-    imageUrl: wiki('Raijin-ogata-emuseum.JPG'),
+    imageUrl: '/assets/characters/raijin-striker.png',
     svg: `${aura('#7c3aed')}
       <path d="M24 36 q26 -10 52 0 q6 18 -2 34 q-24 10 -48 0 q-8 -16 -2 -34Z" fill="#6d28d9"/>
       <circle cx="50" cy="50" r="22" fill="none" stroke="#c4b5fd" stroke-width="3"/>
@@ -263,7 +263,7 @@ export const CHARACTERS: GameCharacter[] = [
     xpRequired: 180000,
     power: '1,000,000,000',
     color: '#059669',
-    imageUrl: wiki('The Dragon King Ryujin and the Tide-controlling Jewels beneath the sea.jpg'),
+    imageUrl: '/assets/characters/ryujin.png',
     svg: `${aura('#059669')}
       <path d="M30 70 q-6 -20 8 -30 q-2 -8 6 -12 q-4 10 2 12 q10 -2 16 6 q12 0 14 14 q-8 -6 -16 -2 q6 8 -2 16 q-4 -10 -12 -8 q-8 6 -4 16 q-12 -2 -16 -18Z" fill="#10b981" stroke="#047857" stroke-width="1.5"/>
       <path d="M58 28 l8 -10 l-2 10Z" fill="#34d399"/>
@@ -283,7 +283,7 @@ export const CHARACTERS: GameCharacter[] = [
     xpRequired: 400000,
     power: '∞',
     color: '#f59e0b',
-    imageUrl: wiki('Amaterasu cave wide.jpg'),
+    imageUrl: '/assets/characters/amaterasu-ascendant.png',
     svg: `<g stroke="#fbbf24" stroke-width="3" stroke-linecap="round">
         ${Array.from({ length: 12 })
           .map((_, i) => {
