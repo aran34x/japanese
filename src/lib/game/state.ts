@@ -90,6 +90,62 @@ export async function resetAllProgress(): Promise<void> {
   const fresh = { ...DEFAULT_GAME };
   await db.meta.put({ key: 'gamestate', value: fresh });
   game.set(fresh);
+  scheduleCloudPush();
+}
+
+export type ProgressSection = 'srs' | 'adventure' | 'challenges' | 'stories' | 'achievements';
+
+/**
+ * Reset one slice of progress while leaving decks, settings, login and the
+ * other progress buckets intact.
+ */
+export async function resetProgressSection(section: ProgressSection): Promise<void> {
+  if (section === 'srs') {
+    const ids = (await db.cards.toCollection().primaryKeys()) as string[];
+    await db.reviews.bulkPut(ids.map((id) => newReviewState(id)));
+    scheduleCloudPush();
+    return;
+  }
+
+  const before = get(game);
+  let next: GameState = { ...before };
+
+  if (section === 'adventure') {
+    next = {
+      ...next,
+      xp: DEFAULT_GAME.xp,
+      totalCorrect: DEFAULT_GAME.totalCorrect,
+      totalWrong: DEFAULT_GAME.totalWrong,
+      bestStreak: DEFAULT_GAME.bestStreak,
+      dayStreak: DEFAULT_GAME.dayStreak,
+      lastPlayedDay: DEFAULT_GAME.lastPlayedDay,
+      bossesDefeated: DEFAULT_GAME.bossesDefeated,
+      gamblesWon: DEFAULT_GAME.gamblesWon,
+      bestSpeedRound: DEFAULT_GAME.bestSpeedRound,
+      unlockedCharacters: [...DEFAULT_GAME.unlockedCharacters],
+      achievements: []
+    };
+  } else if (section === 'challenges') {
+    next = {
+      ...next,
+      unlockedPeople: [],
+      unlockedFictional: []
+    };
+  } else if (section === 'stories') {
+    next = {
+      ...next,
+      storiesDone: []
+    };
+  } else if (section === 'achievements') {
+    next = {
+      ...next,
+      achievements: []
+    };
+  }
+
+  game.set(next);
+  await persist(next);
+  scheduleCloudPush();
 }
 
 /** Register a day of activity and update the consecutive-day streak. */

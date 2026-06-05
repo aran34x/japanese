@@ -6,13 +6,12 @@
     CHARACTERS_FICTIONAL,
     FICTIONAL_CATEGORIES,
     buildCharChallenge,
-    buildCharLesson,
     type FictionalChar,
     type FictionalCategory,
     type FQuestion
   } from '../lib/game/fictional';
   import { getWiki, type WikiInfo } from '../lib/game/wiki';
-  import WikiImage from './WikiImage.svelte';
+  import FictionalPortrait from './FictionalPortrait.svelte';
   import { fly, scale } from 'svelte/transition';
 
   type View = 'grid' | 'detail' | 'challenge' | 'cleared';
@@ -79,11 +78,11 @@
     showLesson = false;
   }
 
-  $: lesson = ch ? buildCharLesson(ch) : null;
+  $: lesson = questions[qIndex]?.lesson ?? null;
 </script>
 
 {#if view === 'grid'}
-  <section in:fly={{ y: 12, duration: 180 }}>
+  <section class="characters-view" in:fly={{ y: 12, duration: 180 }}>
     <p class="mb-3 text-sm text-slate-400">{$t('charsIntro')}</p>
     <div class="mb-4 flex flex-wrap gap-2">
       {#each categories as c}
@@ -103,8 +102,15 @@
       {#each roster as x (x.id)}
         {@const unlocked = isUnlocked(x)}
         <button class="text-center" on:click={() => openDetail(x)}>
-          <div class="aspect-square overflow-hidden rounded-xl">
-            <WikiImage title={x.wiki} blurred={!unlocked} />
+          <div
+            class="grid aspect-square place-items-center rounded-xl border border-slate-700/70 bg-slate-800 text-3xl"
+            style={unlocked ? `background:${x.color}22;border-color:${x.color}55` : ''}
+          >
+            {#if unlocked}
+              <FictionalPortrait character={x} />
+            {:else}
+              🔒
+            {/if}
           </div>
           <div class="mt-1 truncate text-xs font-medium {unlocked ? '' : 'text-slate-500'}">
             {unlocked ? x.name : '???'}
@@ -116,11 +122,18 @@
   </section>
 
 {:else if view === 'detail' && ch}
-  <section in:fly={{ y: 12, duration: 180 }} class="space-y-4">
+  <section in:fly={{ y: 12, duration: 180 }} class="characters-view space-y-4">
     <button class="text-sm text-slate-400" on:click={() => (view = 'grid')}>← {$t('back')}</button>
     <div class="grid place-items-center">
-      <div class="h-28 w-28 overflow-hidden rounded-3xl" style="background:{isUnlocked(ch) ? ch.color : '#475569'}33">
-        <WikiImage title={ch.wiki} blurred={!isUnlocked(ch)} />
+      <div
+        class="grid h-28 w-28 overflow-hidden place-items-center rounded-3xl border border-slate-700 bg-slate-800 text-5xl"
+        style={isUnlocked(ch) ? `background:${ch.color}22;border-color:${ch.color}55` : ''}
+      >
+        {#if isUnlocked(ch)}
+          <FictionalPortrait character={ch} rounded="rounded-3xl" />
+        {:else}
+          🔒
+        {/if}
       </div>
       <div class="mt-3 text-center">
         <div class="text-xl font-bold">{isUnlocked(ch) ? ch.name : '???'}</div>
@@ -152,7 +165,7 @@
   </section>
 
 {:else if view === 'challenge' && ch}
-  <section class="space-y-4">
+  <section class="characters-view space-y-4">
     <div class="flex items-center justify-between text-sm">
       <button class="text-slate-400" on:click={() => (view = 'detail')}>✕</button>
       <span class="text-slate-400">{qIndex + 1} / {questions.length}</span>
@@ -161,24 +174,20 @@
     {#key qIndex}
       <div in:fly={{ y: 14, duration: 160 }}>
         <div class="rounded-2xl bg-slate-800 p-5 text-center">
-          <div class="mb-2 text-xs uppercase tracking-wide text-slate-500">
+          <div class="mx-auto max-w-2xl text-base font-semibold leading-snug text-slate-200 sm:text-lg">
             {questions[qIndex].instruction[$settings.uiLang]}
           </div>
           {#if questions[qIndex].show}
+            {@const showText = questions[qIndex].show ?? ''}
             <div class="flex items-center justify-center gap-4 py-4">
-              <div class="font-jp text-5xl">{questions[qIndex].show}</div>
-              {#if /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(questions[qIndex].show) && qIndex < questions.length - 1}
+              <div class="font-jp text-5xl">{showText}</div>
+              {#if /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(showText) && qIndex < questions.length - 1}
                 <button
                   class="rounded-xl bg-slate-700 p-3 text-xl transition-colors active:bg-slate-600"
                   title="🔊"
-                  on:click={() => speakJa(questions[qIndex].show)}
+                  on:click={() => speakJa(showText)}
                 >🔊</button>
               {/if}
-            </div>
-          {/if}
-          {#if qIndex < 2}
-            <div class="mx-auto mt-2 h-24 w-24 overflow-hidden rounded-xl opacity-60">
-              <WikiImage title={ch.wiki} blurred={true} />
             </div>
           {/if}
         </div>
@@ -188,7 +197,7 @@
             <div class="flex items-stretch gap-2">
               <button
                 disabled={picked !== null && !wrong}
-                class="flex-1 rounded-xl px-4 py-3 text-left text-lg font-jp transition-colors
+                class="flex-1 rounded-xl px-4 py-3 text-left text-lg transition-colors
                   {picked === i && opt.correct ? 'bg-green-600 text-white' : ''}
                   {picked === i && !opt.correct ? 'bg-rose-700 text-white' : ''}
                   {picked !== i ? 'bg-slate-800 active:bg-slate-700' : ''}"
@@ -224,9 +233,9 @@
   </section>
 
 {:else if view === 'cleared' && ch}
-  <section class="grid place-items-center py-10 text-center" in:scale={{ start: 0.8, duration: 300 }}>
-    <div class="h-32 w-32 overflow-hidden rounded-3xl" style="background:{ch.color}33">
-      <WikiImage title={ch.wiki} blurred={false} />
+  <section class="characters-view grid place-items-center py-10 text-center" in:scale={{ start: 0.8, duration: 300 }}>
+    <div class="grid h-32 w-32 overflow-hidden place-items-center rounded-3xl border text-6xl" style="background:{ch.color}22;border-color:{ch.color}55">
+      <FictionalPortrait character={ch} rounded="rounded-3xl" />
     </div>
     <div class="mt-3 text-2xl">🎉</div>
     <div class="text-xl font-black">{ch.name}</div>

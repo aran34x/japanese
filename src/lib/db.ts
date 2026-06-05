@@ -33,6 +33,7 @@ export const DEFAULT_SETTINGS: Settings = {
   autoAudio: true,
   showRomaji: true,
   theme: 'dark',
+  skin: 'default',
   xrayKanjiScale: 1.15
 };
 

@@ -6,7 +6,6 @@
     PEOPLE,
     ROLES,
     buildPersonChallenge,
-    buildPersonLesson,
     type RealPerson,
     type PQuestion
   } from '../lib/game/people';
@@ -78,7 +77,7 @@
     showLesson = false;
   }
 
-  $: lesson = person ? buildPersonLesson(person) : null;
+  $: lesson = questions[qIndex]?.lesson ?? null;
   function roleLabel(p: RealPerson) {
     const r = ROLES[p.role];
     return $settings.uiLang === 'it' ? r.it : r.en;
@@ -160,17 +159,18 @@
     {#key qIndex}
       <div in:fly={{ y: 14, duration: 160 }}>
         <div class="rounded-2xl bg-slate-800 p-5 text-center">
-          <div class="mb-2 text-xs uppercase tracking-wide text-slate-500">
+          <div class="mx-auto max-w-2xl text-base font-semibold leading-snug text-slate-200 sm:text-lg">
             {questions[qIndex].instruction[$settings.uiLang]}
           </div>
           {#if questions[qIndex].show}
+            {@const showText = questions[qIndex].show ?? ''}
             <div class="flex items-center justify-center gap-4 py-4">
-              <div class="font-jp text-5xl">{questions[qIndex].show}</div>
-              {#if /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(questions[qIndex].show) && qIndex < questions.length - 1}
+              <div class="font-jp text-5xl">{showText}</div>
+              {#if /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(showText) && qIndex < questions.length - 1}
                 <button
                   class="rounded-xl bg-slate-700 p-3 text-xl transition-colors active:bg-slate-600"
                   title="🔊"
-                  on:click={() => speakJa(questions[qIndex].show)}
+                  on:click={() => speakJa(showText)}
                 >🔊</button>
               {/if}
             </div>
@@ -182,7 +182,7 @@
             <div class="flex items-stretch gap-2">
               <button
                 disabled={picked !== null && !wrong}
-                class="flex-1 rounded-xl px-4 py-3 text-left text-lg font-jp transition-colors
+                class="flex-1 rounded-xl px-4 py-3 text-left text-lg transition-colors
                   {picked === i && opt.correct ? 'bg-green-600 text-white' : ''}
                   {picked === i && !opt.correct ? 'bg-rose-700 text-white' : ''}
                   {picked !== i ? 'bg-slate-800 active:bg-slate-700' : ''}"

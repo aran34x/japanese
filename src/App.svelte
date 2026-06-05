@@ -53,6 +53,7 @@
   // Apply theme class to <html> so CSS variables switch.
   $: if (typeof document !== 'undefined') {
     document.documentElement.classList.toggle('light', $settings.theme === 'light');
+    document.documentElement.dataset.skin = $settings.skin ?? 'default';
   }
 
   // User-chosen kanji enlargement factor for X-ray mode.

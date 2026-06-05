@@ -17,10 +17,124 @@ export interface FictionalChar {
   category: FictionalCategory;
   emoji: string;
   color: string;
+  imageUrl?: string;
+  imageSource?: FictionalImageSource;
   fact: Localized;
   trait: { ja: string; reading: string; en: string; it: string };
   xp: number;
 }
+
+export interface FictionalImageSource {
+  wiki: string;
+  title: string;
+}
+
+const FICTIONAL_IMAGE_URLS: Record<string, string> = {
+  impa: 'https://static.wikia.nocookie.net/zelda/images/e/e1/ImpaHWAoC.png/revision/latest?cb=20201126191310&path-prefix=it'
+};
+
+const FICTIONAL_IMAGE_SOURCES: Record<string, FictionalImageSource> = {
+  impa: { wiki: 'zelda', title: 'Impa' },
+  jigglypuff: { wiki: 'pokemon', title: 'Jigglypuff' },
+  peach: { wiki: 'mario', title: 'Princess Peach' },
+  sheik: { wiki: 'zelda', title: 'Sheik' },
+  luigi: { wiki: 'mario', title: 'Luigi' },
+  eevee: { wiki: 'pokemon', title: 'Eevee' },
+  bowser: { wiki: 'mario', title: 'Bowser' },
+  ganon: { wiki: 'zelda', title: 'Ganondorf' },
+  charizard: { wiki: 'pokemon', title: 'Charizard' },
+  kirby: { wiki: 'kirby', title: 'Kirby' },
+  mewtwo: { wiki: 'pokemon', title: 'Mewtwo' },
+  zelda: { wiki: 'zelda', title: 'Princess Zelda' },
+  mario: { wiki: 'mario', title: 'Mario' },
+  link: { wiki: 'zelda', title: 'Link' },
+  pikachu: { wiki: 'pokemon', title: 'Pikachu' },
+  morrigan: { wiki: 'darkstalkers', title: 'Morrigan Aensland' },
+  shimon: { wiki: 'castlevania', title: 'Simon Belmont' },
+  terry: { wiki: 'snk', title: 'Terry Bogard' },
+  kazuya: { wiki: 'tekken', title: 'Kazuya Mishima' },
+  heihachi: { wiki: 'tekken', title: 'Heihachi Mishima' },
+  '2b': { wiki: 'nier', title: 'YoRHa No.2 Type B' },
+  shulk: { wiki: 'xenoblade', title: 'Shulk' },
+  lucina: { wiki: 'fireemblem', title: 'Lucina' },
+  marth: { wiki: 'fireemblem', title: 'Marth' },
+  jill: { wiki: 'residentevil', title: 'Jill Valentine' },
+  chris: { wiki: 'residentevil', title: 'Chris Redfield' },
+  leon: { wiki: 'residentevil', title: 'Leon Scott Kennedy' },
+  kiryu: { wiki: 'yakuza', title: 'Kazuma Kiryu' },
+  majima: { wiki: 'yakuza', title: 'Goro Majima' },
+  chunli: { wiki: 'streetfighter', title: 'Chun-Li' },
+  ryu: { wiki: 'streetfighter', title: 'Ryu' },
+  bayonetta: { wiki: 'bayonetta', title: 'Bayonetta (character)' },
+  dante: { wiki: 'devilmaycry', title: 'Dante' },
+  vergil: { wiki: 'devilmaycry', title: 'Vergil' },
+  joker: { wiki: 'megamitensei', title: 'Ren Amamiya' },
+  rockman: { wiki: 'megaman', title: 'Mega Man' },
+  samus: { wiki: 'metroid', title: 'Samus Aran' },
+  donkeykong: { wiki: 'mario', title: 'Donkey Kong (character)' },
+  kinopio: { wiki: 'mario', title: 'Toad (character)' },
+  yoshi: { wiki: 'mario', title: 'Yoshi (character)' },
+  sora: { wiki: 'kingdomhearts', title: 'Sora' },
+  riku: { wiki: 'kingdomhearts', title: 'Riku' },
+  kairi: { wiki: 'kingdomhearts', title: 'Kairi' },
+  tifa: { wiki: 'finalfantasy', title: 'Tifa Lockhart' },
+  aerith: { wiki: 'finalfantasy', title: 'Aerith Gainsborough' },
+  snake: { wiki: 'metalgear', title: 'Solid Snake' },
+  sephiroth: { wiki: 'finalfantasy', title: 'Sephiroth' },
+  cloud: { wiki: 'finalfantasy', title: 'Cloud Strife' },
+  pacman: { wiki: 'pacman', title: 'Pac-Man' },
+  sonic: { wiki: 'sonic', title: 'Sonic the Hedgehog' },
+  mari: { wiki: 'evangelion', title: 'Mari Makinami Illustrious' },
+  suneo: { wiki: 'doraemon', title: 'Suneo Honekawa' },
+  shinobu: { wiki: 'kimetsu-no-yaiba', title: 'Shinobu Kocho' },
+  mina: { wiki: 'sailormoon', title: 'Minako Aino / Sailor Venus (anime)' },
+  luka: { wiki: 'vocaloid', title: 'Megurine Luka' },
+  inosuke: { wiki: 'kimetsu-no-yaiba', title: 'Inosuke Hashibira' },
+  mako: { wiki: 'sailormoon', title: 'Makoto Kino / Sailor Jupiter (anime)' },
+  kaito: { wiki: 'vocaloid', title: 'KAITO' },
+  san: { wiki: 'ghibli', title: 'San' },
+  gian: { wiki: 'doraemon', title: 'Takeshi Gouda' },
+  piccolo: { wiki: 'dragonball', title: 'Piccolo' },
+  'rei-sailor': { wiki: 'sailormoon', title: 'Rei Hino / Sailor Mars (anime)' },
+  rin: { wiki: 'vocaloid', title: 'Kagamine Rin & Len' },
+  chopper: { wiki: 'onepiece', title: 'Tony Tony Chopper' },
+  zenitsu: { wiki: 'kimetsu-no-yaiba', title: 'Zenitsu Agatsuma' },
+  ami: { wiki: 'sailormoon', title: 'Ami Mizuno / Sailor Mercury (anime)' },
+  len: { wiki: 'vocaloid', title: 'Kagamine Rin & Len' },
+  howl: { wiki: 'ghibli', title: 'Howl Jenkins Pendragon' },
+  shizuka: { wiki: 'doraemon', title: 'Shizuka Minamoto' },
+  sakura: { wiki: 'naruto', title: 'Sakura Haruno' },
+  misato: { wiki: 'evangelion', title: 'Misato Katsuragi' },
+  nami: { wiki: 'onepiece', title: 'Nami' },
+  gohan: { wiki: 'dragonball', title: 'Gohan' },
+  kiki: { wiki: 'ghibli', title: 'Kiki' },
+  asuka: { wiki: 'evangelion', title: 'Asuka Langley Sohryu' },
+  nobita: { wiki: 'doraemon', title: 'Nobita Nobi' },
+  sanji: { wiki: 'onepiece', title: 'Sanji' },
+  kakashi: { wiki: 'naruto', title: 'Kakashi Hatake' },
+  frieza: { wiki: 'dragonball', title: 'Frieza' },
+  chihiro: { wiki: 'ghibli', title: 'Chihiro Ogino' },
+  nezuko: { wiki: 'kimetsu-no-yaiba', title: 'Nezuko Kamado' },
+  zoro: { wiki: 'onepiece', title: 'Roronoa Zoro' },
+  itachi: { wiki: 'naruto', title: 'Itachi Uchiha' },
+  vegeta: { wiki: 'dragonball', title: 'Vegeta' },
+  usagi: { wiki: 'sailormoon', title: 'Usagi Tsukino / Sailor Moon (anime)' },
+  rei: { wiki: 'evangelion', title: 'Rei Ayanami' },
+  totoro: { wiki: 'ghibli', title: 'Totoro' },
+  tanjiro: { wiki: 'kimetsu-no-yaiba', title: 'Tanjiro Kamado' },
+  shinji: { wiki: 'evangelion', title: 'Shinji Ikari' },
+  sasuke: { wiki: 'naruto', title: 'Sasuke Uchiha' },
+  luffy: { wiki: 'onepiece', title: 'Monkey D. Luffy' },
+  miku: { wiki: 'vocaloid', title: 'Hatsune Miku' },
+  doraemon: { wiki: 'doraemon', title: 'Doraemon' },
+  naruto: { wiki: 'naruto', title: 'Naruto Uzumaki' },
+  goku: { wiki: 'dragonball', title: 'Goku' },
+  edward: { wiki: 'fma', title: 'Edward Elric' },
+  saitama: { wiki: 'onepunchman', title: 'Saitama' },
+  levi: { wiki: 'attackontitan', title: 'Levi Ackerman' },
+  eren: { wiki: 'attackontitan', title: 'Eren Yeager' },
+  gojo: { wiki: 'jujutsu-kaisen', title: 'Satoru Gojo' }
+};
 
 const c = (
   id: string,
@@ -34,7 +148,22 @@ const c = (
   fact: Localized,
   trait: { ja: string; reading: string; en: string; it: string },
   wiki?: string
-): FictionalChar => ({ id, name, wiki: wiki ?? name, ja, reading, romaji, category, emoji, color, fact, trait, xp: 50 });
+): FictionalChar => ({
+  id,
+  name,
+  wiki: wiki ?? name,
+  ja,
+  reading,
+  romaji,
+  category,
+  emoji,
+  color,
+  imageUrl: FICTIONAL_IMAGE_URLS[id],
+  imageSource: FICTIONAL_IMAGE_SOURCES[id],
+  fact,
+  trait,
+  xp: 50
+});
 
 export const FICTIONAL_CATEGORIES: Record<FictionalCategory, { label: Localized; emoji: string; color: string }> = {
   games: { label: { en: 'Games', it: 'Giochi' }, emoji: '🎮', color: '#10b981' },
@@ -346,6 +475,19 @@ export const CHARACTERS_FICTIONAL: FictionalChar[] = [
     { en: 'An incredibly powerful sorcerer who wears a blindfold and has limitless abilities.', it: 'Uno stregone incredibilmente potente che indossa una benda e ha abilità illimitate.' },
     { ja: '無限', reading: 'むげん', en: 'infinity', it: 'infinito' })
 ];
+
+export interface FChoice {
+  text?: string;
+  en?: string;
+  it?: string;
+  correct: boolean;
+}
+
+export interface FQuestion {
+  instruction: Localized;
+  show?: string;
+  options: FChoice[];
+}
 
 function shuffle<T>(a: T[]): T[] {
   const r = [...a];
