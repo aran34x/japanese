@@ -23,7 +23,7 @@
   //  • kanji: audio allowed, but never auto-played (recall first).
   //  • everything else: audio allowed + auto-play (if the user enabled it).
   $: isKana = card.category === 'hiragana' || card.category === 'katakana';
-  $: allowAudio = !isKana;
+  $: allowAudio = true; // Always show the audio button if we can speak
   $: allowAutoplay = !isKana && card.category !== 'kanji';
 
   // Reset flip + load media + autoplay whenever the card changes.

@@ -1,3 +1,5 @@
+import type { Lesson } from '../types';
+
 // Simple original children's-style stories for reading comprehension. Each line
 // has Japanese + reading + translation; questions test understanding of what was
 // read. All original text in graded, beginner-friendly Japanese.
@@ -16,6 +18,7 @@ export interface StoryMcq {
   type: 'mcq';
   q: { en: string; it: string };
   options: { en: string; it: string; correct: boolean }[];
+  lesson?: Lesson;
 }
 
 /** A typing question — the learner types the answer (e.g. a name). */
@@ -26,6 +29,7 @@ export interface StoryType {
   answers: string[];
   /** Optional hint shown under the input. */
   hint?: { en: string; it: string };
+  lesson?: Lesson;
 }
 
 export type StoryQuestion = StoryMcq | StoryType;

@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 export type Lang = 'en' | 'it';
-export type AppSkin = 'default' | 'smash64' | 'sakura' | 'station' | 'nature';
+export type AppSkin = 'default' | 'smash64' | 'sakura' | 'station' | 'nature' | 'comet';
 
 /** A category groups decks/cards so exercises can be generated per topic. */
 export type Category = 'hiragana' | 'katakana' | 'kanji' | 'vocab' | 'reading' | 'custom';
@@ -104,6 +104,11 @@ export interface McqOption {
   cardId: string;
 }
 
+export interface Lesson {
+  vocab: { jp: string; reading: string; meaning: Partial<Record<Lang, string>> }[];
+  tip: Partial<Record<Lang, string>>;
+}
+
 export interface Exercise {
   kind: ExerciseKind;
   card: Card;
@@ -125,6 +130,8 @@ export interface Exercise {
   promptAudioUrl?: string;
   /** Whether the answer OPTIONS may be played aloud (Japanese/reading answers). */
   answerAudio?: boolean;
+  /** Mini-lesson to show after answering. */
+  lesson?: Lesson;
 }
 
 export interface Settings {
@@ -140,4 +147,6 @@ export interface Settings {
   skin: AppSkin;
   /** Kanji enlargement factor in X-ray mode (em multiplier). */
   xrayKanjiScale: number;
+  /** Whether to always show the mini-lesson (even if correct). */
+  showLessonAlways: boolean;
 }

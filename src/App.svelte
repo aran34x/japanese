@@ -90,9 +90,10 @@
 {#if showGate}
   <AuthGate on:done={() => (skippedAuth = true)} />
 {:else if $ready}
-  <div class="mx-auto flex min-h-screen max-w-2xl flex-col lg:max-w-5xl">
-    <header class="fixed inset-x-0 top-0 z-50 border-b border-slate-800 bg-slate-900/95 backdrop-blur">
-      <div class="mx-auto flex max-w-2xl items-center justify-between px-4 {UI.topbarPadding} lg:max-w-5xl">
+  <div class="flex h-screen max-w-none flex-col overflow-hidden bg-slate-950">
+    <!-- Fixed-height App Header -->
+    <header class="z-50 shrink-0 border-b border-slate-800 bg-slate-900/95 backdrop-blur">
+      <div class="mx-auto flex max-w-5xl items-center justify-between px-4 {UI.topbarPadding}">
         <button
           class="xray-dim-el grid h-9 w-9 place-items-center rounded-full bg-slate-800 text-lg"
           title="Home"
@@ -112,9 +113,10 @@
       </div>
     </header>
 
-    <main class="flex-1 px-4 pb-24 {UI.mainTopPad}">
+    <!-- Content Area (NOT scrollable here, children handle it for edge-to-edge scrollbars) -->
+    <main class="flex-1 flex flex-col overflow-hidden">
       {#key $route}
-        <div in:fade={{ duration: 220, delay: 60 }} out:fade={{ duration: 100 }}>
+        <div class="flex-1 flex flex-col overflow-hidden" in:fade={{ duration: 220, delay: 60 }} out:fade={{ duration: 100 }}>
           {#if $route === 'adventure'}
             <Adventure />
           {:else if $route === 'study'}
@@ -128,7 +130,9 @@
       {/key}
     </main>
 
+    <!-- Fixed-height Navigation -->
     <Nav />
+    
     <Toasts />
     <WhatsNew />
     {#if $xrayOn}
@@ -146,3 +150,11 @@
 {:else}
   <div class="grid min-h-screen place-items-center text-slate-400">読み込み中…</div>
 {/if}
+
+<style>
+  /* Ensure the app container takes up exactly the viewport height */
+  :global(body) {
+    overflow: hidden;
+    height: 100vh;
+  }
+</style>

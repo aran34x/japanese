@@ -5,6 +5,9 @@
 /* ── Dark mode (default) ───────────────────────────────────────── */
 :root {
   color-scheme: dark;
+  --sb-track: rgba(15, 23, 42, 0.5);
+  --sb-thumb: #334155;
+  --sb-thumb-hover: #ec4899;
 }
 
 html, body {
@@ -18,12 +21,43 @@ html, body {
   overscroll-behavior-y: contain;
 }
 
-/* ── Light mode — soft, warm, low-contrast ─────────────────────── */
-/* Inspired by iOS: warm off-white bg, muted indigo accents, no harsh red */
+/* ── Light mode ── */
 :root.light {
   color-scheme: light;
+  --sb-track: rgba(242, 242, 247, 0.5);
+  --sb-thumb: #c7c7cc;
+  --sb-thumb-hover: #5856d6;
 }
 
+/* ── Skin Overrides ── */
+:root[data-skin='smash64'] {
+  --sb-track: rgba(7, 18, 58, 0.5);
+  --sb-thumb: #1d4ed8;
+  --sb-thumb-hover: #facc15;
+}
+:root[data-skin='comet'] {
+  --sb-track: rgba(9, 13, 40, 0.5);
+  --sb-thumb: #4f46e5;
+  --sb-thumb-hover: #22d3ee;
+}
+:root[data-skin='sakura'] {
+  --sb-track: rgba(255, 247, 251, 0.5);
+  --sb-thumb: #f9a8d4;
+  --sb-thumb-hover: #db2777;
+}
+:root[data-skin='station'] {
+  --sb-track: rgba(11, 17, 29, 0.5);
+  --sb-thumb: #1f2937;
+  --sb-thumb-hover: #f97316;
+}
+:root[data-skin='nature'] {
+  --sb-track: rgba(5, 46, 22, 0.5);
+  --sb-thumb: #166534;
+  --sb-thumb-hover: #22c55e;
+}
+
+/* ── Light mode — soft, warm, low-contrast ─────────────────────── */
+/* Inspired by iOS: warm off-white bg, muted indigo accents, no harsh red */
 :root.light body {
   background: #f2f2f7;   /* iOS system background — warm light gray */
   color: #1c1c1e;        /* iOS label — near-black, not pure black */
@@ -170,6 +204,81 @@ html, body {
   border-color: #facc15;
   filter: saturate(1.2) contrast(1.05);
 }
+
+/* ── Comet skin: cinematic "Your Name" twilight sky + glassmorphism ─── */
+:root[data-skin='comet'] { color-scheme: dark; }
+:root[data-skin='comet'] body {
+  background:
+    radial-gradient(120% 75% at 80% -8%, rgba(56, 189, 248, 0.22), transparent 42%),  /* comet glow */
+    radial-gradient(95% 70% at 10% -5%, rgba(124, 58, 237, 0.34), transparent 46%),   /* violet nebula */
+    radial-gradient(150% 95% at 50% 118%, rgba(244, 114, 182, 0.14), transparent 55%),/* twilight horizon */
+    linear-gradient(180deg, #070a20 0%, #0b1030 48%, #090a1c 100%);
+  background-attachment: fixed;
+  color: #e7e9ff;
+}
+/* Deep space surfaces */
+:root[data-skin='comet'] .bg-slate-950,
+:root[data-skin='comet'] .bg-slate-900 { background-color: #090d28; }
+:root[data-skin='comet'] .bg-slate-900\/95 { background-color: rgba(9, 13, 40, 0.72); }
+:root[data-skin='comet'] .bg-slate-900\/50,
+:root[data-skin='comet'] .bg-slate-900\/60 { background-color: rgba(9, 13, 40, 0.6); }
+/* Glassmorphic cards */
+:root[data-skin='comet'] .bg-slate-800,
+:root[data-skin='comet'] .bg-slate-800\/80 {
+  background: rgba(30, 36, 78, 0.5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(125, 211, 252, 0.14);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
+}
+:root[data-skin='comet'] .bg-slate-700 {
+  background: rgba(56, 64, 120, 0.55);
+  border: 1px solid rgba(125, 211, 252, 0.12);
+}
+:root[data-skin='comet'] .border-slate-800,
+:root[data-skin='comet'] .border-slate-700,
+:root[data-skin='comet'] .border-slate-700\/70 { border-color: rgba(125, 211, 252, 0.18); }
+/* Electric-cyan primary accent + glow */
+:root[data-skin='comet'] .bg-indigo-500,
+:root[data-skin='comet'] .bg-indigo-600 {
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+  box-shadow: 0 6px 22px rgba(56, 189, 248, 0.4);
+}
+:root[data-skin='comet'] .bg-pink-500 {
+  background: linear-gradient(135deg, #22d3ee, #38bdf8);
+  color: #06121f;
+  box-shadow: 0 6px 20px rgba(34, 211, 238, 0.45);
+}
+/* Gradient cards / bars → cosmic cyan→violet */
+:root[data-skin='comet'] .from-indigo-600 {
+  --tw-gradient-from: #0ea5e9 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgba(14, 165, 233, 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), #4f46e5, var(--tw-gradient-to);
+}
+:root[data-skin='comet'] .to-purple-700 { --tw-gradient-to: #7c3aed var(--tw-gradient-to-position); }
+:root[data-skin='comet'] .from-pink-500,
+:root[data-skin='comet'] .from-pink-400 {
+  --tw-gradient-from: #22d3ee var(--tw-gradient-from-position);
+  --tw-gradient-to: rgba(34, 211, 238, 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+:root[data-skin='comet'] .to-indigo-500,
+:root[data-skin='comet'] .to-indigo-400 { --tw-gradient-to: #818cf8 var(--tw-gradient-to-position); }
+:root[data-skin='comet'] .to-amber-300 { --tw-gradient-to: #c4b5fd var(--tw-gradient-to-position); }
+/* Text */
+:root[data-skin='comet'] .text-pink-300,
+:root[data-skin='comet'] .text-pink-400,
+:root[data-skin='comet'] .text-indigo-300 { color: #67e8f9; }
+:root[data-skin='comet'] .text-slate-400 { color: #aab2e8; }
+:root[data-skin='comet'] .text-slate-300 { color: #d2d8ff; }
+:root[data-skin='comet'] .text-slate-500 { color: #7a83bf; }
+:root[data-skin='comet'] .text-indigo-200 { color: #bae6fd; }
+:root[data-skin='comet'] .accent-pink-500 { accent-color: #22d3ee; }
+/* White pill buttons get a faint cyan halo */
+:root[data-skin='comet'] .bg-white { box-shadow: 0 6px 24px rgba(56, 189, 248, 0.3); }
+/* Glassy chrome */
+:root[data-skin='comet'] header,
+:root[data-skin='comet'] nav { border-color: rgba(125, 211, 252, 0.16); }
 
 :root[data-skin='sakura'] { color-scheme: light; }
 :root[data-skin='sakura'],
@@ -530,13 +639,13 @@ button {
   font-size: 15px;
   white-space: nowrap;
 }
-.xray-mean {
+.xray-anno .xray-mean {
   font-size: 14px;
   white-space: nowrap;
   color: #ffffff;                    /* meanings in white */
   font-weight: 600;
 }
-:root.light .xray-mean { color: #1c1c1e; }
+:root.light .xray-anno .xray-mean { color: #1c1c1e; }
 
 /* Extra top room so the first row's hint clears the fixed topbar. */
 .xray-active main { padding-top: calc(4rem + 2.7rem); }
@@ -561,3 +670,27 @@ button {
    a sibling and opacity on the whole header couldn't exempt it.) */
 .xray-active nav { opacity: 0.55; z-index: 50; }
 .xray-active .xray-dim-el { opacity: 0.5; transition: opacity 0.2s ease; }
+
+/* ── Scrollbars ───────────────────────────────────────────────── */
+/* Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--sb-track) !important;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb) !important;
+  border-radius: 10px;
+  border: 2px solid var(--sb-track) !important;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sb-thumb-hover) !important;
+}
+
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sb-thumb) var(--sb-track);
+}

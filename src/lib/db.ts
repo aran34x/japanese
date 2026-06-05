@@ -34,7 +34,8 @@ export const DEFAULT_SETTINGS: Settings = {
   showRomaji: true,
   theme: 'dark',
   skin: 'default',
-  xrayKanjiScale: 1.15
+  xrayKanjiScale: 1.15,
+  showLessonAlways: false
 };
 
 export async function getSettings(): Promise<Settings> {

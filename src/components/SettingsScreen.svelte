@@ -54,7 +54,8 @@
     { id: 'smash64', title: 'skinSmash64', desc: 'skinSmash64Desc', swatches: ['#0b1f5e', '#e11d2e', '#facc15'] },
     { id: 'sakura', title: 'skinSakura', desc: 'skinSakuraDesc', swatches: ['#4a102a', '#f9a8d4', '#fde68a'] },
     { id: 'station', title: 'skinStation', desc: 'skinStationDesc', swatches: ['#111827', '#f97316', '#38bdf8'] },
-    { id: 'nature', title: 'skinNature', desc: 'skinNatureDesc', swatches: ['#052e16', '#22c55e', '#fbbf24'] }
+    { id: 'nature', title: 'skinNature', desc: 'skinNatureDesc', swatches: ['#052e16', '#22c55e', '#fbbf24'] },
+    { id: 'comet', title: 'skinComet', desc: 'skinCometDesc', swatches: ['#0b1030', '#22d3ee', '#a78bfa'] }
   ];
   function setSkin(skin: AppSkin) {
     settings.update((s) => ({ ...s, skin }));
@@ -127,6 +128,14 @@
   <label class="flex items-center justify-between rounded-2xl bg-slate-800 p-4">
     <span class="text-sm font-medium">{$t('showRomaji')}</span>
     <input type="checkbox" bind:checked={$settings.showRomaji} class="h-5 w-5 accent-pink-500" />
+  </label>
+
+  <label class="flex items-center justify-between rounded-2xl bg-slate-800 p-4">
+    <div class="flex-1 pr-4">
+      <div class="text-sm font-medium">{$t('showLessonAlways')}</div>
+      <div class="text-[10px] text-slate-400">{$t('showLessonAlwaysDesc')}</div>
+    </div>
+    <input type="checkbox" bind:checked={$settings.showLessonAlways} class="h-5 w-5 accent-pink-500" />
   </label>
 
   <label class="flex items-center justify-between rounded-2xl bg-slate-800 p-4">

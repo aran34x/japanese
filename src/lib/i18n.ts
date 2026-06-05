@@ -74,8 +74,15 @@ export const strings: Dict = {
   skinStationDesc: { en: 'Transit-board contrast with orange and cyan.', it: 'Contrasto da tabellone ferroviario con arancio e ciano.' },
   skinNature: { en: 'Nature', it: 'Natura' },
   skinNatureDesc: { en: 'Deep greens, moss surfaces, sunlight accents.', it: 'Verdi profondi, superfici muschio, accenti solari.' },
+  skinComet: { en: 'Comet', it: 'Cometa' },
+  skinCometDesc: { en: 'Cinematic twilight sky, glass panels, electric cyan.', it: 'Cielo crepuscolare cinematografico, pannelli di vetro, ciano elettrico.' },
   newPerDay: { en: 'New cards per day', it: 'Nuove carte al giorno' },
   showRomaji: { en: 'Show romaji', it: 'Mostra romaji' },
+  showLessonAlways: { en: 'Always show mini-lesson', it: 'Mostra sempre mini-lezione' },
+  showLessonAlwaysDesc: {
+    en: 'Show the explanation even when you answer correctly.',
+    it: 'Mostra la spiegazione anche quando rispondi correttamente.'
+  },
   autoAudio: { en: 'Auto-play audio', it: 'Audio automatico' },
   xrayKanjiSize: { en: 'Kanji X-ray size', it: 'Dimensione X-ray kanji' },
   xrayKanjiSizeDesc: {

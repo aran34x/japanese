@@ -115,11 +115,12 @@
     await award(e.detail.correct);
     await srs(card, e.detail.correct ? 'good' : 'again');
     cardsSinceEncounter += 1;
-    setTimeout(() => {
-      const enc = rollEncounter(cardsSinceEncounter);
-      if (enc) startEncounter(enc);
-      else nextCard();
-    }, feedbackMs);
+  }
+
+  function onPlayNext() {
+    const enc = rollEncounter(cardsSinceEncounter);
+    if (enc) startEncounter(enc);
+    else nextCard();
   }
 
   // ---- Encounters --------------------------------------------------------
@@ -164,16 +165,17 @@
       bossHp -= 1;
       setTimeout(() => (bossHit = false), 300);
     }
-    setTimeout(async () => {
-      if (bossHp <= 0) {
-        const bonus = 80 + combo * 4;
-        sessionXp += bonus;
-        await mutateGame((g) => ({ ...g, xp: g.xp + bonus, bossesDefeated: g.bossesDefeated + 1 }));
-        endEncounter();
-      } else {
-        loadExercise();
-      }
-    }, 700);
+  }
+
+  async function onBossNext() {
+    if (bossHp <= 0) {
+      const bonus = 80 + combo * 4;
+      sessionXp += bonus;
+      await mutateGame((g) => ({ ...g, xp: g.xp + bonus, bossesDefeated: g.bossesDefeated + 1 }));
+      endEncounter();
+    } else {
+      loadExercise();
+    }
   }
 
   // Speed
@@ -217,7 +219,6 @@
       sessionXp = Math.max(0, sessionXp - stake);
       combo = 0;
     }
-    setTimeout(endEncounter, 1100);
   }
 
   // Sudden death
@@ -231,15 +232,17 @@
       const gain = 15;
       sessionXp += gain;
       await mutateGame((g) => ({ ...g, xp: g.xp + gain, totalCorrect: g.totalCorrect + 1 }));
-      if (sdScore >= 8) {
-        setTimeout(endEncounter, 600);
-      } else {
-        setTimeout(loadExercise, 500);
-      }
     } else {
       await mutateGame((g) => ({ ...g, totalWrong: g.totalWrong + 1 }));
       combo = 0;
-      setTimeout(endEncounter, 900);
+    }
+  }
+
+  async function onSuddenNext() {
+    if (sdScore >= 8 || combo === 0) {
+      endEncounter();
+    } else {
+      loadExercise();
     }
   }
 
@@ -275,7 +278,7 @@
   {:else if phase === 'play' && current}
     {#key exNonce}
       <div in:fly={{ y: 16, duration: 160 }}>
-        <ExerciseView exercise={current} on:answer={onPlayAnswer} />
+        <ExerciseView exercise={current} on:answer={onPlayAnswer} on:next={onPlayNext} />
       </div>
     {/key}
 
@@ -303,7 +306,7 @@
     </div>
     {#key exNonce}
       <div in:fly={{ y: 12, duration: 140 }}>
-        <ExerciseView exercise={current} compact on:answer={onBossAnswer} />
+        <ExerciseView exercise={current} compact on:answer={onBossAnswer} on:next={onBossNext} />
       </div>
     {/key}
 
@@ -314,7 +317,7 @@
     </div>
     {#key exNonce}
       <div in:fly={{ y: 12, duration: 140 }}>
-        <ExerciseView exercise={current} compact on:answer={onSuddenAnswer} />
+        <ExerciseView exercise={current} compact on:answer={onSuddenAnswer} on:next={onSuddenNext} />
       </div>
     {/key}
 
@@ -340,7 +343,7 @@
       </div>
     {:else}
       {#key exNonce}
-        <ExerciseView exercise={gambleEx} on:answer={onGambleAnswer} />
+        <ExerciseView exercise={gambleEx} on:answer={onGambleAnswer} on:next={endEncounter} />
       {/key}
     {/if}
   {/if}

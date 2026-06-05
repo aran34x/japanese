@@ -192,93 +192,126 @@
   $: progress = queue.length ? Math.round((index / queue.length) * 100) : 0;
 </script>
 
-{#if phase === 'menu'}
-  <section class="space-y-4">
-    <h2 class="text-lg font-semibold">{$t('study')}</h2>
-    <div class="grid grid-cols-2 gap-3">
-      {#each menuModes as opt}
-        <button class="rounded-2xl bg-slate-800 p-5 text-left active:scale-[0.98]" on:click={() => pickMode(opt.id)}>
-          <div class="text-3xl">{opt.label.split(' ')[0]}</div>
-          <div class="mt-2 font-medium">{opt.label.slice(opt.label.indexOf(' ') + 1)}</div>
-          <div class="text-xs text-slate-400">{$t('chooseDeck')}</div>
+<div class="flex-1 overflow-y-auto overflow-x-hidden">
+  <div class="mx-auto max-w-5xl px-4 py-8">
+    {#if phase === 'menu'}
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold">{$t('study')}</h2>
+        <div class="grid grid-cols-2 gap-3">
+          {#each menuModes as opt}
+            <button class="rounded-2xl bg-slate-800 p-5 text-left active:scale-[0.98]" on:click={() => pickMode(opt.id)}>
+              <div class="text-3xl">{opt.label.split(' ')[0]}</div>
+              <div class="mt-2 font-medium">{opt.label.slice(opt.label.indexOf(' ') + 1)}</div>
+              <div class="text-xs text-slate-400">{$t('chooseDeck')}</div>
+            </button>
+          {/each}
+        </div>
+        <button
+          class="w-full rounded-2xl border border-dashed border-slate-600 p-4 text-left active:scale-[0.98]"
+          on:click={pickCustom}
+        >
+          <div class="font-medium">⚙️ Custom</div>
+          <div class="text-xs text-slate-400">{$t('mixAndMatch')}</div>
         </button>
-      {/each}
-    </div>
-    <button
-      class="w-full rounded-2xl border border-dashed border-slate-600 p-4 text-left active:scale-[0.98]"
-      on:click={pickCustom}
-    >
-      <div class="font-medium">⚙️ Custom</div>
-      <div class="text-xs text-slate-400">{$t('mixAndMatch')}</div>
-    </button>
-  </section>
+      </section>
 
-{:else if phase === 'config'}
-  <section class="space-y-5">
-    <button class="text-sm text-slate-400" on:click={() => (phase = 'menu')}>← {$t('back')}</button>
+    {:else if phase === 'config'}
+      <section class="space-y-5">
+        <button class="text-sm text-slate-400" on:click={() => (phase = 'menu')}>← {$t('back')}</button>
 
-    {#if !isCustom}
-      <!-- ── Single-mode: pick ONE set (tap to start) ─────────────── -->
-      <h2 class="text-lg font-semibold">{modeLabel}</h2>
-      <p class="-mt-3 text-xs text-slate-400">{$t('chooseSet')}</p>
+        {#if !isCustom}
+          <!-- ── Single-mode: pick ONE set (tap to start) ─────────────── -->
+          <h2 class="text-lg font-semibold">{modeLabel}</h2>
+          <p class="-mt-3 text-xs text-slate-400">{$t('chooseSet')}</p>
 
-      <div class="space-y-5">
-        {#each groups as g (g.cat)}
+          <div class="space-y-5">
+            {#each groups as g (g.cat)}
+              <div>
+                <h3 class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  <span class="font-jp text-sm text-slate-300">{CAT_LABELS[g.cat].icon}</span>
+                  {CAT_LABELS[g.cat][$settings.uiLang]}
+                </h3>
+                <div class="space-y-2">
+                  {#each g.items as d (d.id)}
+                    <div class="flex items-center gap-2 rounded-xl bg-slate-800 px-3 py-2.5">
+                      <button class="flex min-w-0 flex-1 items-center gap-2 text-left active:scale-[0.99]" on:click={() => startSingle(d.id)}>
+                        <span class="min-w-0 flex-1">
+                          <span class="block truncate font-medium">{deckName(d)}</span>
+                          <span class="block text-xs text-slate-400">{d.count} {$t('cards')}</span>
+                        </span>
+                        <span class="text-indigo-300">▶</span>
+                      </button>
+                      <!-- Reset progress -->
+                      <button
+                        class="shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium {confirmReset === d.id ? 'bg-amber-600 text-white' : justReset.has(d.id) ? 'bg-green-700 text-white' : 'bg-slate-700 text-slate-300'}"
+                        title={$t('resetDeck')}
+                        on:click={() => onReset(d)}
+                      >
+                        {justReset.has(d.id) ? $t('resetDone') : confirmReset === d.id ? $t('resetSure') : '↺'}
+                      </button>
+                      {#if !d.builtin}
+                        <button
+                          class="shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium {confirmDelete === d.id ? 'bg-rose-600 text-white' : 'bg-slate-700 text-rose-300'}"
+                          on:click={() => onDelete(d)}
+                        >
+                          {confirmDelete === d.id ? $t('deleteSure') : '🗑'}
+                        </button>
+                      {/if}
+                    </div>
+                  {/each}
+                </div>
+              </div>
+            {/each}
+          </div>
+
+          <!-- ── Optional: mix multiple sets ──────────────────────────── -->
           <div>
-            <h3 class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              <span class="font-jp text-sm text-slate-300">{CAT_LABELS[g.cat].icon}</span>
-              {CAT_LABELS[g.cat][$settings.uiLang]}
-            </h3>
-            <div class="space-y-2">
-              {#each g.items as d (d.id)}
-                <div class="flex items-center gap-2 rounded-xl bg-slate-800 px-3 py-2.5">
-                  <button class="flex min-w-0 flex-1 items-center gap-2 text-left active:scale-[0.99]" on:click={() => startSingle(d.id)}>
+            <button
+              class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-600 py-2.5 text-sm text-slate-300 active:scale-[0.99]"
+              on:click={() => (mixOpen = !mixOpen)}
+            >
+              <span>🔀 {$t('mixSets')}</span>
+              <span class="text-xs text-slate-500">{mixOpen ? '▲' : '▼'}</span>
+            </button>
+
+            {#if mixOpen}
+              <div class="mt-2 space-y-2" transition:slide={{ duration: 200 }}>
+                <div class="flex justify-end">
+                  <button class="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-pink-300" on:click={toggleAll}>
+                    {allSelected ? $t('unselectAll') : $t('selectAll')}
+                  </button>
+                </div>
+                {#each decks as d (d.id)}
+                  <label class="flex items-center gap-3 rounded-xl bg-slate-800 px-4 py-2.5">
+                    <input type="checkbox" checked={selected.has(d.id)} on:change={() => toggle(d.id)}
+                      class="h-5 w-5 shrink-0 accent-pink-500" />
                     <span class="min-w-0 flex-1">
                       <span class="block truncate font-medium">{deckName(d)}</span>
                       <span class="block text-xs text-slate-400">{d.count} {$t('cards')}</span>
                     </span>
-                    <span class="text-indigo-300">▶</span>
-                  </button>
-                  <!-- Reset progress -->
-                  <button
-                    class="shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium {confirmReset === d.id ? 'bg-amber-600 text-white' : justReset.has(d.id) ? 'bg-green-700 text-white' : 'bg-slate-700 text-slate-300'}"
-                    title={$t('resetDeck')}
-                    on:click={() => onReset(d)}
-                  >
-                    {justReset.has(d.id) ? $t('resetDone') : confirmReset === d.id ? $t('resetSure') : '↺'}
-                  </button>
-                  {#if !d.builtin}
-                    <button
-                      class="shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium {confirmDelete === d.id ? 'bg-rose-600 text-white' : 'bg-slate-700 text-rose-300'}"
-                      on:click={() => onDelete(d)}
-                    >
-                      {confirmDelete === d.id ? $t('deleteSure') : '🗑'}
-                    </button>
-                  {/if}
-                </div>
-              {/each}
-            </div>
+                  </label>
+                {/each}
+                <button
+                  class="w-full rounded-xl bg-indigo-500 py-3 font-semibold active:scale-[0.98] disabled:opacity-40"
+                  disabled={selected.size === 0}
+                  on:click={() => start()}
+                >
+                  ▶ {$t('startReview')} · {selected.size}
+                </button>
+              </div>
+            {/if}
           </div>
-        {/each}
-      </div>
 
-      <!-- ── Optional: mix multiple sets ──────────────────────────── -->
-      <div>
-        <button
-          class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-600 py-2.5 text-sm text-slate-300 active:scale-[0.99]"
-          on:click={() => (mixOpen = !mixOpen)}
-        >
-          <span>🔀 {$t('mixSets')}</span>
-          <span class="text-xs text-slate-500">{mixOpen ? '▲' : '▼'}</span>
-        </button>
+        {:else}
+          <!-- ── Custom: pick decks + mode ────────────────────────────── -->
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold">⚙️ Custom</h2>
+            <button class="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-pink-300" on:click={toggleAll}>
+              {allSelected ? $t('unselectAll') : $t('selectAll')}
+            </button>
+          </div>
 
-        {#if mixOpen}
-          <div class="mt-2 space-y-2" transition:slide={{ duration: 200 }}>
-            <div class="flex justify-end">
-              <button class="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-pink-300" on:click={toggleAll}>
-                {allSelected ? $t('unselectAll') : $t('selectAll')}
-              </button>
-            </div>
+          <div class="space-y-2">
             {#each decks as d (d.id)}
               <label class="flex items-center gap-3 rounded-xl bg-slate-800 px-4 py-2.5">
                 <input type="checkbox" checked={selected.has(d.id)} on:change={() => toggle(d.id)}
@@ -289,125 +322,96 @@
                 </span>
               </label>
             {/each}
-            <button
-              class="w-full rounded-xl bg-indigo-500 py-3 font-semibold active:scale-[0.98] disabled:opacity-40"
-              disabled={selected.size === 0}
-              on:click={() => start()}
-            >
-              ▶ {$t('startReview')} · {selected.size}
-            </button>
           </div>
-        {/if}
-      </div>
 
-    {:else}
-      <!-- ── Custom: pick decks + mode ────────────────────────────── -->
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold">⚙️ Custom</h2>
-        <button class="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-pink-300" on:click={toggleAll}>
-          {allSelected ? $t('unselectAll') : $t('selectAll')}
-        </button>
-      </div>
+          <div>
+            <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">{$t('modes')}</h3>
+            <div class="grid grid-cols-2 gap-2">
+              {#each modeOptions as opt}
+                <button
+                  class="rounded-xl px-3 py-3 text-sm font-medium {mode === opt.id ? 'bg-pink-500 text-white' : 'bg-slate-800'}"
+                  on:click={() => (mode = opt.id)}>{opt.label}</button>
+              {/each}
+            </div>
+          </div>
 
-      <div class="space-y-2">
-        {#each decks as d (d.id)}
-          <label class="flex items-center gap-3 rounded-xl bg-slate-800 px-4 py-2.5">
-            <input type="checkbox" checked={selected.has(d.id)} on:change={() => toggle(d.id)}
-              class="h-5 w-5 shrink-0 accent-pink-500" />
-            <span class="min-w-0 flex-1">
-              <span class="block truncate font-medium">{deckName(d)}</span>
-              <span class="block text-xs text-slate-400">{d.count} {$t('cards')}</span>
-            </span>
-          </label>
-        {/each}
-      </div>
-
-      <div>
-        <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">{$t('modes')}</h3>
-        <div class="grid grid-cols-2 gap-2">
-          {#each modeOptions as opt}
-            <button
-              class="rounded-xl px-3 py-3 text-sm font-medium {mode === opt.id ? 'bg-pink-500 text-white' : 'bg-slate-800'}"
-              on:click={() => (mode = opt.id)}>{opt.label}</button>
-          {/each}
-        </div>
-      </div>
-
-      <button
-        class="w-full rounded-xl bg-indigo-500 py-3 font-semibold active:scale-[0.98] disabled:opacity-40"
-        disabled={selected.size === 0}
-        on:click={() => start()}
-      >
-        ▶ {$t('startReview')}
-      </button>
-    {/if}
-  </section>
-
-{:else if phase === 'running' && current}
-  <section class="space-y-4">
-    <div class="flex items-center gap-3">
-      <button class="text-xs text-slate-500 hover:text-slate-300 active:scale-95" on:click={() => (phase = 'menu')}>
-        ← {$t('back')}
-      </button>
-      <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-800">
-        <div class="h-full bg-gradient-to-r from-pink-400 to-indigo-400 transition-all" style="width:{progress}%"></div>
-      </div>
-      <div class="text-xs text-slate-500">{index + 1} / {queue.length}</div>
-    </div>
-
-    {#key index}
-      <div in:fly={{ y: 16, duration: 180 }}>
-        {#if current.kind === 'flashcard'}
-          <Flashcard exercise={current} state={queue[index]?.state ?? null} on:grade={(e) => grade(e.detail)} />
-        {:else}
-          <QuizQuestion
-            prompt={current.prompt}
-            instruction={$t(current.instructionKey || 'meaning')}
-            options={current.options ? current.options.map((o) => ({ label: o.text, correct: o.correct })) : null}
-            answers={current.answers ?? []}
-            promptSpeak={current.promptSpeak ?? ''}
-            promptAudioUrl={current.promptAudioUrl ?? ''}
-            answerAudio={current.answerAudio ?? false}
-            on:answer={(e) => onAnswer(e.detail.correct)}
-            let:answered
-            let:correct
+          <button
+            class="w-full rounded-xl bg-indigo-500 py-3 font-semibold active:scale-[0.98] disabled:opacity-40"
+            disabled={selected.size === 0}
+            on:click={() => start()}
           >
-            {#if answered}
-              <div class="mt-4 rounded-xl p-4 text-center {correct ? 'bg-green-900/40' : 'bg-rose-900/40'}">
-                <div class="font-semibold {correct ? 'text-green-400' : 'text-rose-400'}">
-                  {correct ? '✓ ' + $t('correct') : '✗ ' + $t('incorrect')}
-                </div>
-                <div class="mt-1 text-sm text-slate-300">
-                  {current.card.front} — {current.card.reading ?? ''}
-                  {#if current.card.meaning[$settings.uiLang]}· {current.card.meaning[$settings.uiLang]}{/if}
-                </div>
-                {#if !correct}
-                  <button class="mt-3 w-full rounded-xl bg-slate-700 py-2 font-medium" on:click={continueAfterAnswer}>
-                    {$t('next')} →
-                  </button>
-                {/if}
-              </div>
-            {/if}
-          </QuizQuestion>
+            ▶ {$t('startReview')}
+          </button>
         {/if}
-      </div>
-    {/key}
-  </section>
+      </section>
 
-{:else}
-  <section class="grid place-items-center py-16 text-center">
-    <div class="text-6xl">🎉</div>
-    {#if sessionStats.reviewed > 0}
-      <h2 class="mt-4 text-xl font-semibold">{$t('reviewDone')}</h2>
-      <p class="mt-2 text-slate-400">
-        {sessionStats.correct}/{sessionStats.reviewed} · {$t('accuracy')}
-        {Math.round((sessionStats.correct / sessionStats.reviewed) * 100)}%
-      </p>
+    {:else if phase === 'running' && current}
+      <section class="space-y-4">
+        <div class="flex items-center gap-3">
+          <button class="text-xs text-slate-500 hover:text-slate-300 active:scale-95" on:click={() => (phase = 'menu')}>
+            ← {$t('back')}
+          </button>
+          <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-800">
+            <div class="h-full bg-gradient-to-r from-pink-400 to-indigo-400 transition-all" style="width:{progress}%"></div>
+          </div>
+          <div class="text-xs text-slate-500">{index + 1} / {queue.length}</div>
+        </div>
+
+        {#key index}
+          <div in:fly={{ y: 16, duration: 180 }}>
+            {#if current.kind === 'flashcard'}
+              <Flashcard exercise={current} state={queue[index]?.state ?? null} on:grade={(e) => grade(e.detail)} />
+            {:else}
+              <QuizQuestion
+                prompt={current.prompt}
+                instruction={$t(current.instructionKey || 'meaning')}
+                options={current.options ? current.options.map((o) => ({ label: o.text, correct: o.correct })) : null}
+                answers={current.answers ?? []}
+                promptSpeak={current.promptSpeak ?? ''}
+                promptAudioUrl={current.promptAudioUrl ?? ''}
+                answerAudio={current.answerAudio ?? false}
+                on:answer={(e) => onAnswer(e.detail.correct)}
+                let:answered
+                let:correct
+              >
+                {#if answered}
+                  <div class="mt-4 rounded-xl p-4 text-center {correct ? 'bg-green-900/40' : 'bg-rose-900/40'}">
+                    <div class="font-semibold {correct ? 'text-green-400' : 'text-rose-400'}">
+                      {correct ? '✓ ' + $t('correct') : '✗ ' + $t('incorrect')}
+                    </div>
+                    <div class="mt-1 text-sm text-slate-300">
+                      {current.card.front} — {current.card.reading ?? ''}
+                      {#if current.card.meaning[$settings.uiLang]}· {current.card.meaning[$settings.uiLang]}{/if}
+                    </div>
+                    {#if !correct}
+                      <button class="mt-3 w-full rounded-xl bg-slate-700 py-2 font-medium" on:click={continueAfterAnswer}>
+                        {$t('next')} →
+                      </button>
+                    {/if}
+                  </div>
+                {/if}
+              </QuizQuestion>
+            {/if}
+          </div>
+        {/key}
+      </section>
+
     {:else}
-      <p class="mt-4 text-slate-400">{$t('noDue')}</p>
+      <section class="grid place-items-center py-16 text-center">
+        <div class="text-6xl">🎉</div>
+        {#if sessionStats.reviewed > 0}
+          <h2 class="mt-4 text-xl font-semibold">{$t('reviewDone')}</h2>
+          <p class="mt-2 text-slate-400">
+            {sessionStats.correct}/{sessionStats.reviewed} · {$t('accuracy')}
+            {Math.round((sessionStats.correct / sessionStats.reviewed) * 100)}%
+          </p>
+        {:else}
+          <p class="mt-4 text-slate-400">{$t('noDue')}</p>
+        {/if}
+        <button class="mt-6 rounded-xl bg-indigo-500 px-6 py-3 font-semibold" on:click={() => (phase = 'menu')}>
+          {$t('back')}
+        </button>
+      </section>
     {/if}
-    <button class="mt-6 rounded-xl bg-indigo-500 px-6 py-3 font-semibold" on:click={() => (phase = 'menu')}>
-      {$t('back')}
-    </button>
-  </section>
-{/if}
+  </div>
+</div>

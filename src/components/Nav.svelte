@@ -9,8 +9,8 @@
   ];
 </script>
 
-<nav class="fixed inset-x-0 bottom-0 mx-auto max-w-2xl border-t border-slate-800 bg-slate-900/95 backdrop-blur lg:max-w-5xl">
-  <div class="grid grid-cols-4">
+<nav class="z-50 shrink-0 border-t border-slate-800 bg-slate-900/95 backdrop-blur">
+  <div class="mx-auto grid max-w-5xl grid-cols-4">
     {#each items as item}
       <button
         class="flex flex-col items-center gap-0.5 {UI.navItemPad} text-xs transition-colors {$route === item.id

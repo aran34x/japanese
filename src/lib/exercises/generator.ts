@@ -1,4 +1,4 @@
-import type { Card, Exercise, ExerciseKind, Lang, McqOption } from '../types';
+import type { Card, Exercise, ExerciseKind, Lang, Lesson, McqOption } from '../types';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -12,6 +12,19 @@ function shuffle<T>(arr: T[]): T[] {
 function meaningOf(card: Card, langs: Lang[]): string {
   const parts = langs.map((l) => card.meaning[l]).filter(Boolean) as string[];
   return [...new Set(parts)].join(' / ');
+}
+
+function makeLesson(card: Card): Lesson {
+  return {
+    vocab: [
+      {
+        jp: card.front,
+        reading: card.reading || '',
+        meaning: card.meaning
+      }
+    ],
+    tip: card.notes || {}
+  };
 }
 
 /** Normalize a typed answer for comparison. */
@@ -138,15 +151,16 @@ export function makeExercise(
       return {
         ...mcq(card, pool, meaning, card.front, 'mcq-jp-to-meaning', 'q_meaning'),
         promptSpeak: jpPrompt,
-        promptAudioUrl: card.audioUrl
+        promptAudioUrl: card.audioUrl,
+        lesson: makeLesson(card)
       };
     case 'mcq-meaning-to-jp':
       // Prompt is the MEANING (a UI label, not Japanese) → no prompt audio.
       // Answers are Japanese, so they may be played.
-      return { ...mcq(card, pool, (c) => c.front, meaning(card), 'mcq-meaning-to-jp', 'q_say'), answerAudio: true };
+      return { ...mcq(card, pool, (c) => c.front, meaning(card), 'mcq-meaning-to-jp', 'q_say'), answerAudio: true, lesson: makeLesson(card) };
     case 'mcq-jp-to-reading':
       // "How do you read this?" → never speak the prompt; answers (readings) ok.
-      return { ...mcq(card, pool, readingText, card.front, 'mcq-jp-to-reading', 'q_reading'), answerAudio: true };
+      return { ...mcq(card, pool, readingText, card.front, 'mcq-jp-to-reading', 'q_reading'), answerAudio: true, lesson: makeLesson(card) };
     case 'type-reading':
       // "How do you read this?" (typed) → no audio at all.
       return {
@@ -154,7 +168,8 @@ export function makeExercise(
         card,
         prompt: card.front,
         instructionKey: 'q_type_reading',
-        answers: [card.romaji, card.reading].filter(Boolean).map((s) => normalize(s!))
+        answers: [card.romaji, card.reading].filter(Boolean).map((s) => normalize(s!)),
+        lesson: makeLesson(card)
       };
     case 'type-meaning':
       // Prompt is Japanese, asking for meaning → speaking it is fine.
@@ -168,11 +183,12 @@ export function makeExercise(
         answers: langs
           .flatMap((l) => (card.meaning[l] ? card.meaning[l]!.split(/[\/,]/) : []))
           .map((s) => normalize(s))
-          .filter(Boolean)
+          .filter(Boolean),
+        lesson: makeLesson(card)
       };
     case 'flashcard':
     default:
-      return { kind: 'flashcard', card, prompt: card.front, instructionKey: '' };
+      return { kind: 'flashcard', card, prompt: card.front, instructionKey: '', lesson: makeLesson(card) };
   }
 }
 

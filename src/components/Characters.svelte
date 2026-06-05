@@ -12,6 +12,7 @@
   } from '../lib/game/fictional';
   import { getWiki, type WikiInfo } from '../lib/game/wiki';
   import FictionalPortrait from './FictionalPortrait.svelte';
+  import QuizQuestion from './QuizQuestion.svelte';
   import { fly, scale } from 'svelte/transition';
 
   type View = 'grid' | 'detail' | 'challenge' | 'cleared';
@@ -33,52 +34,58 @@
 
   let questions: FQuestion[] = [];
   let qIndex = 0;
-  let picked: number | null = null;
-  let wrong = false;
-  let showLesson = false;
+  let exNonce = 0;
 
   function startChallenge() {
     if (!ch) return;
     questions = buildCharChallenge(ch);
     qIndex = 0;
-    picked = null;
-    wrong = false;
-    showLesson = false;
+    exNonce++;
     view = 'challenge';
   }
 
-  async function answer(i: number) {
-    if (picked !== null && !wrong) return;
-    picked = i;
-    if (!questions[qIndex].options[i].correct) {
-      wrong = true;
-      setTimeout(() => (showLesson = true), 450);
-      return;
-    }
-    setTimeout(async () => {
-      if (qIndex + 1 >= questions.length) {
-        if (ch) await unlockFictional(ch.id, ch.xp, ch.name);
+  let correctCount = 0;
+  async function onAnswer(correct: boolean) {
+    if (correct) correctCount++;
+  }
+
+  async function onNext() {
+    if (qIndex + 1 >= questions.length) {
+      if (correctCount >= questions.length && ch) {
+        await unlockFictional(ch.id, ch.xp, ch.name);
         view = 'cleared';
       } else {
-        qIndex += 1;
-        picked = null;
-        wrong = false;
-        showLesson = false;
+        // If they missed any, they must retry the whole thing or just the failed ones?
+        // The original logic was "Got it - retry" which resets the current question.
+        // But QuizQuestion handles the lesson display.
+        // If they were wrong, they should probably stay on this question until they retry?
+        // Actually, let's keep it simple: if wrong, the Next button will just refresh the same question.
+        if (correctCount <= qIndex) {
+            // They were wrong on THIS question
+            if (ch) {
+                const fresh = buildCharChallenge(ch);
+                questions[qIndex] = fresh[qIndex];
+                exNonce++;
+            }
+        } else {
+            qIndex++;
+            exNonce++;
+        }
       }
-    }, 600);
-  }
-
-  function retry() {
-    if (ch) {
-        const fresh = buildCharChallenge(ch);
-        questions[qIndex] = fresh[qIndex];
+    } else {
+      if (correctCount <= qIndex) {
+         if (ch) {
+            const fresh = buildCharChallenge(ch);
+            questions[qIndex] = fresh[qIndex];
+            exNonce++;
+         }
+      } else {
+         qIndex++;
+         exNonce++;
+      }
     }
-    picked = null;
-    wrong = false;
-    showLesson = false;
   }
 
-  $: lesson = questions[qIndex]?.lesson ?? null;
 </script>
 
 {#if view === 'grid'}
@@ -136,8 +143,24 @@
         {/if}
       </div>
       <div class="mt-3 text-center">
-        <div class="text-xl font-bold">{isUnlocked(ch) ? ch.name : '???'}</div>
-        <div class="font-jp text-lg text-pink-300">{isUnlocked(ch) ? ch.ja : '???'}</div>
+        <div class="flex items-center justify-center gap-2">
+          <div class="text-xl font-bold">{isUnlocked(ch) ? ch.name : '???'}</div>
+          {#if isUnlocked(ch)}
+            <button
+              class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-[10px]"
+              on:click={() => speakJa(ch.name)}
+              title="🔊">🔊</button>
+          {/if}
+        </div>
+        <div class="flex items-center justify-center gap-2 font-jp text-lg text-pink-300">
+          {isUnlocked(ch) ? ch.ja : '???'}
+          {#if isUnlocked(ch)}
+            <button
+              class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-[10px]"
+              on:click={() => speakJa(ch.ja)}
+              title="🔊">🔊</button>
+          {/if}
+        </div>
         <div class="text-xs text-slate-500">{FICTIONAL_CATEGORIES[ch.category].emoji} {FICTIONAL_CATEGORIES[ch.category].label[$settings.uiLang]}</div>
       </div>
     </div>
@@ -165,71 +188,25 @@
   </section>
 
 {:else if view === 'challenge' && ch}
+  {@const q = questions[qIndex]}
   <section class="characters-view space-y-4">
     <div class="flex items-center justify-between text-sm">
       <button class="text-slate-400" on:click={() => (view = 'detail')}>✕</button>
       <span class="text-slate-400">{qIndex + 1} / {questions.length}</span>
     </div>
 
-    {#key qIndex}
+    {#key exNonce}
       <div in:fly={{ y: 14, duration: 160 }}>
-        <div class="rounded-2xl bg-slate-800 p-5 text-center">
-          <div class="mx-auto max-w-2xl text-base font-semibold leading-snug text-slate-200 sm:text-lg">
-            {questions[qIndex].instruction[$settings.uiLang]}
-          </div>
-          {#if questions[qIndex].show}
-            {@const showText = questions[qIndex].show ?? ''}
-            <div class="flex items-center justify-center gap-4 py-4">
-              <div class="font-jp text-5xl">{showText}</div>
-              {#if /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(showText) && qIndex < questions.length - 1}
-                <button
-                  class="rounded-xl bg-slate-700 p-3 text-xl transition-colors active:bg-slate-600"
-                  title="🔊"
-                  on:click={() => speakJa(showText)}
-                >🔊</button>
-              {/if}
-            </div>
-          {/if}
-        </div>
-        <div class="mt-3 grid gap-2">
-          {#each questions[qIndex].options as opt, i}
-            {@const txt = opt.text ?? opt[$settings.uiLang] ?? ''}
-            <div class="flex items-stretch gap-2">
-              <button
-                disabled={picked !== null && !wrong}
-                class="flex-1 rounded-xl px-4 py-3 text-left text-lg transition-colors
-                  {picked === i && opt.correct ? 'bg-green-600 text-white' : ''}
-                  {picked === i && !opt.correct ? 'bg-rose-700 text-white' : ''}
-                  {picked !== i ? 'bg-slate-800 active:bg-slate-700' : ''}"
-                on:click={() => answer(i)}>{txt}</button>
-              {#if /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(txt)}
-                <button
-                  class="shrink-0 rounded-xl bg-slate-800 px-3 active:bg-slate-700"
-                  title="🔊"
-                  on:click|stopPropagation={() => speakJa(txt)}>🔊</button>
-              {/if}
-            </div>
-          {/each}
-        </div>
+        <QuizQuestion
+            prompt={q.show || ''}
+            instruction={q.instruction[$settings.uiLang] || ''}
+            options={q.options.map(o => ({ label: o.text || o[$settings.uiLang] || '', correct: o.correct }))}
+            lesson={q.lesson}
+            on:answer={(e) => onAnswer(e.detail.correct)}
+            on:next={onNext}
+        />
       </div>
     {/key}
-
-    {#if showLesson && lesson}
-      <div in:scale={{ start: 0.9, duration: 200 }} class="rounded-2xl border border-amber-500/30 bg-slate-900 p-4">
-        <div class="mb-2 font-bold text-amber-300">📖 {$t('miniLesson')}</div>
-        {#each lesson.vocab as v}
-          <div class="flex items-center gap-3 rounded-lg bg-slate-800 px-3 py-2">
-            <span class="font-jp text-xl">{v.jp}</span>
-            <span class="text-sm text-pink-300">{v.reading}</span>
-            <span class="ml-auto text-sm text-slate-300">{v.meaning[$settings.uiLang]}</span>
-          </div>
-        {/each}
-        <p class="mt-3 text-sm italic text-slate-400">{lesson.tip[$settings.uiLang]}</p>
-        <button class="mt-3 w-full rounded-xl bg-indigo-500 py-2 font-semibold" on:click={retry}>
-          {$t('gotItRetry')}
-        </button>
-      </div>
-    {/if}
   </section>
 
 {:else if view === 'cleared' && ch}

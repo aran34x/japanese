@@ -7,8 +7,10 @@
 
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { t } from '../lib/stores';
+  import { settings, t } from '../lib/stores';
   import { speakJa } from '../lib/speech';
+  import type { Lesson } from '../lib/types';
+  import { scale } from 'svelte/transition';
 
   // A single, shared quiz-question UI used by Study, Adventure (ExerciseView)
   // and Stories. Handles the prompt, multiple-choice OR typing input, answer
@@ -33,6 +35,8 @@
   /** Optional hint shown under a typing input before answering. */
   export let hint = '';
   export let compact = false;
+  /** Mini-lesson to show after answering. */
+  export let lesson: Lesson | null = null;
 
   $: hasPromptAudio = !!(promptAudioUrl || promptSpeak);
   function playPrompt() {
@@ -40,12 +44,13 @@
     if (promptSpeak) speakJa(promptSpeak);
   }
 
-  const dispatch = createEventDispatcher<{ answer: { correct: boolean } }>();
+  const dispatch = createEventDispatcher<{ answer: { correct: boolean }; next: void }>();
 
   let answered = false;
   let correct = false;
   let picked: number | null = null;
   let typed = '';
+  let showLesson = false;
 
   function isJapanese(s: string): boolean {
     return /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(s);
@@ -76,6 +81,9 @@
     if (answered) return;
     answered = true;
     correct = isCorrect;
+    if (!correct || $settings.showLessonAlways) {
+      showLesson = true;
+    }
     dispatch('answer', { correct: isCorrect });
   }
 
@@ -96,13 +104,12 @@
   {#if instruction}
     <div class="mb-1 text-xs uppercase tracking-wide text-slate-500">{instruction}</div>
   {/if}
+  <div class="font-jp {compact ? 'py-3 text-4xl' : 'py-5 text-5xl'}">{prompt}</div>
   {#if hasPromptAudio}
     <button
-      class="mx-auto block font-jp {compact ? 'py-3 text-4xl' : 'py-5 text-5xl'}"
+      class="mx-auto mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-slate-700 text-lg transition-transform active:scale-95"
       on:click={playPrompt}
-      title="🔊">{prompt}</button>
-  {:else}
-    <div class="font-jp {compact ? 'py-3 text-4xl' : 'py-5 text-5xl'}">{prompt}</div>
+      title="🔊">🔊</button>
   {/if}
 </div>
 
@@ -145,3 +152,44 @@
 {/if}
 
 <slot {answered} {correct} />
+
+{#if showLesson && lesson}
+  <div in:scale={{ start: 0.9, duration: 200 }} class="mt-4 rounded-2xl border border-amber-500/30 bg-slate-900 p-4 text-left">
+    <div class="mb-2 font-bold text-amber-300">📖 {$t('miniLesson')}</div>
+    <div class="space-y-2">
+      {#each lesson.vocab as v}
+        <div class="flex items-center gap-3 rounded-lg bg-slate-800 px-3 py-2">
+          <div class="flex flex-col">
+            <span class="font-jp text-xl">{v.jp}</span>
+            <span class="text-xs text-pink-300">{v.reading}</span>
+          </div>
+          <span class="ml-auto text-sm text-slate-300">
+            {#if v.meaning[$settings.uiLang]}
+              {v.meaning[$settings.uiLang]}
+            {:else if v.meaning.en}
+              {v.meaning.en}
+            {/if}
+          </span>
+          <button
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-700 text-xs active:scale-95"
+            on:click={() => speakJa(v.jp)}
+            title="🔊">🔊</button>
+        </div>
+      {/each}
+    </div>
+    {#if lesson.tip[$settings.uiLang] || lesson.tip.en}
+      <p class="mt-3 text-sm italic text-slate-400">
+        💡 {lesson.tip[$settings.uiLang] || lesson.tip.en}
+      </p>
+    {/if}
+  </div>
+{/if}
+
+{#if answered}
+  <button
+    class="mt-4 w-full rounded-xl bg-indigo-600 py-3 font-bold shadow-lg active:scale-[0.98]"
+    on:click={() => dispatch('next')}
+  >
+    {$t('next')} →
+  </button>
+{/if}
