@@ -27,9 +27,11 @@ let dragging = false;
 let rafId: number | null = null;
 let pending: { x: number; y: number } | null = null;
 let currentCh = '';
+let lastX = 0;
+let lastY = 0;
 
 const EDGE = 8;
-const FINGER_GAP = 30; // bubble floats this far above the pointer
+const FINGER_GAP = 48; // bubble floats this far above the pointer (clear of the finger)
 
 const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'RUBY', 'RT', 'RP', 'INPUT', 'TEXTAREA', 'SELECT', 'CODE', 'BUTTON']);
 const KANJI = /[㐀-龯㐀-䶿]/;
@@ -120,6 +122,7 @@ function update(x: number, y: number) {
   const ch = charAtPoint(x, y);
   // Keep the last reading on momentary gaps (between glyphs) → no flicker.
   if (!ch || !isJa(ch)) return;
+  lastX = x; lastY = y;
   if (ch !== currentCh) { currentCh = ch; void fillBubble(ch); }
   positionBubble(x, y);
 }
@@ -264,14 +267,16 @@ async function fillBubble(ch: string) {
   if (isKana(ch)) {
     const kind = (ch.codePointAt(0) ?? 0) >= 0x30a0 ? 'katakana' : 'hiragana';
     body.appendChild(readingRow(kind, ROMAJI.get(ch) ?? '—', 'xray-pop-on'));
+    positionBubble(lastX, lastY);   // re-clamp now that height is known
     return;
   }
 
   body.textContent = '…';
+  positionBubble(lastX, lastY);
   const info = await lookupKanji(ch);
   if (currentCh !== ch || !el.isConnected) return;
   body.textContent = '';
-  if (!info) { body.textContent = '—'; return; }
+  if (!info) { body.textContent = '—'; positionBubble(lastX, lastY); return; }
   const kun = info.kun.map((r) => r.replace(/[.\-].*$/, '').trim()).filter(Boolean);
   if (kun.length) body.appendChild(readingRow('kun', kun.slice(0, 4).join('、'), 'xray-pop-kun'));
   if (info.on.length) body.appendChild(readingRow('on', info.on.slice(0, 4).join('、'), 'xray-pop-on'));
@@ -281,6 +286,7 @@ async function fillBubble(ch: string) {
     m.textContent = info.meanings.slice(0, 5).join(', ');
     body.appendChild(m);
   }
+  positionBubble(lastX, lastY);    // content grew → keep it above the finger
 }
 
 function readingRow(tag: string, value: string, cls: string): HTMLElement {
