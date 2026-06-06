@@ -15,6 +15,7 @@ const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'RUBY', 'RT', 'RP', 'I
 const KANJI = /[㐀-龯㐀-䶿]/;
 
 interface Entry {
+  wrapEl: HTMLElement;
   readEl: HTMLElement;
   meanEl: HTMLElement;
   reads: { r: string; on: boolean }[]; // interleaved kun/on
@@ -29,7 +30,6 @@ const rootEl = () => document.getElementById('app');
 // Measured as a ratio to font-size (em) so it scales with any kanji size.
 // Hint font sizes (px) — must match the CSS below so measurement is exact.
 let measureCtx: CanvasRenderingContext2D | null = null;
-let maxPx = 0;
 
 interface RuntimeSizing {
   readingFontPx: number;
@@ -58,7 +58,7 @@ function readRuntimeSizing(): RuntimeSizing {
     readingFontPx: Math.max(1, cssNumber('--xray-reading-font', 15)),
     meaningFontPx: Math.max(1, cssNumber('--xray-meaning-font', 14)),
     slotMarginPx: Math.max(0, cssNumber('--xray-slot-margin', 10)),
-    slotMinWidthPx: Math.max(24, cssNumber('--xray-slot-min', 96)),
+    slotMinWidthPx: Math.max(18, cssNumber('--xray-slot-min', 96)),
     hintCycleMs: Math.max(250, cssNumber('--xray-hint-cycle-ms', 2000))
   };
   return sizing;
@@ -72,24 +72,23 @@ function measurePx(s: string, weight: number, px: number): number {
   return measureCtx.measureText(s).width;
 }
 
-function considerWidths(reads: string[], meanings: string[]) {
-  let grew = false;
-  const upd = (w: number) => { if (w > maxPx) { maxPx = w; grew = true; } };
+function widthFor(reads: string[], meanings: string[]) {
+  let maxPx = 0;
+  const upd = (w: number) => { if (w > maxPx) maxPx = w; };
   for (const r of reads) upd(measurePx(r, 700, sizing.readingFontPx));
   for (const m of meanings) upd(measurePx(m, 600, sizing.meaningFontPx));
-  if (grew) {
-    // Fixed pixel slot -> wrapper width never depends on the cycling text.
-    const slot = Math.max(sizing.slotMinWidthPx, Math.ceil(maxPx + sizing.slotMarginPx));
-    document.documentElement.style.setProperty('--xray-slot', `${slot}px`);
-  }
+  return Math.max(sizing.slotMinWidthPx, Math.ceil(maxPx + sizing.slotMarginPx));
+}
+
+function setEntryWidth(entry: Entry) {
+  const width = widthFor(entry.reads.map((r) => r.r), entry.meanings);
+  entry.wrapEl.style.setProperty('--xray-local-slot', `${width}px`);
 }
 
 function recomputeSlotWidth() {
   readRuntimeSizing();
-  maxPx = 0;
-  document.documentElement.style.setProperty('--xray-slot', `${sizing.slotMinWidthPx}px`);
   for (const entry of entries) {
-    considerWidths(entry.reads.map((r) => r.r), entry.meanings);
+    setEntryWidth(entry);
   }
 }
 
@@ -145,24 +144,27 @@ function annotate(el: HTMLElement) {
         // vertical room so the hint can't overlap the row above.
         const wrap = document.createElement('span');
         wrap.className = 'xray-kanji';
-        wrap.appendChild(document.createTextNode(ch));
         const anno = document.createElement('span');
         anno.className = 'xray-anno';
         const read = document.createElement('span');
         read.className = 'xray-read';
         const mean = document.createElement('span');
         mean.className = 'xray-mean';
+        const glyph = document.createElement('span');
+        glyph.className = 'xray-glyph';
+        glyph.textContent = ch;
         anno.append(read, mean);
-        wrap.appendChild(anno);
+        wrap.append(anno, glyph);
         span.appendChild(wrap);
 
-        const entry: Entry = { readEl: read, meanEl: mean, reads: [], meanings: [] };
+        const entry: Entry = { wrapEl: wrap, readEl: read, meanEl: mean, reads: [], meanings: [] };
+        setEntryWidth(entry);
         entries.push(entry);
         void lookupKanji(ch).then((info) => {
           if (!info) return;
           entry.reads = buildReads(info.kun, info.on);
           entry.meanings = info.meanings;
-          considerWidths(entry.reads.map((r) => r.r), entry.meanings);
+          setEntryWidth(entry);
           paintOne(entry);
         });
       } else {
@@ -231,8 +233,6 @@ export function enableXray() {
   enabled = true;
   document.documentElement.classList.add('xray-active');
   readRuntimeSizing();
-  maxPx = 0; // recompute slot width fresh
-  document.documentElement.style.setProperty('--xray-slot', `${sizing.slotMinWidthPx}px`);
   tick = 0;
   run();
   restartTicker();
@@ -247,7 +247,6 @@ export function refreshXraySizing() {
 export function disableXray() {
   enabled = false;
   document.documentElement.classList.remove('xray-active');
-  document.documentElement.style.removeProperty('--xray-slot');
   observer?.disconnect();
   observer = null;
   if (ticker) { clearInterval(ticker); ticker = null; }

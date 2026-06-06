@@ -25,14 +25,8 @@ export interface XraySizePreset {
   horizontalHintMarginPx: number;
   slotMinWidthPx: number;
 
-  // Vertical spacing. verticalRoomRem reserves room above each kanji for the
-  // hint stack; hintTopOffsetRem moves the hint stack inside that space.
-  verticalRoomRem: number;
-  hintTopOffsetRem: number;
-
-  // Extra top padding for the scroll area while X-ray is active, so first-row
-  // hints do not sit under the fixed top bar.
-  pageTopRoomRem: number;
+  // Vertical spacing between the hint stack and the kanji glyph.
+  hintKanjiGapRem: number;
 }
 
 const XRAY_SMALL_PRESET: XraySizePreset = {
@@ -50,9 +44,7 @@ const XRAY_SMALL_PRESET: XraySizePreset = {
   horizontalHintMarginPx: 10,
   slotMinWidthPx: 2,
 
-  verticalRoomRem: 2.7,
-  hintTopOffsetRem: 0,
-  pageTopRoomRem: 2.7
+  hintKanjiGapRem: 0.04
 };
 
 function scalePreset(multiplier: 1 | 2 | 3 | 4, shortName: string, name: string): XraySizePreset {
@@ -69,9 +61,7 @@ function scalePreset(multiplier: 1 | 2 | 3 | 4, shortName: string, name: string)
     hintCycleMs: XRAY_SMALL_PRESET.hintCycleMs * multiplier,
     horizontalHintMarginPx: XRAY_SMALL_PRESET.horizontalHintMarginPx * multiplier,
     slotMinWidthPx: XRAY_SMALL_PRESET.slotMinWidthPx * multiplier,
-    verticalRoomRem: XRAY_SMALL_PRESET.verticalRoomRem * multiplier,
-    hintTopOffsetRem: XRAY_SMALL_PRESET.hintTopOffsetRem * multiplier,
-    pageTopRoomRem: XRAY_SMALL_PRESET.pageTopRoomRem * multiplier
+    hintKanjiGapRem: XRAY_SMALL_PRESET.hintKanjiGapRem * multiplier
   };
 }
 

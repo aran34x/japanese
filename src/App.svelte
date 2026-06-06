@@ -68,9 +68,7 @@
     rootStyle.setProperty('--xray-hint-cycle-ms', String(xraySize.hintCycleMs));
     rootStyle.setProperty('--xray-slot-margin', `${xraySize.horizontalHintMarginPx}px`);
     rootStyle.setProperty('--xray-slot-min', `${xraySize.slotMinWidthPx}px`);
-    rootStyle.setProperty('--xray-vertical-room', `${xraySize.verticalRoomRem}rem`);
-    rootStyle.setProperty('--xray-hint-top', `${xraySize.hintTopOffsetRem}rem`);
-    rootStyle.setProperty('--xray-page-top-room', `${xraySize.pageTopRoomRem}rem`);
+    rootStyle.setProperty('--xray-hint-kanji-gap', `${xraySize.hintKanjiGapRem}rem`);
     if ($xrayOn) refreshXraySizing();
   }
 

@@ -15,9 +15,7 @@
   --xray-hint-cycle-ms: 2000;
   --xray-slot-margin: 10px;
   --xray-slot-min: 96px;
-  --xray-vertical-room: 2.7rem;
-  --xray-hint-top: 0.1rem;
-  --xray-page-top-room: 2.7rem;
+  --xray-hint-kanji-gap: 0.04rem;
 }
 
 html, body {
@@ -619,27 +617,30 @@ button {
   perspective: 1000px;
 }
 
-/* ── Kanji X-ray annotation ───────────────────────────────────────
-   The wrapper has an EXPLICIT pixel width (--xray-slot, pre-measured from the
-   widest hint) and reserves vertical room via padding-top. The hint is
-   absolutely positioned, so cycling text can never change the layout. */
+/* Kanji X-ray annotation.
+   Each kanji owns a compact inline stack: hint above, kanji below. Width is
+   measured per kanji, not once globally for the whole page, so mobile layouts
+   do not explode when one hint is long. */
 .xray-kanji {
   position: relative;
   z-index: 45;                       /* above dim overlay (40), below bars (50) */
-  display: inline-block;
-  min-width: var(--xray-slot, var(--xray-slot-min, 96px)); /* fixed floor -> zero horizontal jitter */
-  padding-top: var(--xray-vertical-room, 2.7rem);          /* reserves vertical room for the hint */
+  display: inline-flex;
+  min-width: var(--xray-local-slot, var(--xray-slot-min, 24px));
+  max-width: min(var(--xray-local-slot, 8rem), 42vw);
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--xray-hint-kanji-gap, 0.04rem);
+  vertical-align: baseline;
   text-align: center;                /* centre the kanji in its slot */
-  font-size: calc(var(--xray-kanji-scale, 1) * 1em); /* user-chosen size */
+  font-size: inherit;
   font-weight: 600;
   opacity: 1;
   filter: none;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
 }
 .xray-anno {
-  position: absolute;
-  top: var(--xray-hint-top, 0.1rem);
-  left: 0;
+  position: relative;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -648,20 +649,30 @@ button {
   font-weight: 700;
   pointer-events: none;              /* never intercept taps (e.g. card flip) */
 }
+.xray-glyph {
+  display: block;
+  font-size: calc(var(--xray-kanji-scale, 1) * 1em);
+  line-height: 1.05;
+}
 .xray-read {
   font-size: var(--xray-reading-font, 15px);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 .xray-anno .xray-mean {
   font-size: var(--xray-meaning-font, 14px);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   color: #ffffff;                    /* meanings in white */
   font-weight: 600;
 }
 :root.light .xray-anno .xray-mean { color: #1c1c1e; }
 
-/* Extra top room so the first row's hint clears the fixed topbar. */
-.xray-active main { padding-top: calc(4rem + var(--xray-page-top-room, 2.7rem)); }
+.xray-active main { padding-top: 0; }
 
 /* Skins can add blur/filter/opacity transforms to cards and wrappers. Those
    create stacking contexts, which trap child kanji below the fixed dim veil.
