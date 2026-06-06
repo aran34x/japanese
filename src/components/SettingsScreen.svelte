@@ -49,7 +49,7 @@
     { id: 'smash64', title: 'skinSmash64', desc: 'skinSmash64Desc', swatches: ['#0b1f5e', '#e11d2e', '#facc15'] },
     { id: 'sakura', title: 'skinSakura', desc: 'skinSakuraDesc', swatches: ['#4a102a', '#f9a8d4', '#fde68a'] },
     { id: 'station', title: 'skinStation', desc: 'skinStationDesc', swatches: ['#111827', '#f97316', '#38bdf8'] },
-    { id: 'nature', title: 'skinNature', desc: 'skinNatureDesc', swatches: ['#052e16', '#22c55e', '#fbbf24'] },
+    { id: 'nature', title: 'skinNature', desc: 'skinNatureDesc', swatches: ['#052e16', '#f0fdf4', '#bbf7d0'] },
     { id: 'comet', title: 'skinComet', desc: 'skinCometDesc', swatches: ['#0b1030', '#22d3ee', '#a78bfa'] }
   ];
   function setSkin(skin: AppSkin) {
