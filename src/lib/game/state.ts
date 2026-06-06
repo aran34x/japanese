@@ -22,7 +22,7 @@ export interface GameState {
   unlockedPeople: string[];
   /** ids of fictional characters whose challenge has been cleared. */
   unlockedFictional: string[];
-  /** ids of stories whose quiz has been passed (earns a stamp). */
+  /** ids of stories whose quiz has been passed. */
   storiesDone: string[];
   /** Cumulative active study time, in seconds. */
   studySeconds: number;
@@ -259,7 +259,6 @@ export async function unlockFictional(id: string, xp: number, name: string) {
 export async function markStoryDone(id: string, xp: number) {
   const before = get(game);
   if (before.storiesDone.includes(id)) return;
-  pushToast({ kind: 'achievement', title: 'storyStamp', subtitle: '+' + xp + ' XP', icon: '📖' });
   await mutateGame((g) =>
     g.storiesDone.includes(id) ? g : { ...g, xp: g.xp + xp, storiesDone: [...g.storiesDone, id] }
   );

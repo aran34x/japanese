@@ -1,107 +1,170 @@
-// Kanji X-ray overlay: when enabled, walks the visible DOM and draws an animated
-// annotation above every kanji character — a cycling English meaning (white) and
-// an alternating reading (kun in red, on in blue). Mirrors the furigana engine's
-// DOM-walk + MutationObserver approach, but with a shared 0.6s ticker driving the
-// cycle. Data comes from the on-demand kanji dictionary (cached in IndexedDB).
+// Kanji X-ray — scrub-to-reveal.
+//
+// When active, a transparent CAPTURE layer is placed over the content (below the
+// topbar/nav). It swallows every pointer event, so the underlying page is fully
+// inert — nothing behind it can be clicked/scrolled. Drag a finger across it (or
+// hover with a mouse) and a bubble follows above the pointer, reading whatever
+// Japanese character is beneath it: kanji → kun (red) / on (blue) + meanings,
+// kana → romaji. Tap empty space → exit. Kanji are kept full-colour above the
+// dim veil; everything else is dimmed.
+//
+// Kanji are wrapped in *inline* spans (display unchanged → zero reflow) only to
+// lift them above the veil. Hit-testing uses caret hit-testing against the text
+// beneath the capture layer (we toggle the layer's pointer-events off for the
+// single synchronous measurement).
 import { lookupKanji, isKanji } from './dict';
+import { kanaTable } from '../data/kana';
+import { xrayOn } from './xray';
 
 let enabled = false;
 let observer: MutationObserver | null = null;
 let scheduled = false;
-let ticker: ReturnType<typeof setInterval> | null = null;
-let tick = 0;
+let capture: HTMLDivElement | null = null;
+let bubble: HTMLDivElement | null = null;
+let hint: HTMLDivElement | null = null;
 
-const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'RUBY', 'RT', 'RP', 'INPUT', 'TEXTAREA', 'SELECT', 'CODE']);
+let dragging = false;
+let rafId: number | null = null;
+let pending: { x: number; y: number } | null = null;
+let currentCh = '';
+
+const EDGE = 8;
+const FINGER_GAP = 30; // bubble floats this far above the pointer
+
+const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'RUBY', 'RT', 'RP', 'INPUT', 'TEXTAREA', 'SELECT', 'CODE', 'BUTTON']);
 const KANJI = /[㐀-龯㐀-䶿]/;
+const isKana = (ch: string) => { const c = ch.codePointAt(0) ?? 0; return (c >= 0x3040 && c <= 0x309f) || (c >= 0x30a0 && c <= 0x30ff); };
+const isJa = (ch: string) => isKanji(ch) || isKana(ch);
 
-interface Entry {
-  wrapEl: HTMLElement;
-  readEl: HTMLElement;
-  meanEl: HTMLElement;
-  reads: { r: string; on: boolean }[]; // interleaved kun/on
-  meanings: string[];
+const ROMAJI = new Map<string, string>();
+for (const k of kanaTable) {
+  if ([...k.hira].length === 1) ROMAJI.set(k.hira, k.romaji);
+  if ([...k.kata].length === 1) ROMAJI.set(k.kata, k.romaji);
 }
-let entries: Entry[] = [];
 
 const rootEl = () => document.getElementById('app');
 
-// ── Slot width: pre-measure the widest hint so every slot fits the longest
-// reading/meaning fully (no clipping) and stays a constant width (no jitter).
-// Measured as a ratio to font-size (em) so it scales with any kanji size.
-// Hint font sizes (px) — must match the CSS below so measurement is exact.
-let measureCtx: CanvasRenderingContext2D | null = null;
-
-interface RuntimeSizing {
-  readingFontPx: number;
-  meaningFontPx: number;
-  slotMarginPx: number;
-  slotMinWidthPx: number;
-  hintCycleMs: number;
+// ── Lifecycle (exports consumed by App.svelte) ──────────────────────
+export function enableXray() {
+  if (enabled) return;
+  enabled = true;
+  document.documentElement.classList.add('xray-active');
+  highlight(rootEl());
+  connect();
+  ensureCapture();
+  showHint();
 }
 
-let sizing: RuntimeSizing = {
-  readingFontPx: 15,
-  meaningFontPx: 14,
-  slotMarginPx: 10,
-  slotMinWidthPx: 96,
-  hintCycleMs: 2000
-};
-
-function cssNumber(name: string, fallback: number): number {
-  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  const value = Number.parseFloat(raw);
-  return Number.isFinite(value) && value > 0 ? value : fallback;
+export function disableXray() {
+  if (!enabled) return;
+  enabled = false;
+  document.documentElement.classList.remove('xray-active');
+  observer?.disconnect();
+  observer = null;
+  capture?.remove();          // removing the node drops its listeners
+  capture = null;
+  hideBubble();
+  removeHint();
+  unhighlight();
 }
 
-function readRuntimeSizing(): RuntimeSizing {
-  sizing = {
-    readingFontPx: Math.max(1, cssNumber('--xray-reading-font', 15)),
-    meaningFontPx: Math.max(1, cssNumber('--xray-meaning-font', 14)),
-    slotMarginPx: Math.max(0, cssNumber('--xray-slot-margin', 10)),
-    slotMinWidthPx: Math.max(18, cssNumber('--xray-slot-min', 96)),
-    hintCycleMs: Math.max(250, cssNumber('--xray-hint-cycle-ms', 2000))
-  };
-  return sizing;
+export function refreshXraySizing() { /* popover reads CSS vars live */ }
+
+// ── Capture layer (makes the page inert + is the only event target) ─
+function ensureCapture(): HTMLDivElement {
+  if (capture) return capture;
+  const el = document.createElement('div');
+  el.className = 'xray-capture';
+  el.addEventListener('pointerdown', onPointerDown);
+  el.addEventListener('pointermove', onPointerMove);
+  el.addEventListener('pointerup', onPointerUp);
+  el.addEventListener('pointercancel', onPointerUp);
+  el.addEventListener('pointerleave', onPointerLeave);
+  el.addEventListener('click', onClick);
+  document.body.appendChild(el);
+  capture = el;
+  return el;
 }
 
-/** Rendered pixel width of a string at the given weight/size. */
-function measurePx(s: string, weight: number, px: number): number {
-  if (!measureCtx) measureCtx = document.createElement('canvas').getContext('2d');
-  if (!measureCtx) return s.length * px * 0.62;
-  measureCtx.font = `${weight} ${px}px "Noto Sans JP", system-ui, sans-serif`;
-  return measureCtx.measureText(s).width;
+function onPointerDown(e: PointerEvent) {
+  if (e.pointerType !== 'mouse') { dragging = true; queue(e.clientX, e.clientY); }
+}
+function onPointerMove(e: PointerEvent) {
+  if (e.pointerType === 'mouse') queue(e.clientX, e.clientY);
+  else if (dragging) queue(e.clientX, e.clientY);
+}
+function onPointerUp(e: PointerEvent) {
+  if (e.pointerType !== 'mouse') { dragging = false; hideBubble(); }
+}
+function onPointerLeave(e: PointerEvent) {
+  if (e.pointerType === 'mouse') hideBubble();
+}
+function onClick(e: MouseEvent) {
+  // A tap/click that isn't on a Japanese character exits X-ray.
+  const ch = charAtPoint(e.clientX, e.clientY);
+  if (!ch || !isJa(ch)) xrayOn.set(false);
 }
 
-function widthFor(reads: string[], meanings: string[]) {
-  let maxPx = 0;
-  const upd = (w: number) => { if (w > maxPx) maxPx = w; };
-  for (const r of reads) upd(measurePx(r, 700, sizing.readingFontPx));
-  for (const m of meanings) upd(measurePx(m, 600, sizing.meaningFontPx));
-  return Math.max(sizing.slotMinWidthPx, Math.ceil(maxPx + sizing.slotMarginPx));
+function queue(x: number, y: number) {
+  pending = { x, y };
+  if (rafId == null) rafId = requestAnimationFrame(flush);
+}
+function flush() {
+  rafId = null;
+  const p = pending;
+  pending = null;
+  if (p) update(p.x, p.y);
 }
 
-function setEntryWidth(entry: Entry) {
-  const width = widthFor(entry.reads.map((r) => r.r), entry.meanings);
-  entry.wrapEl.style.setProperty('--xray-local-slot', `${width}px`);
+function update(x: number, y: number) {
+  const ch = charAtPoint(x, y);
+  // Keep the last reading on momentary gaps (between glyphs) → no flicker.
+  if (!ch || !isJa(ch)) return;
+  if (ch !== currentCh) { currentCh = ch; void fillBubble(ch); }
+  positionBubble(x, y);
 }
 
-function recomputeSlotWidth() {
-  readRuntimeSizing();
-  for (const entry of entries) {
-    setEntryWidth(entry);
+/** Char under a viewport point, hit-testing the text BENEATH the capture layer. */
+function charAtPoint(x: number, y: number): string | null {
+  const prev = capture?.style.pointerEvents;
+  if (capture) capture.style.pointerEvents = 'none'; // see through to the text
+  try {
+    const doc = document as Document & {
+      caretRangeFromPoint?: (x: number, y: number) => Range | null;
+      caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
+    };
+    let node: Node | null = null;
+    let offset = 0;
+    if (doc.caretRangeFromPoint) {
+      const r = doc.caretRangeFromPoint(x, y);
+      if (!r) return null;
+      node = r.startContainer; offset = r.startOffset;
+    } else if (doc.caretPositionFromPoint) {
+      const p = doc.caretPositionFromPoint(x, y);
+      if (!p) return null;
+      node = p.offsetNode; offset = p.offset;
+    } else return null;
+    if (!node || node.nodeType !== Node.TEXT_NODE) return null;
+    const text = node.nodeValue ?? '';
+    for (const idx of [offset, offset - 1]) {
+      if (idx < 0 || idx >= text.length) continue;
+      if (isJa(text[idx])) {
+        const range = document.createRange();
+        range.setStart(node, idx); range.setEnd(node, idx + 1);
+        const rect = range.getBoundingClientRect();
+        if (x >= rect.left - 3 && x <= rect.right + 3) return text[idx];
+      }
+    }
+    for (const idx of [offset, offset - 1]) {
+      if (idx >= 0 && idx < text.length && isJa(text[idx])) return text[idx];
+    }
+    return null;
+  } finally {
+    if (capture) capture.style.pointerEvents = prev || 'auto';
   }
 }
 
-function restartTicker() {
-  if (ticker) clearInterval(ticker);
-  ticker = setInterval(() => { tick++; paintAll(); }, sizing.hintCycleMs);
-}
-
-function inOurs(t: Node | null): boolean {
-  const el = t instanceof HTMLElement ? t : (t?.parentElement ?? null);
-  return !!el?.closest('[data-xray]');
-}
-
+// ── Kanji highlight (inline wrap → no reflow) ───────────────────────
 function textNodes(el: HTMLElement): Text[] {
   const out: Text[] = [];
   const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
@@ -117,138 +180,142 @@ function textNodes(el: HTMLElement): Text[] {
   return out;
 }
 
-/** Build a kun/on interleaved reading list so they alternate as the ticker runs. */
-function buildReads(kun: string[], on: string[]): { r: string; on: boolean }[] {
-  const cleanKun = kun.map((r) => r.replace(/[.\-].*$/, '').trim()).filter(Boolean);
-  const reads: { r: string; on: boolean }[] = [];
-  const max = Math.max(cleanKun.length, on.length);
-  for (let i = 0; i < max; i++) {
-    if (cleanKun[i]) reads.push({ r: cleanKun[i], on: false });
-    if (on[i]) reads.push({ r: on[i], on: true });
-  }
-  return reads;
-}
-
-function annotate(el: HTMLElement) {
-  for (const textNode of textNodes(el)) {
-    const text = textNode.nodeValue ?? '';
-    const span = document.createElement('span');
-    span.setAttribute('data-xray', '1');
-    span.setAttribute('data-orig', text); // restore from this, never textContent
-
+function highlight(root: HTMLElement | null) {
+  if (!root) return;
+  for (const node of textNodes(root)) {
+    const text = node.nodeValue ?? '';
+    const frag = document.createDocumentFragment();
+    let buf = '';
+    const flushBuf = () => { if (buf) { frag.appendChild(document.createTextNode(buf)); buf = ''; } };
     for (const ch of text) {
       if (isKanji(ch)) {
-        // The wrapper has an EXPLICIT fixed width + padding-top. The hint is
-        // absolutely positioned inside it (out of flow), so the cycling text can
-        // NEVER change the wrapper's width (zero jitter); the padding reserves
-        // vertical room so the hint can't overlap the row above.
-        const wrap = document.createElement('span');
-        wrap.className = 'xray-kanji';
-        const anno = document.createElement('span');
-        anno.className = 'xray-anno';
-        const read = document.createElement('span');
-        read.className = 'xray-read';
-        const mean = document.createElement('span');
-        mean.className = 'xray-mean';
-        const glyph = document.createElement('span');
-        glyph.className = 'xray-glyph';
-        glyph.textContent = ch;
-        anno.append(read, mean);
-        wrap.append(anno, glyph);
-        span.appendChild(wrap);
-
-        const entry: Entry = { wrapEl: wrap, readEl: read, meanEl: mean, reads: [], meanings: [] };
-        setEntryWidth(entry);
-        entries.push(entry);
-        void lookupKanji(ch).then((info) => {
-          if (!info) return;
-          entry.reads = buildReads(info.kun, info.on);
-          entry.meanings = info.meanings;
-          setEntryWidth(entry);
-          paintOne(entry);
-        });
-      } else {
-        span.appendChild(document.createTextNode(ch));
-      }
+        flushBuf();
+        const s = document.createElement('span');
+        s.className = 'xray-k';
+        s.textContent = ch;
+        frag.appendChild(s);
+      } else buf += ch;
     }
-    textNode.parentNode?.replaceChild(span, textNode);
+    flushBuf();
+    const wrap = document.createElement('span');
+    wrap.setAttribute('data-xray', '1');
+    wrap.setAttribute('data-orig', text);
+    wrap.appendChild(frag);
+    node.parentNode?.replaceChild(wrap, node);
   }
 }
 
-function paintOne(e: Entry) {
-  if (e.reads.length) {
-    const r = e.reads[tick % e.reads.length];
-    e.readEl.textContent = r.r;
-    e.readEl.style.color = r.on ? '#60a5fa' : '#f87171'; // on = blue, kun = red
-  }
-  if (e.meanings.length) {
-    e.meanEl.textContent = e.meanings[tick % e.meanings.length];
-  }
-}
-
-function paintAll() {
-  for (const e of entries) paintOne(e);
-}
-
-function removeAll() {
-  const r = rootEl();
-  if (!r) return;
-  r.querySelectorAll('[data-xray]').forEach((span) => {
-    const orig = span.getAttribute('data-orig') ?? span.textContent ?? '';
-    span.replaceWith(document.createTextNode(orig));
+function unhighlight() {
+  const root = rootEl();
+  if (!root) return;
+  root.querySelectorAll('[data-xray]').forEach((span) => {
+    span.replaceWith(document.createTextNode(span.getAttribute('data-orig') ?? span.textContent ?? ''));
   });
-  entries = [];
 }
 
 function schedule() {
   if (scheduled) return;
   scheduled = true;
-  setTimeout(() => { scheduled = false; run(); }, 150);
+  requestAnimationFrame(() => {
+    scheduled = false;
+    if (!enabled) return;
+    observer?.disconnect();
+    highlight(rootEl());
+    connect();
+  });
 }
 
 function connect() {
-  const r = rootEl();
-  if (!r) return;
+  const root = rootEl();
+  if (!root) return;
   observer = new MutationObserver((muts) => {
-    // Ignore our own annotation churn (the ticker rewrites text inside [data-xray]).
-    const relevant = muts.some(
-      (m) => !inOurs(m.target) &&
-        [...m.addedNodes].some((nd) => !(nd instanceof HTMLElement && nd.hasAttribute('data-xray')))
-    );
+    const relevant = muts.some((m) => {
+      const el = m.target instanceof HTMLElement ? m.target : m.target.parentElement;
+      if (el?.closest('[data-xray]')) return false;
+      return [...m.addedNodes].some((nd) => !(nd instanceof HTMLElement && nd.hasAttribute('data-xray')));
+    });
     if (relevant) schedule();
   });
-  observer.observe(r, { childList: true, subtree: true, characterData: true });
+  observer.observe(root, { childList: true, subtree: true, characterData: true });
 }
 
-function run() {
-  const r = rootEl();
-  if (!r || !enabled) return;
-  observer?.disconnect();
-  annotate(r);
-  if (enabled) connect();
+// ── Bubble ──────────────────────────────────────────────────────────
+function ensureBubble(): HTMLDivElement {
+  if (bubble) return bubble;
+  bubble = document.createElement('div');
+  bubble.className = 'xray-pop';
+  bubble.setAttribute('data-xray-pop', '1');
+  document.body.appendChild(bubble);
+  return bubble;
 }
 
-export function enableXray() {
-  if (enabled) return;
-  enabled = true;
-  document.documentElement.classList.add('xray-active');
-  readRuntimeSizing();
-  tick = 0;
-  run();
-  restartTicker();
+async function fillBubble(ch: string) {
+  const el = ensureBubble();
+  el.hidden = false;
+  removeHint();
+
+  const head = document.createElement('div');
+  head.className = 'xray-pop-kanji';
+  head.textContent = ch;
+  const body = document.createElement('div');
+  body.className = 'xray-pop-body';
+  el.replaceChildren(head, body);
+
+  if (isKana(ch)) {
+    const kind = (ch.codePointAt(0) ?? 0) >= 0x30a0 ? 'katakana' : 'hiragana';
+    body.appendChild(readingRow(kind, ROMAJI.get(ch) ?? '—', 'xray-pop-on'));
+    return;
+  }
+
+  body.textContent = '…';
+  const info = await lookupKanji(ch);
+  if (currentCh !== ch || !el.isConnected) return;
+  body.textContent = '';
+  if (!info) { body.textContent = '—'; return; }
+  const kun = info.kun.map((r) => r.replace(/[.\-].*$/, '').trim()).filter(Boolean);
+  if (kun.length) body.appendChild(readingRow('kun', kun.slice(0, 4).join('、'), 'xray-pop-kun'));
+  if (info.on.length) body.appendChild(readingRow('on', info.on.slice(0, 4).join('、'), 'xray-pop-on'));
+  if (info.meanings.length) {
+    const m = document.createElement('div');
+    m.className = 'xray-pop-mean';
+    m.textContent = info.meanings.slice(0, 5).join(', ');
+    body.appendChild(m);
+  }
 }
 
-export function refreshXraySizing() {
-  if (!enabled) return;
-  recomputeSlotWidth();
-  restartTicker();
+function readingRow(tag: string, value: string, cls: string): HTMLElement {
+  const row = document.createElement('div');
+  row.className = cls;
+  const t = document.createElement('span');
+  t.className = 'xray-pop-tag';
+  t.textContent = tag;
+  row.append(t, document.createTextNode(' ' + value));
+  return row;
 }
 
-export function disableXray() {
-  enabled = false;
-  document.documentElement.classList.remove('xray-active');
-  observer?.disconnect();
-  observer = null;
-  if (ticker) { clearInterval(ticker); ticker = null; }
-  removeAll();
+function positionBubble(x: number, y: number) {
+  if (!bubble) return;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const bw = bubble.offsetWidth, bh = bubble.offsetHeight;
+  let left = Math.max(EDGE, Math.min(x - bw / 2, vw - bw - EDGE));
+  let top = y - bh - FINGER_GAP;
+  if (top < EDGE) top = y + FINGER_GAP;
+  top = Math.max(EDGE, Math.min(top, vh - bh - EDGE));
+  bubble.style.left = `${left}px`;
+  bubble.style.top = `${top}px`;
 }
+
+function hideBubble() {
+  currentCh = '';
+  if (bubble) bubble.hidden = true;
+}
+
+// ── Hint ────────────────────────────────────────────────────────────
+function showHint() {
+  if (hint) return;
+  hint = document.createElement('div');
+  hint.className = 'xray-hint';
+  hint.textContent = '🔍 Drag over the kanji';
+  document.body.appendChild(hint);
+}
+function removeHint() { hint?.remove(); hint = null; }

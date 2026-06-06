@@ -118,27 +118,40 @@ html, body {
 :root[data-skin='smash64'] { color-scheme: dark; }
 :root[data-skin='smash64'] body {
   background:
-    linear-gradient(135deg, rgba(225, 29, 46, 0.38), transparent 24%),
-    linear-gradient(315deg, rgba(250, 204, 21, 0.26), transparent 28%),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 12px),
-    #07123a;
+    linear-gradient(rgba(5, 5, 8, 0.2), rgba(5, 5, 8, 0.46)),
+    url('/assets/skin-smash64-bg.svg'),
+    radial-gradient(circle at 50% 18%, rgba(250, 204, 21, 0.15), transparent 24%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.045) 0 2px, transparent 2px 18px),
+    #08080b;
   background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
   color: #f8fafc;
 }
 :root[data-skin='smash64'] .bg-slate-950,
-:root[data-skin='smash64'] .bg-slate-900 { background-color: #07123a; }
-:root[data-skin='smash64'] .bg-slate-900\/95 { background-color: rgba(7, 18, 58, 0.96); }
+:root[data-skin='smash64'] .bg-slate-900 { background-color: #08080b; }
+:root[data-skin='smash64'] .bg-slate-900\/95 { background-color: rgba(8, 8, 11, 0.96); }
 :root[data-skin='smash64'] .bg-slate-800 {
   background:
-    linear-gradient(180deg, rgba(37, 99, 235, 0.48), rgba(15, 23, 42, 0.92)),
-    #10256c;
-  border-color: rgba(250, 204, 21, 0.46);
-  box-shadow: inset 0 0 0 2px rgba(250, 204, 21, 0.24), 0 6px 0 rgba(0, 0, 0, 0.55), 0 18px 36px rgba(0, 0, 0, 0.28);
+    linear-gradient(180deg, rgba(54, 54, 54, 0.86), rgba(10, 10, 14, 0.96)),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.07) 0 2px, transparent 2px 9px),
+    #151515;
+  border-color: rgba(250, 204, 21, 0.35);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 6px 0 rgba(0, 0, 0, 0.72), 0 18px 36px rgba(0, 0, 0, 0.28);
 }
 :root[data-skin='smash64'] .bg-slate-900\/50,
-:root[data-skin='smash64'] .bg-slate-900\/60 { background-color: rgba(7, 18, 58, 0.72); }
-:root[data-skin='smash64'] .bg-slate-800\/80 { background-color: rgba(16, 37, 108, 0.82); }
-:root[data-skin='smash64'] .bg-slate-700 { background: linear-gradient(180deg, #2563eb, #1e3a8a); }
+:root[data-skin='smash64'] .bg-slate-900\/60 { background-color: rgba(8, 8, 11, 0.74); }
+:root[data-skin='smash64'] .bg-slate-800\/80 {
+  background:
+    linear-gradient(180deg, rgba(48, 48, 48, 0.84), rgba(13, 13, 16, 0.9)),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 2px, transparent 2px 8px);
+}
+:root[data-skin='smash64'] .bg-slate-700 {
+  background:
+    linear-gradient(180deg, #facc15, #b45309);
+  color: #111827;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.52), inset 0 -2px 0 rgba(0, 0, 0, 0.42);
+}
 :root[data-skin='smash64'] .hover\:bg-slate-800:hover,
 :root[data-skin='smash64'] .hover\:bg-slate-700:hover,
 :root[data-skin='smash64'] .hover\:bg-slate-600:hover {
@@ -148,7 +161,7 @@ html, body {
 }
 :root[data-skin='smash64'] .border-slate-800,
 :root[data-skin='smash64'] .border-slate-700,
-:root[data-skin='smash64'] .border-slate-700\/70 { border-color: rgba(250, 204, 21, 0.55); }
+:root[data-skin='smash64'] .border-slate-700\/70 { border-color: rgba(0, 0, 0, 0.86); }
 :root[data-skin='smash64'] .bg-indigo-500,
 :root[data-skin='smash64'] .bg-indigo-600 {
   background: linear-gradient(180deg, #ef4444, #b91c1c);
@@ -194,8 +207,11 @@ html, body {
 :root[data-skin='smash64'] .accent-pink-500 { accent-color: #facc15; }
 :root[data-skin='smash64'] header,
 :root[data-skin='smash64'] nav {
-  border-color: rgba(250, 204, 21, 0.45);
-  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.28);
+  background:
+    linear-gradient(180deg, rgba(36, 36, 36, 0.98), rgba(6, 6, 8, 0.98)),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 2px, transparent 2px 9px);
+  border-color: rgba(0, 0, 0, 0.9);
+  box-shadow: inset 0 -2px 0 rgba(250, 204, 21, 0.25), 0 8px 0 rgba(0, 0, 0, 0.28);
 }
 :root[data-skin='smash64'] .rounded-xl,
 :root[data-skin='smash64'] .rounded-2xl,
@@ -203,25 +219,79 @@ html, body {
 :root[data-skin='smash64'] .characters-view .rounded-xl,
 :root[data-skin='smash64'] .characters-view .rounded-2xl,
 :root[data-skin='smash64'] .characters-view .rounded-3xl { border-radius: 8px; }
+:root[data-skin='smash64'] .characters-view {
+  color: #f8fafc;
+}
+:root[data-skin='smash64'] .characters-view > p {
+  color: #facc15;
+  font-weight: 800;
+  text-shadow: 1px 1px 0 #000;
+}
+:root[data-skin='smash64'] .characters-view > .mb-4 button {
+  border: 2px solid #111827;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, #fef08a, #eab308 48%, #92400e);
+  color: #111827;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.65), inset 0 -2px 0 rgba(0,0,0,.45), 0 3px 0 rgba(0,0,0,.7);
+  text-shadow: none;
+}
+:root[data-skin='smash64'] .characters-view > .mb-4 button.bg-indigo-500 {
+  background:
+    linear-gradient(180deg, #fef3c7, #facc15 52%, #d97706);
+}
+:root[data-skin='smash64'] .characters-view .grid.grid-cols-3 {
+  gap: 4px;
+  border: 4px solid #090909;
+  border-radius: 6px;
+  background:
+    linear-gradient(180deg, rgba(22, 22, 24, 0.96), rgba(5, 5, 6, 0.98)),
+    repeating-linear-gradient(45deg, rgba(255,255,255,.045) 0 2px, transparent 2px 10px);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.08), 0 10px 0 rgba(0,0,0,.62);
+  padding: 4px;
+}
 :root[data-skin='smash64'] .characters-view button > .aspect-square {
-  border-width: 3px;
-  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.12), transparent 45%);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.55), inset 0 0 0 2px rgba(255, 255, 255, 0.12);
+  border-width: 2px;
+  border-color: #050505 !important;
+  border-radius: 3px;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(248, 113, 113, 0.42), transparent 40%),
+    linear-gradient(180deg, rgba(153, 27, 27, 0.98), rgba(36, 8, 8, 0.98));
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.16), inset 0 -5px 0 rgba(0,0,0,.35);
 }
 :root[data-skin='smash64'] .characters-view button:hover > .aspect-square {
   border-color: #facc15;
-  filter: saturate(1.2) contrast(1.05);
+  filter: saturate(1.25) contrast(1.08);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.2), inset 0 -5px 0 rgba(0,0,0,.35), 0 0 0 2px #facc15;
+}
+:root[data-skin='smash64'] .characters-view button > .aspect-square:has(+ *) {
+  image-rendering: auto;
+}
+:root[data-skin='smash64'] .characters-view button .text-slate-500,
+:root[data-skin='smash64'] .characters-view button div.text-\[10px\] {
+  color: #d1d5db;
+  text-shadow: 1px 1px 0 #000;
+}
+:root[data-skin='smash64'] .characters-view button > .aspect-square:not([style*="background:"]) {
+  background:
+    linear-gradient(180deg, rgba(84, 84, 84, 0.98), rgba(20, 20, 22, 0.98)),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.12) 0 2px, transparent 2px 9px);
+  color: #111827;
 }
 
 /* ── Comet skin: cinematic "Your Name" twilight sky + glassmorphism ─── */
 :root[data-skin='comet'] { color-scheme: dark; }
 :root[data-skin='comet'] body {
   background:
+    linear-gradient(rgba(7, 10, 32, 0.22), rgba(9, 10, 28, 0.42)),
+    url('/assets/skin-comet-bg.svg'),
     radial-gradient(120% 75% at 80% -8%, rgba(56, 189, 248, 0.22), transparent 42%),  /* comet glow */
     radial-gradient(95% 70% at 10% -5%, rgba(124, 58, 237, 0.34), transparent 46%),   /* violet nebula */
     radial-gradient(150% 95% at 50% 118%, rgba(244, 114, 182, 0.14), transparent 55%),/* twilight horizon */
     linear-gradient(180deg, #070a20 0%, #0b1030 48%, #090a1c 100%);
   background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
   color: #e7e9ff;
 }
 /* Deep space surfaces */
@@ -292,6 +362,8 @@ html, body {
 :root[data-skin='sakura'],
 :root[data-skin='sakura'] body {
   background:
+    linear-gradient(rgba(255, 247, 251, 0.62), rgba(255, 241, 247, 0.72)),
+    url('/assets/skin-sakura-bg.svg'),
     radial-gradient(circle at 12% 8%, rgba(251, 207, 232, 0.9) 0 9px, transparent 10px),
     radial-gradient(circle at 19% 14%, rgba(255, 255, 255, 0.95) 0 11px, transparent 12px),
     radial-gradient(circle at 86% 11%, rgba(244, 114, 182, 0.18), transparent 24%),
@@ -452,10 +524,13 @@ html, body {
 :root[data-skin='station'] { color-scheme: dark; }
 :root[data-skin='station'] body {
   background:
+    linear-gradient(rgba(11, 17, 29, 0.58), rgba(11, 17, 29, 0.72)),
+    url('/assets/skin-station-bg.svg'),
     linear-gradient(90deg, rgba(56, 189, 248, 0.16) 1px, transparent 1px),
     linear-gradient(rgba(249, 115, 22, 0.1) 1px, transparent 1px),
     linear-gradient(180deg, #0b111d 0%, #111827 55%, #0b111d 100%);
-  background-size: 34px 34px;
+  background-size: cover, cover, 34px 34px, 34px 34px, cover;
+  background-position: center;
   background-attachment: fixed;
   color: #e5e7eb;
 }
@@ -529,11 +604,15 @@ html, body {
 :root[data-skin='nature'] { color-scheme: dark; }
 :root[data-skin='nature'] body {
   background:
+    linear-gradient(rgba(5, 46, 22, 0.52), rgba(5, 46, 22, 0.7)),
+    url('/assets/skin-nature-bg.svg'),
     radial-gradient(circle at 14% 12%, rgba(187, 247, 208, 0.18), transparent 22%),
     radial-gradient(circle at 84% 18%, rgba(250, 204, 21, 0.12), transparent 24%),
     linear-gradient(160deg, rgba(34, 197, 94, 0.18), transparent 35%),
     #052e16;
   background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
   color: #ecfdf5;
 }
 :root[data-skin='nature'] .bg-slate-950,
@@ -617,94 +696,73 @@ button {
   perspective: 1000px;
 }
 
-/* Kanji X-ray annotation.
-   Each kanji owns a compact inline stack: hint above, kanji below. Width is
-   measured per kanji, not once globally for the whole page, so mobile layouts
-   do not explode when one hint is long. */
-.xray-kanji {
-  position: relative;
-  z-index: 45;                       /* above dim overlay (40), below bars (50) */
-  display: inline-flex;
-  min-width: var(--xray-local-slot, var(--xray-slot-min, 24px));
-  max-width: min(var(--xray-local-slot, 8rem), 42vw);
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--xray-hint-kanji-gap, 0.04rem);
-  vertical-align: baseline;
-  text-align: center;                /* centre the kanji in its slot */
-  font-size: inherit;
-  font-weight: 600;
-  opacity: 1;
-  filter: none;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+/* Kanji X-ray — tap-to-scan popover.
+   No page text is rewritten; tapping a kanji shows this card beside it. The
+   card and the "tap a kanji" hint are appended to <body> by xray-annotate.ts. */
+.xray-pop {
+  position: fixed;
+  z-index: 60;                       /* above the dim veil (40) and topbar (50) */
+  max-width: min(260px, 88vw);
+  background: rgba(15, 23, 42, 0.98);
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 14px;
+  padding: 10px 14px;
+  text-align: center;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.55);
+  pointer-events: auto;
+  animation: xray-pop-in 0.14s ease-out;
 }
-.xray-anno {
-  position: relative;
-  width: 100%;
+@keyframes xray-pop-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+.xray-pop-kanji {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 2.4rem;
+  line-height: 1;
+  font-weight: 700;
+}
+.xray-pop-body {
+  margin-top: 8px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  line-height: var(--xray-hint-line-height, 1.2);
-  font-weight: 700;
-  pointer-events: none;              /* never intercept taps (e.g. card flip) */
+  gap: 3px;
 }
-.xray-glyph {
-  display: block;
-  font-size: calc(var(--xray-kanji-scale, 1) * 1em);
-  line-height: 1.05;
+.xray-pop-kun { color: #f87171; font-weight: 600; font-size: var(--xray-reading-font, 15px); }
+.xray-pop-on  { color: #60a5fa; font-weight: 600; font-size: var(--xray-reading-font, 15px); }
+.xray-pop-tag {
+  font-size: 0.62em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin-right: 3px;
 }
-.xray-read {
-  font-size: var(--xray-reading-font, 15px);
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.xray-anno .xray-mean {
+.xray-pop-mean {
+  color: #fff;
+  margin-top: 4px;
   font-size: var(--xray-meaning-font, 14px);
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #ffffff;                    /* meanings in white */
-  font-weight: 600;
 }
-:root.light .xray-anno .xray-mean { color: #1c1c1e; }
+.xray-hint {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 78px);
+  transform: translateX(-50%);
+  z-index: 60;
+  background: rgba(15, 23, 42, 0.92);
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  animation: xray-pop-in 0.2s ease-out;
+}
 
 .xray-active main { padding-top: 0; }
-
-/* Skins can add blur/filter/opacity transforms to cards and wrappers. Those
-   create stacking contexts, which trap child kanji below the fixed dim veil.
-   While X-ray is active, neutralize the common context makers in the reading
-   surface so highlighted kanji can rise above the veil again. */
-.xray-active main,
-.xray-active main > div,
-.xray-active .bg-slate-800,
-.xray-active .bg-slate-800\/80,
-.xray-active .bg-slate-900,
-.xray-active .bg-slate-900\/50,
-.xray-active .bg-slate-900\/60,
-.xray-active .bg-slate-900\/95,
-.xray-active .card-3d {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  filter: none !important;
-  transform: none !important;
-  perspective: none !important;
-  transform-style: flat !important;
-  contain: none !important;
-}
-
-.xray-active [data-xray],
-.xray-active .xray-kanji,
-.xray-active .xray-anno {
-  position: relative !important;
-  z-index: 45 !important;
-  opacity: 1 !important;
-  filter: none !important;
-  mix-blend-mode: normal !important;
-}
 
 /* Focus mode: a full-screen veil (z-40) dims the content + page; the kanji
    (z-45) show through it at full brightness, but stay BELOW the topbar/nav
@@ -716,7 +774,7 @@ button {
   inset: 0;
   z-index: 40;
   pointer-events: none;
-  background: rgba(2, 6, 23, 0.55);   /* dark veil for dark theme */
+  background: rgba(2, 6, 23, 0.42);   /* dark veil for dark theme */
 }
 :root.light .xray-dim-overlay {
   background: rgba(255, 255, 255, 0.5); /* light veil for light theme */
@@ -724,8 +782,32 @@ button {
 /* Dim the nav and the individual topbar items — but NOT the 🔍 toggle, so it
    stays bright and easy to find/turn off. (Per-item opacity, because the 🔍 is
    a sibling and opacity on the whole header couldn't exempt it.) */
-.xray-active nav { opacity: 0.55; z-index: 50; }
+.xray-active nav { opacity: 0.55; }
 .xray-active .xray-dim-el { opacity: 0.5; transition: opacity 0.2s ease; }
+
+/* Transparent layer over the content that swallows ALL pointer events, so the
+   page underneath is fully inert (no click-through, no scroll). It sits above
+   the kanji (z-45) but BELOW the topbar/nav so those stay usable to exit. */
+.xray-capture {
+  position: fixed;
+  inset: 0;
+  z-index: 46;
+  touch-action: none;        /* drag scrubs instead of scrolling */
+  background: transparent;
+}
+/* Lift the chrome above the capture layer so 🔍 / nav remain tappable. */
+.xray-active header,
+.xray-active nav { position: relative; z-index: 50; }
+
+/* Each kanji is wrapped in an inline span (display unchanged → no reflow) and
+   lifted ABOVE the dim veil (z-45) so kanji stay full-colour while the veil
+   dims everything else. Stays below the topbar/nav (z-50). A soft glow marks
+   them as the scannable targets. */
+.xray-k {
+  position: relative;
+  z-index: 45;
+  text-shadow: 0 0 10px rgba(125, 211, 252, 0.55);
+}
 
 /* ── Scrollbars ───────────────────────────────────────────────── */
 /* Webkit (Chrome, Safari, Edge) */

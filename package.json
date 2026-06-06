@@ -9,7 +9,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "extract-decks": "node scripts/extract-anki-decks.mjs"
+    "extract-decks": "node scripts/extract-anki-decks.mjs",
+    "upload-skin-originals": "node scripts/upload-skin-originals.mjs"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.1.2",

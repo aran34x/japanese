@@ -23,10 +23,10 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     version: '0.18.0',
     date: '2026-06-02',
-    title: { en: 'Bigger, harder stories + stamp album', it: 'Storie più grandi e album dei timbri' },
+    title: { en: 'Bigger, harder stories', it: 'Storie più grandi' },
     changes: [
       { en: '13 stories now, ordered easy → hard, with more questions and typing tests.', it: '13 storie, dalla più facile alla più difficile, con più domande e test di scrittura.' },
-      { en: 'Story titles shown in Japanese; pass the quiz to earn a collectible stamp.', it: 'Titoli in giapponese; supera il quiz per ottenere un timbro da collezione.' },
+      { en: 'Story titles shown in Japanese; pass the quiz to complete the story.', it: 'Titoli in giapponese; supera il quiz per completare la storia.' },
       { en: 'Story icons stay hidden until you complete them.', it: 'Le icone delle storie restano nascoste finché non le completi.' },
       { en: 'Kanji-on-screen panel: labels and meanings now follow the app language.', it: 'Pannello kanji: etichette e significati seguono la lingua dell\'app.' }
     ]

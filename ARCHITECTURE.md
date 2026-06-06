@@ -80,8 +80,7 @@ Self-contained. Each `Story`:
 - **`type(qen, qit, [answers], hint?)`** — typing question (answers matched
   case-insensitively; accepts romaji/kanji/kana variants).
 - Stories are **ordered by difficulty**; later ones have more lines/questions.
-- Completion (≥ half correct) is stored in game state `storiesDone` and shows a
-  **stamp** in the album; the emoji is hidden until completed.
+- Completion (≥ half correct) is stored in game state `storiesDone`; the emoji is hidden until completed.
 
 To add a story: append an object to `STORIES`. No other change needed.
 
@@ -144,7 +143,7 @@ how challenges are generated, edit the matching `src/lib/game/` file.
 | `Study.svelte` | Core SRS study: mode menu, deck picker (Custom), question runner |
 | `ExerciseView.svelte` | Renders a single exercise (used by Adventure) |
 | `Flashcard.svelte` | SRS self-graded flip card |
-| `Stories.svelte` | Story mode: list/album, reader, quiz, stamps |
+| `Stories.svelte` | Story mode: list, reader, quiz |
 | `Adventure.svelte` | Gamified hub with tabs (Quest / Icons / Characters / Collection / Achievements) |
 | `AdventureSession.svelte` | Adventure play loop incl. random encounters/bosses |
 | `CharacterPortrait.svelte` | Renders a hero's SVG (locked = silhouette) |

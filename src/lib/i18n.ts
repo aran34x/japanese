@@ -186,8 +186,8 @@ export const strings: Dict = {
     en: 'Lock real-person Icons and fictional Characters again. XP stays as-is.',
     it: 'Riblocca Icone reali e Personaggi di fantasia. Gli XP restano.'
   },
-  resetStoriesOnly: { en: 'Story stamps', it: 'Timbri storie' },
-  resetStoriesOnlyDesc: { en: 'Clear completed story stamps only.', it: 'Cancella solo i timbri delle storie completate.' },
+  resetStoriesOnly: { en: 'Story progress', it: 'Progressi storie' },
+  resetStoriesOnlyDesc: { en: 'Clear completed stories only.', it: 'Cancella solo le storie completate.' },
   resetAchievementsOnly: { en: 'Achievements', it: 'Obiettivi' },
   resetAchievementsOnlyDesc: { en: 'Clear earned achievement badges only.', it: 'Cancella solo gli obiettivi ottenuti.' },
   resetSectionAction: { en: 'Reset', it: 'Azzera' },
@@ -208,12 +208,9 @@ export const strings: Dict = {
   gotIt: { en: 'Got it!', it: 'Fantastico!' },
 
   // Stories
-  stampAlbum: { en: 'Stamp album', it: 'Album dei timbri' },
-  stampEarned: { en: 'Stamp earned!', it: 'Timbro ottenuto!' },
   showTranslation: { en: 'Show translation', it: 'Mostra traduzione' },
   answerQuestions: { en: 'Answer the questions', it: 'Rispondi alle domande' },
   correctCount: { en: 'correct', it: 'corrette' },
-  tryAgainStamp: { en: 'Try again to earn the stamp!', it: 'Riprova per ottenere il timbro!' },
   readAgain: { en: 'Read again', it: 'Rileggi' },
   moreStories: { en: 'More stories', it: 'Altre storie' },
 

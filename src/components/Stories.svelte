@@ -41,7 +41,7 @@
   async function onNext() {
     if (!story) return;
     if (qIndex + 1 >= story.questions.length) {
-      // Pass = at least half correct; mark done + reward stamp.
+      // Pass = at least half correct; mark done.
       if (correctCount >= Math.ceil(story.questions.length / 2)) {
         await markStoryDone(story.id, 60);
       }
@@ -59,24 +59,6 @@
     {#if view === 'list'}
       <section in:fly={{ y: 12, duration: 180 }} class="space-y-3">
         <p class="text-sm text-slate-400">{$t('storiesIntro')}</p>
-
-        <!-- Stamp album -->
-        <div class="rounded-2xl bg-slate-800 p-4">
-          <div class="mb-2 text-sm font-semibold">
-            🏅 {$t('stampAlbum')}
-            <span class="text-xs text-slate-400">{passedCount}/{STORIES.length}</span>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {#each STORIES as s}
-              <div
-                class="grid h-10 w-10 place-items-center rounded-full text-xl {isDone(s.id)
-                  ? 'bg-gradient-to-br from-amber-400 to-pink-500'
-                  : 'bg-slate-900 text-slate-700'}"
-                title={isDone(s.id) ? s.title[$settings.uiLang] : '???'}
-              >{isDone(s.id) ? s.emoji : '?'}</div>
-            {/each}
-          </div>
-        </div>
 
         {#each STORIES as s, i}
           <button
@@ -175,23 +157,15 @@
       {@const passed = correctCount >= Math.ceil(story.questions.length / 2)}
       <section class="grid place-items-center py-12 text-center" in:scale={{ start: 0.8, duration: 300 }}>
         {#if passed}
-          <div class="grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-amber-400 to-pink-500 text-5xl shadow-lg">
-            {story.emoji}
-          </div>
-          <div class="mt-3 text-sm font-bold text-amber-300">
-            🏅 {$t('stampEarned')}
+          <div class="grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-green-400 to-emerald-500 text-5xl shadow-lg">
+            ✓
           </div>
         {:else}
           <div class="text-6xl">📖</div>
         {/if}
-        <h2 class="mt-2 text-xl font-bold">
+        <h2 class="mt-4 text-xl font-bold">
           {correctCount}/{story.questions.length} {$t('correctCount')}
         </h2>
-        {#if !passed}
-          <p class="mt-1 text-sm text-slate-400">
-            {$t('tryAgainStamp')}
-          </p>
-        {/if}
         <div class="mt-5 flex gap-3">
           <button class="rounded-xl bg-indigo-500 px-5 py-3 font-semibold" on:click={() => { if (story) open(story); }}>
             {$t('readAgain')}
