@@ -8,6 +8,16 @@
   --sb-track: rgba(15, 23, 42, 0.5);
   --sb-thumb: #334155;
   --sb-thumb-hover: #ec4899;
+  --xray-kanji-scale: 1;
+  --xray-reading-font: 15px;
+  --xray-meaning-font: 14px;
+  --xray-hint-line-height: 1.2;
+  --xray-hint-cycle-ms: 2000;
+  --xray-slot-margin: 10px;
+  --xray-slot-min: 96px;
+  --xray-vertical-room: 2.7rem;
+  --xray-hint-top: 0.1rem;
+  --xray-page-top-room: 2.7rem;
 }
 
 html, body {
@@ -617,30 +627,33 @@ button {
   position: relative;
   z-index: 45;                       /* above dim overlay (40), below bars (50) */
   display: inline-block;
-  min-width: var(--xray-slot, 96px); /* fixed floor → zero horizontal jitter */
-  padding-top: 2.7rem;               /* reserves vertical room for the hint */
+  min-width: var(--xray-slot, var(--xray-slot-min, 96px)); /* fixed floor -> zero horizontal jitter */
+  padding-top: var(--xray-vertical-room, 2.7rem);          /* reserves vertical room for the hint */
   text-align: center;                /* centre the kanji in its slot */
-  font-size: calc(var(--xray-kanji-scale, 1.6) * 1em); /* user-chosen size */
+  font-size: calc(var(--xray-kanji-scale, 1) * 1em); /* user-chosen size */
   font-weight: 600;
+  opacity: 1;
+  filter: none;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
 }
 .xray-anno {
   position: absolute;
-  top: 0.1rem;
+  top: var(--xray-hint-top, 0.1rem);
   left: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  line-height: 1.2;
+  line-height: var(--xray-hint-line-height, 1.2);
   font-weight: 700;
   pointer-events: none;              /* never intercept taps (e.g. card flip) */
 }
 .xray-read {
-  font-size: 15px;
+  font-size: var(--xray-reading-font, 15px);
   white-space: nowrap;
 }
 .xray-anno .xray-mean {
-  font-size: 14px;
+  font-size: var(--xray-meaning-font, 14px);
   white-space: nowrap;
   color: #ffffff;                    /* meanings in white */
   font-weight: 600;
@@ -648,7 +661,39 @@ button {
 :root.light .xray-anno .xray-mean { color: #1c1c1e; }
 
 /* Extra top room so the first row's hint clears the fixed topbar. */
-.xray-active main { padding-top: calc(4rem + 2.7rem); }
+.xray-active main { padding-top: calc(4rem + var(--xray-page-top-room, 2.7rem)); }
+
+/* Skins can add blur/filter/opacity transforms to cards and wrappers. Those
+   create stacking contexts, which trap child kanji below the fixed dim veil.
+   While X-ray is active, neutralize the common context makers in the reading
+   surface so highlighted kanji can rise above the veil again. */
+.xray-active main,
+.xray-active main > div,
+.xray-active .bg-slate-800,
+.xray-active .bg-slate-800\/80,
+.xray-active .bg-slate-900,
+.xray-active .bg-slate-900\/50,
+.xray-active .bg-slate-900\/60,
+.xray-active .bg-slate-900\/95,
+.xray-active .card-3d {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  transform: none !important;
+  perspective: none !important;
+  transform-style: flat !important;
+  contain: none !important;
+}
+
+.xray-active [data-xray],
+.xray-active .xray-kanji,
+.xray-active .xray-anno {
+  position: relative !important;
+  z-index: 45 !important;
+  opacity: 1 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
 
 /* Focus mode: a full-screen veil (z-40) dims the content + page; the kanji
    (z-45) show through it at full brightness, but stay BELOW the topbar/nav

@@ -29,12 +29,18 @@
   let faceImage: HTMLImageElement;
   let mounted = false;
   let textureLoaded = false;
+  let displayedImageUrl: string | undefined;
   let addSpinImpulse = (_axis: 'x' | 'y' = 'y', _direction = 1, _strength = 1) => {};
 
   function highResolutionTexture(url?: string) {
     if (!url) return undefined;
+    if (url.includes('/storage/v1/object/public/')) return url;
     if (url.includes('width=')) return url.replace(/width=\d+/, `width=${textureWidth}`);
     return `${url}${url.includes('?') ? '&' : '?'}width=${textureWidth}`;
+  }
+
+  function imageCandidates() {
+    return [character.imageUrl, character.fallbackImageUrl].filter(Boolean) as string[];
   }
 
   function hexToRgb(hex: string) {
@@ -209,8 +215,12 @@
 
     stage.scene.add(coin);
 
-    const textureUrl = showImage ? highResolutionTexture(character.imageUrl) : undefined;
-    if (textureUrl) {
+    function loadCandidateTexture(index = 0) {
+      const rawUrl = showImage ? imageCandidates()[index] : undefined;
+      const textureUrl = highResolutionTexture(rawUrl);
+      displayedImageUrl = textureUrl;
+      if (!textureUrl) return;
+
       loadImageTexture(textureUrl, (texture) => {
         if (!mounted) {
           texture.dispose();
@@ -222,9 +232,16 @@
         frontMaterial.needsUpdate = true;
         textureLoaded = true;
       }, () => {
+        if (index + 1 < imageCandidates().length) {
+          loadCandidateTexture(index + 1);
+          return;
+        }
+        displayedImageUrl = undefined;
         textureLoaded = false;
       });
     }
+
+    loadCandidateTexture();
 
     const resizeObserver = new ResizeObserver(stage.resize);
     resizeObserver.observe(viewport);
@@ -377,8 +394,8 @@
   on:touchstart={() => interactive && addSpinImpulse('y', 1, 1)}
   on:focus={() => interactive && addSpinImpulse('y', 1, 1)}
 >
-  {#if showImage && character.imageUrl}
-    <img bind:this={faceImage} class="level-coin-3d__image" src={highResolutionTexture(character.imageUrl)} alt="" />
+  {#if showImage && displayedImageUrl}
+    <img bind:this={faceImage} class="level-coin-3d__image" src={displayedImageUrl} alt="" />
   {/if}
 </div>
 

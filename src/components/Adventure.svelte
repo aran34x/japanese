@@ -20,7 +20,8 @@
   type View = 'hub' | 'deck' | 'session' | 'result' | 'levels';
   let view: View = 'hub';
 
-  let decks: Deck[] = [];
+  type DeckWithCount = Deck & { count: number };
+  let decks: DeckWithCount[] = [];
   let selected = new Set<string>();
   let lastXp = 0;
 
@@ -36,7 +37,11 @@
   };
 
   onMount(async () => {
-    decks = await db.decks.toArray();
+    const deckRows = await db.decks.toArray();
+    const cards = await db.cards.toArray();
+    const counts = new Map<string, number>();
+    for (const card of cards) counts.set(card.deckId, (counts.get(card.deckId) ?? 0) + 1);
+    decks = deckRows.map((deck) => ({ ...deck, count: counts.get(deck.id) ?? 0 }));
     selected = new Set(decks.map((d) => d.id));
   });
 

@@ -2,6 +2,7 @@ import Dexie, { type Table } from 'dexie';
 import type { Card, Deck, MediaBlob, ReviewState, Settings } from './types';
 import { newReviewState } from './srs';
 import { markSaving, markSaved } from './saveStatus';
+import { DEFAULT_XRAY_KANJI_SIZE_MULTIPLIER, normalizeXrayKanjiSize } from './xray-size-presets';
 
 // IndexedDB-backed store. Media blobs (audio/image/video) live in their own
 // table so imported Anki media of any type can be persisted offline.
@@ -34,13 +35,18 @@ export const DEFAULT_SETTINGS: Settings = {
   showRomaji: true,
   theme: 'dark',
   skin: 'default',
-  xrayKanjiScale: 1.15,
+  xrayKanjiScale: DEFAULT_XRAY_KANJI_SIZE_MULTIPLIER,
   showLessonAlways: false
 };
 
 export async function getSettings(): Promise<Settings> {
   const row = await db.meta.get('settings');
-  return { ...DEFAULT_SETTINGS, ...((row?.value as Partial<Settings>) ?? {}) };
+  const stored = (row?.value as Partial<Settings>) ?? {};
+  return {
+    ...DEFAULT_SETTINGS,
+    ...stored,
+    xrayKanjiScale: normalizeXrayKanjiSize(stored.xrayKanjiScale)
+  };
 }
 
 export async function saveSettings(s: Settings): Promise<void> {

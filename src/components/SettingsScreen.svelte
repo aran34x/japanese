@@ -4,6 +4,7 @@
   import type { AppSkin, Lang } from '../lib/types';
   import { APP_VERSION } from '../lib/version';
   import { resetAllProgress, resetProgressSection, type ProgressSection } from '../lib/game/state';
+  import { DEFAULT_XRAY_KANJI_SIZE_MULTIPLIER, XRAY_KANJI_SIZE_PRESETS } from '../lib/xray-size-presets';
   import CloudSync from './CloudSync.svelte';
 
   let confirmReset = false;
@@ -39,12 +40,6 @@
     });
   }
 
-  const kanjiSizes: { value: number; label: string }[] = [
-    { value: 1.0, label: 'S' },
-    { value: 1.15, label: 'M' },
-    { value: 1.3, label: 'L' },
-    { value: 1.6, label: 'XL' }
-  ];
   function setKanjiScale(v: number) {
     settings.update((s) => ({ ...s, xrayKanjiScale: v }));
   }
@@ -147,10 +142,15 @@
     <div class="mb-1 text-sm font-medium">🔍 {$t('xrayKanjiSize')}</div>
     <p class="mb-2 text-xs text-slate-400">{$t('xrayKanjiSizeDesc')}</p>
     <div class="flex gap-2">
-      {#each kanjiSizes as opt}
+      {#each XRAY_KANJI_SIZE_PRESETS as opt}
         <button
-          class="flex-1 rounded-lg py-2 text-sm font-semibold {($settings.xrayKanjiScale ?? 1.6) === opt.value ? 'bg-indigo-500 text-white' : 'bg-slate-700'}"
-          on:click={() => setKanjiScale(opt.value)}>{opt.label}</button>
+          class="flex-1 rounded-lg py-2 text-sm font-semibold {($settings.xrayKanjiScale ?? DEFAULT_XRAY_KANJI_SIZE_MULTIPLIER) === opt.multiplier ? 'bg-indigo-500 text-white' : 'bg-slate-700'}"
+          title={`${opt.name} (${opt.multiplier}x)`}
+          on:click={() => setKanjiScale(opt.multiplier)}
+        >
+          <span class="block">{opt.shortName}</span>
+          <span class="block text-[10px] opacity-75">{opt.multiplier}x</span>
+        </button>
       {/each}
     </div>
   </div>

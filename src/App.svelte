@@ -9,7 +9,7 @@
   import { loadGame, resetAllProgress } from './lib/game/state';
   import { loadXray, furiganaOn, xrayOn } from './lib/kanji/xray';
   import { enableFurigana, disableFurigana } from './lib/kanji/furigana';
-  import { enableXray, disableXray } from './lib/kanji/xray-annotate';
+  import { enableXray, disableXray, refreshXraySizing } from './lib/kanji/xray-annotate';
   import { initSync, authReady, syncSession, syncConfigured, setSignedOutHandler } from './lib/sync';
   import AuthGate from './components/AuthGate.svelte';
   import AccountMenu from './components/AccountMenu.svelte';
@@ -25,6 +25,7 @@
   import Toasts from './components/Toasts.svelte';
   import WhatsNew from './components/WhatsNew.svelte';
   import Nav from './components/Nav.svelte';
+  import { getXrayKanjiSizePreset } from './lib/xray-size-presets';
 
   let skippedAuth = false;
 
@@ -56,9 +57,21 @@
     document.documentElement.dataset.skin = $settings.skin ?? 'default';
   }
 
-  // User-chosen kanji enlargement factor for X-ray mode.
+  // User-chosen X-ray size preset. The preset owns every sizing/timing knob.
   $: if (typeof document !== 'undefined') {
-    document.documentElement.style.setProperty('--xray-kanji-scale', String($settings.xrayKanjiScale ?? 1.6));
+    const xraySize = getXrayKanjiSizePreset($settings.xrayKanjiScale);
+    const rootStyle = document.documentElement.style;
+    rootStyle.setProperty('--xray-kanji-scale', String(xraySize.kanjiTextScale));
+    rootStyle.setProperty('--xray-reading-font', `${xraySize.readingHintFontPx}px`);
+    rootStyle.setProperty('--xray-meaning-font', `${xraySize.meaningHintFontPx}px`);
+    rootStyle.setProperty('--xray-hint-line-height', String(xraySize.hintLineHeight));
+    rootStyle.setProperty('--xray-hint-cycle-ms', String(xraySize.hintCycleMs));
+    rootStyle.setProperty('--xray-slot-margin', `${xraySize.horizontalHintMarginPx}px`);
+    rootStyle.setProperty('--xray-slot-min', `${xraySize.slotMinWidthPx}px`);
+    rootStyle.setProperty('--xray-vertical-room', `${xraySize.verticalRoomRem}rem`);
+    rootStyle.setProperty('--xray-hint-top', `${xraySize.hintTopOffsetRem}rem`);
+    rootStyle.setProperty('--xray-page-top-room', `${xraySize.pageTopRoomRem}rem`);
+    if ($xrayOn) refreshXraySizing();
   }
 
   // Clear local progress so a guest/other identity starts clean. Called by sync

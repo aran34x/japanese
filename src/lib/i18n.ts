@@ -86,8 +86,8 @@ export const strings: Dict = {
   autoAudio: { en: 'Auto-play audio', it: 'Audio automatico' },
   xrayKanjiSize: { en: 'Kanji X-ray size', it: 'Dimensione X-ray kanji' },
   xrayKanjiSizeDesc: {
-    en: 'How large kanji grow when the 🔍 hints are on',
-    it: 'Quanto si ingrandiscono i kanji con i suggerimenti 🔍 attivi'
+    en: 'Designer presets from the X-ray size config file.',
+    it: 'Preset designer dal file di configurazione dimensioni X-ray.'
   },
 
   importTitle: { en: 'Import flashcards', it: 'Importa flashcard' },

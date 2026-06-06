@@ -148,7 +148,7 @@
           {#if isUnlocked(ch)}
             <button
               class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-[10px]"
-              on:click={() => speakJa(ch.name)}
+              on:click={() => ch && speakJa(ch.name)}
               title="🔊">🔊</button>
           {/if}
         </div>
@@ -157,7 +157,7 @@
           {#if isUnlocked(ch)}
             <button
               class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-[10px]"
-              on:click={() => speakJa(ch.ja)}
+              on:click={() => ch && speakJa(ch.ja)}
               title="🔊">🔊</button>
           {/if}
         </div>

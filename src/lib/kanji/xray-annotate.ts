@@ -28,12 +28,41 @@ const rootEl = () => document.getElementById('app');
 // reading/meaning fully (no clipping) and stays a constant width (no jitter).
 // Measured as a ratio to font-size (em) so it scales with any kanji size.
 // Hint font sizes (px) — must match the CSS below so measurement is exact.
-const READ_PX = 15;
-const MEAN_PX = 14;
-const SLOT_MARGIN_PX = 10; // horizontal breathing room around the widest hint
-
 let measureCtx: CanvasRenderingContext2D | null = null;
 let maxPx = 0;
+
+interface RuntimeSizing {
+  readingFontPx: number;
+  meaningFontPx: number;
+  slotMarginPx: number;
+  slotMinWidthPx: number;
+  hintCycleMs: number;
+}
+
+let sizing: RuntimeSizing = {
+  readingFontPx: 15,
+  meaningFontPx: 14,
+  slotMarginPx: 10,
+  slotMinWidthPx: 96,
+  hintCycleMs: 2000
+};
+
+function cssNumber(name: string, fallback: number): number {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const value = Number.parseFloat(raw);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function readRuntimeSizing(): RuntimeSizing {
+  sizing = {
+    readingFontPx: Math.max(1, cssNumber('--xray-reading-font', 15)),
+    meaningFontPx: Math.max(1, cssNumber('--xray-meaning-font', 14)),
+    slotMarginPx: Math.max(0, cssNumber('--xray-slot-margin', 10)),
+    slotMinWidthPx: Math.max(24, cssNumber('--xray-slot-min', 96)),
+    hintCycleMs: Math.max(250, cssNumber('--xray-hint-cycle-ms', 2000))
+  };
+  return sizing;
+}
 
 /** Rendered pixel width of a string at the given weight/size. */
 function measurePx(s: string, weight: number, px: number): number {
@@ -46,12 +75,27 @@ function measurePx(s: string, weight: number, px: number): number {
 function considerWidths(reads: string[], meanings: string[]) {
   let grew = false;
   const upd = (w: number) => { if (w > maxPx) { maxPx = w; grew = true; } };
-  for (const r of reads) upd(measurePx(r, 700, READ_PX));
-  for (const m of meanings) upd(measurePx(m, 600, MEAN_PX));
+  for (const r of reads) upd(measurePx(r, 700, sizing.readingFontPx));
+  for (const m of meanings) upd(measurePx(m, 600, sizing.meaningFontPx));
   if (grew) {
-    // Fixed pixel slot → wrapper width never depends on the cycling text.
-    document.documentElement.style.setProperty('--xray-slot', `${Math.ceil(maxPx + SLOT_MARGIN_PX)}px`);
+    // Fixed pixel slot -> wrapper width never depends on the cycling text.
+    const slot = Math.max(sizing.slotMinWidthPx, Math.ceil(maxPx + sizing.slotMarginPx));
+    document.documentElement.style.setProperty('--xray-slot', `${slot}px`);
   }
+}
+
+function recomputeSlotWidth() {
+  readRuntimeSizing();
+  maxPx = 0;
+  document.documentElement.style.setProperty('--xray-slot', `${sizing.slotMinWidthPx}px`);
+  for (const entry of entries) {
+    considerWidths(entry.reads.map((r) => r.r), entry.meanings);
+  }
+}
+
+function restartTicker() {
+  if (ticker) clearInterval(ticker);
+  ticker = setInterval(() => { tick++; paintAll(); }, sizing.hintCycleMs);
 }
 
 function inOurs(t: Node | null): boolean {
@@ -186,10 +230,18 @@ export function enableXray() {
   if (enabled) return;
   enabled = true;
   document.documentElement.classList.add('xray-active');
+  readRuntimeSizing();
   maxPx = 0; // recompute slot width fresh
+  document.documentElement.style.setProperty('--xray-slot', `${sizing.slotMinWidthPx}px`);
   tick = 0;
   run();
-  ticker = setInterval(() => { tick++; paintAll(); }, 2000);
+  restartTicker();
+}
+
+export function refreshXraySizing() {
+  if (!enabled) return;
+  recomputeSlotWidth();
+  restartTicker();
 }
 
 export function disableXray() {
