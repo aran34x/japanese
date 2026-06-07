@@ -391,15 +391,24 @@
     font-weight: 900;
   }
 
+  .lesson-status.done {
+    color: var(--accent-text);
+  }
+
+  .lesson-status.missing {
+    color: var(--text-muted);
+  }
+
   .lesson-row-mark.done,
   .result-mark.passed {
-    background: var(--success);
+    background: var(--accent);
     color: var(--on-accent);
   }
 
   .lesson-row-mark.missing {
-    background: var(--warning-bg);
-    color: var(--warning);
+    border: 1px solid var(--box-border);
+    background: var(--box-bg-2);
+    color: var(--text-muted);
   }
 
   .soft-pill,
@@ -416,9 +425,9 @@
   }
 
   .soft-pill.complete {
-    color: var(--success);
-    border-color: var(--success);
-    background: var(--success-bg);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    background: var(--box-bg-2);
   }
 
   .progress-track {
@@ -471,8 +480,8 @@
   }
 
   .soft-note {
-    border: 1px solid var(--warning);
-    background: var(--warning-bg);
+    border: 1px solid var(--box-border);
+    background: var(--box-bg-2);
     color: inherit;
   }
 
@@ -504,13 +513,14 @@
   }
 
   .quiz-choice.correct {
-    background: var(--success);
+    background: var(--accent);
     color: var(--on-accent);
   }
 
   .quiz-choice.wrong {
-    background: var(--danger-solid);
-    color: var(--on-accent);
+    border-color: var(--accent-2);
+    background: var(--box-bg-2);
+    color: var(--text);
   }
 
   .quiz-choice.dimmed {
@@ -538,8 +548,8 @@
     height: 6rem;
     place-items: center;
     border-radius: 999px;
-    background: var(--warning);
-    color: var(--on-accent);
+    background: var(--box-bg-2);
+    color: var(--text-muted);
     font-size: 3rem;
     font-weight: 950;
     box-shadow: 0 18px 44px color-mix(in srgb, var(--text) 12%, transparent);

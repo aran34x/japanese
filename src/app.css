@@ -541,7 +541,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
   --accent-text: #dcfce7; --accent-input: #bbf7d0;
   --warning: #bbf7d0; --warning-bg: rgba(240, 253, 244, 0.14);
   --hover: rgba(240, 253, 244, 0.24);
-  --font: 'Kosugi Maru', 'Noto Sans JP', sans-serif;   /* friendly rounded */
+  --font: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif;   /* friendly rounded */
 }
 :root[data-skin='nature'] body { background-attachment: fixed; background-position: center; background-size: cover; }
 /* Flair: frosted-glass cards & chrome, sunlight rim-light */
