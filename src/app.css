@@ -106,6 +106,7 @@ html, body {
   --box-bg-2: #334155;
   --box-border: transparent;
   --box-backdrop: none;
+  --scrim: rgba(2, 6, 23, 0.8);   /* modal/overlay dim backdrop */
   --hover: #475569;          /* hovered interactive row/button background */
 
   --text: #e2e8f0;
@@ -139,6 +140,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
 .bg-slate-950, .bg-slate-900 { background-color: var(--panel); }
 .bg-slate-900\/95 { background-color: var(--chrome-bg); }
 .bg-slate-900\/50, .bg-slate-900\/60 { background-color: var(--panel-soft); }
+.bg-slate-950\/80 { background-color: var(--scrim); }   /* modal dim backdrop */
 .bg-slate-800, .bg-slate-800\/80 {
   background: var(--box-bg);
   border: 1px solid var(--box-border);
@@ -205,6 +207,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
   --box-bg: #ffffff;
   --box-bg-2: #e5e5ea;
   --box-border: rgba(60, 60, 67, 0.12);
+  --scrim: rgba(60, 60, 67, 0.4);
   --hover: #e8e8ed;
 
   --text: #1c1c1e;
@@ -407,6 +410,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
     radial-gradient(circle at top right, rgba(251, 207, 232, 0.45), transparent 36%);
   --box-bg-2: #fff1f7;
   --box-border: rgba(244, 114, 182, 0.32);
+  --scrim: rgba(63, 29, 45, 0.42);   /* plum dim, not navy */
   --text: #3f1d2d; --text-strong: #3f1d2d;
   --text-soft: #6b3047; --text-muted: #9f526f; --text-faint: #be6f8c;
   --accent: #f472b6; --accent-2: #f9a8d4;
@@ -528,6 +532,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
     linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.1));
   --box-backdrop: blur(22px) saturate(1.2);     /* glass = translucent + this */
   --box-border: rgba(240, 253, 244, 0.24);
+  --scrim: rgba(2, 30, 18, 0.55);   /* deep forest dim */
   --box-bg-2: rgba(255, 255, 255, 0.16);
   --text: #ecfdf5; --text-strong: #ecfdf5;
   --text-soft: rgba(255, 255, 255, 0.88); --text-muted: rgba(255, 255, 255, 0.76); --text-faint: rgba(220, 252, 231, 0.7);

@@ -175,7 +175,7 @@
                 >
                   <span class="min-w-0">
                     <span class="block truncate text-base font-black">{lesson.title[$settings.uiLang]}</span>
-                    <span class="mt-1 block text-xs font-bold {done ? 'text-green-300' : 'text-amber-300'}">
+                    <span class="lesson-status mt-1 block text-xs font-bold {done ? 'done' : 'missing'}">
                       {done ? $t('completed') : $t('missingLesson')}
                     </span>
                   </span>
@@ -433,6 +433,32 @@
     border-radius: inherit;
     background: linear-gradient(90deg, var(--accent), var(--accent-2));
     transition: width 220ms ease;
+  }
+
+  .lesson-header-panel,
+  .lesson-step-panel {
+    border: 1px solid var(--box-border);
+    background: var(--box-bg);
+    color: var(--text);
+    backdrop-filter: var(--box-backdrop);
+    -webkit-backdrop-filter: var(--box-backdrop);
+    box-shadow: 0 16px 44px color-mix(in srgb, var(--text) 7%, transparent);
+  }
+
+  .lesson-header-panel {
+    border-radius: 22px;
+    padding: 1rem 1.05rem;
+  }
+
+  .lesson-step-panel {
+    min-height: 0;
+    margin: 1.5rem 0;
+    border-radius: 26px;
+    padding: clamp(1.15rem, 5vw, 1.65rem);
+  }
+
+  .example-block {
+    background: var(--box-bg-2);
   }
 
   .soft-surface,
