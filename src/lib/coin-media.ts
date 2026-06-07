@@ -8,7 +8,9 @@ export function coinImageUrl(filename: string) {
 }
 
 export function localCoinImageUrl(filename: string) {
-  return `/assets/characters/${filename}`;
+  // BASE_URL is "/" in dev and "/japanese/" on GitHub Pages — without it the
+  // absolute "/assets/..." path 404s on the deployed PWA.
+  return `${import.meta.env.BASE_URL}assets/characters/${filename}`;
 }
 
 export function coinImage(filename: string) {
