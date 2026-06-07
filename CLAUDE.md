@@ -20,7 +20,9 @@ and `npm` must be called as `call npm ...` so control returns to the script.
 
 - **Entry:** `src/main.ts` registers the PWA service worker (auto-update) and mounts `App.svelte`.
 - **Routing:** hash-based, in `src/lib/stores.ts` (`route`, `navigate`). Routes: home, study,
-  adventure, stories. Settings & Stats are **modals**, not routes (see below).
+  lessons, adventure, stories. Settings & Stats are **modals**, not routes (see below). Home is a
+  game-style **mode-select** (tiles for Study/Lessons/Adventure/Stories) — the bottom nav bar was
+  removed; the topbar's left button is `← Menu` (returns home) and shows the current mode centered.
 - **State:** Svelte stores. `settings` (persisted to IndexedDB `meta`), `game` (Adventure state),
   `route`, `ready`, `settingsOpen`/`statsOpen` (modal toggles).
 - **Storage:** Dexie (`src/lib/db.ts`) — tables `decks`, `cards`, `reviews`, `media`, `meta`.
@@ -46,6 +48,23 @@ and `npm` must be called as `call npm ...` so control returns to the script.
   "how do you read this?" question (would spoil the answer). Reading-MCQ answers may be played.
   Flashcards: kana = no audio at all; kanji = audio button but no autoplay; others = recorded audio
   (Supabase) preferred, TTS fallback, autoplay if enabled. TTS is the Web Speech API (`speech.ts`).
+
+## Lessons (`src/lib/lessons.ts` + `Lessons.svelte`)
+
+Guided, reading-based lessons (separate from SRS). `LESSONS` are grouped by `LESSON_CATEGORIES`
+(foundation, particles, grammar, vocabulary, reading) and JLPT-ish level (Start/N5/N5+/N4). Each
+lesson is a set of **learn** sections (text + examples + notes) followed by a short **quiz**;
+`lessonSections`/`lessonQuiz` derive them. Completion is tracked in `lessonProgress` (a store
+persisted to the IndexedDB `meta` key `lessonProgress`, loaded via `loadLessonProgress` in
+`App.svelte`). Reached from the Home "Lessons" tile (route `lessons`).
+
+## XP & Adventure (see Gamification below)
+
+**All studying earns XP now** — `Study.svelte`'s grade flow awards `xpForAnswer(combo)` on every
+correct answer (combo streak shown as 🔥, total XP on the done screen), feeding the same level
+ladder. **Adventure is a collection**, not a quest: tabs are Heroes (the XP level ladder), Characters
+(fictional/real rosters), and Achievements. The old quest/battle session (`AdventureSession.svelte`)
+was removed.
 
 ## Anki decks (built-in)
 
@@ -89,8 +108,21 @@ Big `.apkg` files in `AnkiDecks/` (git-ignored) are **not** committed. The pipel
   transitions** for overlays.
 - **Topbar** is `fixed` (`App.svelte`); 🏠 left, ふ/🔍/account right. Sizing knobs live in
   `src/lib/ui-config.ts` (`UI.topbarPadding`, `UI.mainTopPad`, `UI.navItemPad`).
-- **Theme:** `settings.theme` toggles a `light` class on `<html>`; `app.css` overrides Tailwind
-  slate/accent classes for an iOS-inspired light mode. Dark is default and gradient-light.
+- **Theme/skins:** `settings.skin` sets `data-skin` on `<html>` (default = dark). **Light is just a
+  skin** (`data-skin='light'`) — the old light/dark toggle and `settings.theme` were removed. Each
+  skin also picks a Google Font via `--font` (loaded in `index.html`).
+- **Theming = design tokens (in `app.css`).** Components use plain Tailwind classes
+  (`bg-slate-800`, `text-slate-400`, `bg-indigo-500`, `from-pink-500`…). ONE global block maps
+  those classes to CSS variables (the "Container Box": `--box-bg`/`--box-border`/`--box-backdrop`,
+  text scale `--text*`, `--accent`/`--accent-2`/`--on-accent`/`--accent-text`, `--hover`, `--font`
+  (a per-skin Google Font, loaded in `index.html`), status colors). A
+  theme/skin only redefines the tokens — a new skin is a ~15-line palette (template + "To add a
+  skin" guide are at the top of the skins section). Skins may still add bespoke overrides after
+  their palette (glass = `--box-bg` translucent + `--box-backdrop: blur()`; 3D/petals/etc.).
+  **New UI must always use these defined style elements or the token variables; never hardcode
+  bespoke component cards, glass backgrounds, text colors, or accent gradients inside a component.**
+  **Never put `text-white` on an accent surface — use `text-current`; the box supplies
+  `--on-accent` (which is dark on light-accent skins).**
 - **Spoiler rules:** never reveal the next hero's name (show `???`), and never show a Story's English
   title until it's completed.
 

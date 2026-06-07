@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { settings, t } from '../lib/stores';
+  import { settings, t, navigate } from '../lib/stores';
   import { STORIES, type Story } from '../lib/data/stories';
   import { speakJa } from '../lib/speech';
   import { confetti } from '../lib/confetti';
   import { game, markStoryDone } from '../lib/game/state';
   import QuizQuestion from './QuizQuestion.svelte';
   import { fly, scale } from 'svelte/transition';
+  import { lessonProgress, missingRecommended, recommendedLessonsForStory } from '../lib/lessons';
 
   type View = 'list' | 'read' | 'quiz' | 'done';
   let view: View = 'list';
@@ -52,6 +53,7 @@
   }
 
   $: passedCount = $game.storiesDone.length;
+  $: storyMissingLessons = story ? missingRecommended(recommendedLessonsForStory(story), $lessonProgress) : [];
 </script>
 
 <div class="flex-1 overflow-y-auto overflow-x-hidden">
@@ -61,6 +63,7 @@
         <p class="text-sm text-slate-400">{$t('storiesIntro')}</p>
 
         {#each STORIES as s, i}
+          {@const missing = missingRecommended(recommendedLessonsForStory(s), $lessonProgress)}
           <button
             class="flex w-full items-center gap-4 rounded-2xl bg-slate-800 p-4 text-left active:scale-[0.98]"
             on:click={() => open(s)}
@@ -71,6 +74,11 @@
             </span>
             <span class="min-w-0 flex-1">
               <span class="block font-jp text-base font-semibold">{s.titleJp}</span>
+              {#if missing.length}
+                <span class="mt-1 inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold text-amber-200">
+                  ⚠ {missing.length} {$t('lessons')}
+                </span>
+              {/if}
               <span class="block text-xs text-slate-400">
                 {s.level} · {s.lines.length} {$t('lines')} · {s.questions.length} Q
                 {#if isDone(s.id)}· ✓{/if}
@@ -95,6 +103,20 @@
           </div>
           <div class="text-sm text-slate-400">{isDone(story.id) ? story.title[$settings.uiLang] + ' · ' : ''}{story.level}</div>
         </div>
+        {#if storyMissingLessons.length}
+          <div class="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">
+            <div class="font-bold">⚠ {$t('recommendedLessons')}</div>
+            <div class="mt-1 text-amber-100/80">{$t('missingLessonsWarning')}</div>
+            <div class="mt-2 flex flex-wrap gap-1.5">
+              {#each storyMissingLessons as lesson}
+                <span class="rounded-full bg-slate-900/60 px-2 py-1 text-xs">{lesson.title[$settings.uiLang]}</span>
+              {/each}
+            </div>
+            <button class="mt-3 rounded-lg bg-slate-900/70 px-3 py-1.5 text-xs font-bold" on:click={() => navigate('lessons')}>
+              {$t('lessons')}
+            </button>
+          </div>
+        {/if}
         <div class="space-y-3">
           {#each story.lines as line, i}
             <div class="rounded-xl bg-slate-800 p-4">

@@ -21,6 +21,7 @@ let observer: MutationObserver | null = null;
 let scheduled = false;
 let capture: HTMLDivElement | null = null;
 let bubble: HTMLDivElement | null = null;
+let cross: HTMLDivElement | null = null;
 let hint: HTMLDivElement | null = null;
 
 let dragging = false;
@@ -29,9 +30,17 @@ let pending: { x: number; y: number } | null = null;
 let currentCh = '';
 let lastX = 0;
 let lastY = 0;
+// Tap/exit tracking: only an undragged tap on empty space exits X-ray.
+let downX = 0;
+let downY = 0;
+let moved = false;
+let scannedJa = false;
 
 const EDGE = 8;
-const FINGER_GAP = 48; // bubble floats this far above the pointer (clear of the finger)
+const SCAN_LIFT = 104; // touch: scan this far ABOVE the finger so the fingertip never covers the crosshair
+const TAP_SLOP = 10;  // movement (px) beyond which a touch counts as a drag, not a tap
+const FINGER_GAP = 28; // bubble floats this far above the scan crosshair (clears the ring)
+const SIDE_GAP = 26;   // gap when the bubble sits beside the crosshair instead
 
 const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'RUBY', 'RT', 'RP', 'INPUT', 'TEXTAREA', 'SELECT', 'CODE', 'BUTTON']);
 const KANJI = /[㐀-龯㐀-䶿]/;
@@ -66,6 +75,8 @@ export function disableXray() {
   capture?.remove();          // removing the node drops its listeners
   capture = null;
   hideBubble();
+  cross?.remove();
+  cross = null;
   removeHint();
   unhighlight();
 }
@@ -88,23 +99,31 @@ function ensureCapture(): HTMLDivElement {
   return el;
 }
 
+// Transform a raw pointer into the SCAN point: touch is lifted above the finger
+// (so the fingertip never covers what you're reading); mouse stays exact.
+function handle(e: PointerEvent) {
+  const lift = e.pointerType === 'mouse' ? 0 : SCAN_LIFT;
+  queue(e.clientX, e.clientY - lift);
+}
+
 function onPointerDown(e: PointerEvent) {
-  if (e.pointerType !== 'mouse') { dragging = true; queue(e.clientX, e.clientY); }
+  downX = e.clientX; downY = e.clientY; moved = false;
+  if (e.pointerType !== 'mouse') { dragging = true; handle(e); }
 }
 function onPointerMove(e: PointerEvent) {
-  if (e.pointerType === 'mouse') queue(e.clientX, e.clientY);
-  else if (dragging) queue(e.clientX, e.clientY);
+  if (Math.hypot(e.clientX - downX, e.clientY - downY) > TAP_SLOP) moved = true;
+  if (e.pointerType === 'mouse') handle(e);
+  else if (dragging) handle(e);
 }
 function onPointerUp(e: PointerEvent) {
-  if (e.pointerType !== 'mouse') { dragging = false; hideBubble(); }
+  if (e.pointerType !== 'mouse') { dragging = false; hideBubble(); hideCross(); }
 }
 function onPointerLeave(e: PointerEvent) {
-  if (e.pointerType === 'mouse') hideBubble();
+  if (e.pointerType === 'mouse') { hideBubble(); hideCross(); }
 }
-function onClick(e: MouseEvent) {
-  // A tap/click that isn't on a Japanese character exits X-ray.
-  const ch = charAtPoint(e.clientX, e.clientY);
-  if (!ch || !isJa(ch)) xrayOn.set(false);
+function onClick() {
+  // An undragged tap that wasn't over a Japanese character exits X-ray.
+  if (!moved && !scannedJa) xrayOn.set(false);
 }
 
 function queue(x: number, y: number) {
@@ -119,12 +138,36 @@ function flush() {
 }
 
 function update(x: number, y: number) {
+  positionCross(x, y);                                    // crosshair tracks the scan point
+  lastX = x; lastY = y;
+  if (bubble && !bubble.hidden) positionBubble(x, y);     // bubble trails the crosshair too
   const ch = charAtPoint(x, y);
   // Keep the last reading on momentary gaps (between glyphs) → no flicker.
-  if (!ch || !isJa(ch)) return;
-  lastX = x; lastY = y;
+  if (!ch || !isJa(ch)) { scannedJa = false; setCrossOn(false); return; }
+  scannedJa = true; setCrossOn(true);
   if (ch !== currentCh) { currentCh = ch; void fillBubble(ch); }
   positionBubble(x, y);
+}
+
+// ── Crosshair (a ring + centre dot showing the precise scan point) ──
+function ensureCross(): HTMLDivElement {
+  if (cross) return cross;
+  cross = document.createElement('div');
+  cross.className = 'xray-cross';
+  document.body.appendChild(cross);
+  return cross;
+}
+function positionCross(x: number, y: number) {
+  const el = ensureCross();
+  el.hidden = false;
+  el.style.left = `${x}px`;
+  el.style.top = `${y}px`;
+}
+function setCrossOn(on: boolean) {
+  cross?.classList.toggle('is-on', on);
+}
+function hideCross() {
+  if (cross) cross.hidden = true;
 }
 
 /** Char under a viewport point, hit-testing the text BENEATH the capture layer. */
@@ -299,14 +342,27 @@ function readingRow(tag: string, value: string, cls: string): HTMLElement {
   return row;
 }
 
+// Place the bubble so it NEVER covers the finger: prefer above the crosshair,
+// then to the right, then left; only if nothing fits, pin it to the top edge.
 function positionBubble(x: number, y: number) {
   if (!bubble) return;
   const vw = window.innerWidth, vh = window.innerHeight;
   const bw = bubble.offsetWidth, bh = bubble.offsetHeight;
-  let left = Math.max(EDGE, Math.min(x - bw / 2, vw - bw - EDGE));
-  let top = y - bh - FINGER_GAP;
-  if (top < EDGE) top = y + FINGER_GAP;
-  top = Math.max(EDGE, Math.min(top, vh - bh - EDGE));
+  const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(v, hi));
+  let left: number, top: number;
+  if (y - bh - FINGER_GAP >= EDGE) {
+    left = clamp(x - bw / 2, EDGE, vw - bw - EDGE);   // above (preferred)
+    top = y - bh - FINGER_GAP;
+  } else if (x + SIDE_GAP + bw <= vw - EDGE) {
+    left = x + SIDE_GAP;                              // to the right
+    top = clamp(y - bh / 2, EDGE, vh - bh - EDGE);
+  } else if (x - SIDE_GAP - bw >= EDGE) {
+    left = x - SIDE_GAP - bw;                         // to the left
+    top = clamp(y - bh / 2, EDGE, vh - bh - EDGE);
+  } else {
+    left = clamp(x - bw / 2, EDGE, vw - bw - EDGE);   // last resort: top edge (still above finger)
+    top = EDGE;
+  }
   bubble.style.left = `${left}px`;
   bubble.style.top = `${top}px`;
 }

@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.19.0';
+export const APP_VERSION = '0.20.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.20.0',
+    date: '2026-06-08',
+    title: { en: 'Lessons, a new home, and themeable skins', it: 'Lezioni, nuova home e skin personalizzabili' },
+    changes: [
+      { en: 'New Lessons mode: guided grammar, particle & vocab lessons grouped by topic and JLPT level, each ending in a short quiz.', it: 'Nuova modalità Lezioni: lezioni guidate di grammatica, particelle e vocaboli per argomento e livello JLPT, con un breve quiz finale.' },
+      { en: 'Home is now a game-style mode-select (Study · Lessons · Adventure · Stories), and everything you do earns XP toward your level.', it: 'La Home è ora una selezione modalità in stile gioco (Studia · Lezioni · Avventura · Storie) e tutto ciò che fai dà XP per salire di livello.' },
+      { en: 'Adventure is now your Characters & Heroes collection — your level appears once, not twice.', it: 'Avventura è ora la tua collezione di Personaggi ed Eroi — il tuo livello appare una volta, non due.' },
+      { en: 'Skins overhaul: every skin has its own colors AND font; Light is now just a skin; buttons and text stay readable on all of them.', it: 'Revisione skin: ogni skin ha colori E font propri; Chiara è ora una skin; pulsanti e testo restano leggibili ovunque.' },
+      { en: 'Kanji X-ray: drag with a precision crosshair that stays above your finger; the reading card never hides under your hand and matches your skin.', it: 'Raggi-X Kanji: trascina con un mirino di precisione sopra il dito; la scheda di lettura non si nasconde sotto la mano e segue la skin.' },
+      { en: 'Flashcards: the daily review dashboard now lives in Study → Flashcards. Fixed: level coin images now show on the live app.', it: 'Flashcard: il riepilogo ripassi è ora in Studia → Flashcard. Corretto: le immagini delle monete livello ora si vedono nell\'app online.' }
+    ]
+  },
   {
     version: '0.19.0',
     date: '2026-06-02',

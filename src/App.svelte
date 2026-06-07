@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { fade } from 'svelte/transition';
+  import { fade, fly } from 'svelte/transition';
   import { ready, route, navigate, t, settings, settingsOpen, statsOpen } from './lib/stores';
   import { UI } from './lib/ui-config';
   import Modal from './components/Modal.svelte';
@@ -16,6 +16,7 @@
   import SaveIndicator from './components/SaveIndicator.svelte';
   import Home from './components/Home.svelte';
   import Study from './components/Study.svelte';
+  import Lessons from './components/Lessons.svelte';
   import Stories from './components/Stories.svelte';
   import Stats from './components/Stats.svelte';
   import SettingsScreen from './components/SettingsScreen.svelte';
@@ -24,8 +25,8 @@
   import Adventure from './components/Adventure.svelte';
   import Toasts from './components/Toasts.svelte';
   import WhatsNew from './components/WhatsNew.svelte';
-  import Nav from './components/Nav.svelte';
   import { getXrayKanjiSizePreset } from './lib/xray-size-presets';
+  import { loadLessonProgress } from './lib/lessons';
 
   let skippedAuth = false;
 
@@ -51,9 +52,8 @@
     if ($xrayOn) furiganaOn.set(false);
   }
 
-  // Apply theme class to <html> so CSS variables switch.
+  // Apply the active skin to <html> so its CSS-variable palette takes effect.
   $: if (typeof document !== 'undefined') {
-    document.documentElement.classList.toggle('light', $settings.theme === 'light');
     document.documentElement.dataset.skin = $settings.skin ?? 'default';
   }
 
@@ -82,6 +82,7 @@
     await loadSettings();
     await ensureSeeded();
     await loadGame();
+    await loadLessonProgress();
     await loadXray();
     ready.set(true);
     // Seed built-in Anki decks in background (fetches JSON + media URLs from Supabase).
@@ -104,11 +105,20 @@
   <div class="flex h-screen max-w-none flex-col overflow-hidden bg-slate-950">
     <!-- Fixed-height App Header -->
     <header class="z-50 shrink-0 border-b border-slate-800 bg-slate-900/95 backdrop-blur">
-      <div class="mx-auto flex max-w-5xl items-center justify-between px-4 {UI.topbarPadding}">
-        <button
-          class="xray-dim-el grid h-9 w-9 place-items-center rounded-full bg-slate-800 text-lg"
-          title="Home"
-          on:click={() => navigate('home')}>🏠</button>
+      <div class="relative mx-auto flex max-w-5xl items-center justify-between px-4 {UI.topbarPadding}">
+        {#if $route === 'home'}
+          <div class="xray-dim-el grid h-9 w-9 place-items-center rounded-full bg-slate-800 text-lg">🏠</div>
+        {:else}
+          <button
+            class="xray-dim-el flex h-9 items-center gap-1.5 rounded-full bg-slate-800 px-4 text-sm font-semibold text-slate-200 transition-colors hover:bg-slate-700 active:scale-95"
+            title={$t('menu')}
+            on:click={() => navigate('home')}>← {$t('menu')}</button>
+        {/if}
+        {#if $route !== 'home'}
+          <div class="xray-dim-el pointer-events-none absolute left-1/2 -translate-x-1/2 text-sm font-bold tracking-wide text-slate-200">
+            {$t($route)}
+          </div>
+        {/if}
         <div class="flex items-center gap-2">
           <span class="xray-dim-el"><SaveIndicator /></span>
           <button
@@ -127,11 +137,13 @@
     <!-- Content Area (NOT scrollable here, children handle it for edge-to-edge scrollbars) -->
     <main class="flex-1 flex flex-col overflow-hidden">
       {#key $route}
-        <div class="flex-1 flex flex-col overflow-hidden" in:fade={{ duration: 220, delay: 60 }} out:fade={{ duration: 100 }}>
+        <div class="flex-1 flex flex-col overflow-hidden" in:fly={{ y: 28, duration: 240, delay: 60 }} out:fade={{ duration: 100 }}>
           {#if $route === 'adventure'}
             <Adventure />
           {:else if $route === 'study'}
             <Study />
+          {:else if $route === 'lessons'}
+            <Lessons />
           {:else if $route === 'stories'}
             <Stories />
           {:else}
@@ -141,9 +153,6 @@
       {/key}
     </main>
 
-    <!-- Fixed-height Navigation -->
-    <Nav />
-    
     <Toasts />
     <WhatsNew />
     {#if $xrayOn}

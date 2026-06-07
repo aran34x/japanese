@@ -33,7 +33,6 @@ export const DEFAULT_SETTINGS: Settings = {
   newPerDay: 20,
   autoAudio: true,
   showRomaji: true,
-  theme: 'dark',
   skin: 'default',
   xrayKanjiScale: DEFAULT_XRAY_KANJI_SIZE_MULTIPLIER,
   showLessonAlways: false

@@ -45,7 +45,8 @@
   }
 
   const skinOptions: { id: AppSkin; title: string; desc: string; swatches: string[] }[] = [
-    { id: 'default', title: 'skinDefault', desc: 'skinDefaultDesc', swatches: ['#0f172a', '#6366f1', '#ec4899'] },
+    { id: 'default', title: 'skinDefault', desc: 'skinDefaultDesc', swatches: ['#0f172a', '#6366f1', '#8b5cf6'] },
+    { id: 'light', title: 'skinLight', desc: 'skinLightDesc', swatches: ['#f2f2f7', '#5856d6', '#ffffff'] },
     { id: 'smash64', title: 'skinSmash64', desc: 'skinSmash64Desc', swatches: ['#0b1f5e', '#e11d2e', '#facc15'] },
     { id: 'sakura', title: 'skinSakura', desc: 'skinSakuraDesc', swatches: ['#4a102a', '#f9a8d4', '#fde68a'] },
     { id: 'station', title: 'skinStation', desc: 'skinStationDesc', swatches: ['#111827', '#f97316', '#38bdf8'] },
@@ -59,6 +60,7 @@
   const resetSections: { id: ProgressSection; title: string; desc: string }[] = [
     { id: 'challenges', title: 'resetChallengesOnly', desc: 'resetChallengesOnlyDesc' },
     { id: 'stories', title: 'resetStoriesOnly', desc: 'resetStoriesOnlyDesc' },
+    { id: 'lessons', title: 'resetLessonsOnly', desc: 'resetLessonsOnlyDesc' },
     { id: 'achievements', title: 'resetAchievementsOnly', desc: 'resetAchievementsOnlyDesc' },
     { id: 'adventure', title: 'resetAdventure', desc: 'resetAdventureDesc' },
     { id: 'srs', title: 'resetSrs', desc: 'resetSrsDesc' }

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { settings, t } from '../lib/stores';
+  import { settings, t, navigate } from '../lib/stores';
   import { game, unlockFictional } from '../lib/game/state';
   import { speakJa } from '../lib/speech';
   import {
@@ -14,6 +14,7 @@
   import FictionalPortrait from './FictionalPortrait.svelte';
   import QuizQuestion from './QuizQuestion.svelte';
   import { fly, scale } from 'svelte/transition';
+  import { lessonProgress, missingRecommended, recommendedLessonsForCharacter } from '../lib/lessons';
 
   type View = 'grid' | 'detail' | 'challenge' | 'cleared';
   let view: View = 'grid';
@@ -23,6 +24,8 @@
   const categories = Object.keys(FICTIONAL_CATEGORIES) as FictionalCategory[];
   $: roster = CHARACTERS_FICTIONAL.filter((x) => x.category === cat);
   $: isUnlocked = (x: FictionalChar) => $game.unlockedFictional.includes(x.id);
+  $: recommendedLessonIds = ch ? recommendedLessonsForCharacter(ch) : [];
+  $: missingLessons = missingRecommended(recommendedLessonIds, $lessonProgress);
 
   let bio: WikiInfo | undefined;
   async function openDetail(x: FictionalChar) {
@@ -164,6 +167,21 @@
         <div class="text-xs text-slate-500">{FICTIONAL_CATEGORIES[ch.category].emoji} {FICTIONAL_CATEGORIES[ch.category].label[$settings.uiLang]}</div>
       </div>
     </div>
+
+    {#if missingLessons.length}
+      <div class="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">
+        <div class="font-bold">⚠ {$t('recommendedLessons')}</div>
+        <div class="mt-1 text-amber-100/80">{$t('missingLessonsWarning')}</div>
+        <div class="mt-2 flex flex-wrap gap-1.5">
+          {#each missingLessons as lesson}
+            <span class="rounded-full bg-slate-900/60 px-2 py-1 text-xs">{lesson.title[$settings.uiLang]}</span>
+          {/each}
+        </div>
+        <button class="mt-3 rounded-lg bg-slate-900/70 px-3 py-1.5 text-xs font-bold" on:click={() => navigate('lessons')}>
+          {$t('lessons')}
+        </button>
+      </div>
+    {/if}
 
     {#if isUnlocked(ch)}
       <div class="text-center font-jp text-sm text-slate-300">{ch.reading} · {ch.romaji}</div>

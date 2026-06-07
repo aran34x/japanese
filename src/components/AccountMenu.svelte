@@ -53,10 +53,6 @@
     await new Promise((r) => setTimeout(r, 2000));
     updateLabel = '🔄 Check for updates';
   }
-
-  function toggleTheme() {
-    settings.update((s) => ({ ...s, theme: s.theme === 'dark' ? 'light' : 'dark' }));
-  }
 </script>
 
 <div>
@@ -102,16 +98,6 @@
             class="rounded-full px-3 py-1 {$settings.uiLang === 'it' ? 'bg-indigo-500 text-white' : 'text-slate-300'}"
             on:click={() => settings.update((s) => ({ ...s, uiLang: 'it' }))}>IT</button>
         </div>
-      </div>
-
-      <!-- Theme -->
-      <div class="mb-2 flex items-center justify-between border-b border-slate-700 pb-2">
-        <span class="px-2 text-xs text-slate-400">{$settings.theme === 'dark' ? 'Dark' : 'Light'}</span>
-        <button
-          class="grid h-8 w-8 place-items-center rounded-full bg-slate-700 text-base hover:bg-slate-600"
-          on:click={toggleTheme}
-          title="Toggle theme"
-        >{$settings.theme === 'dark' ? '☀️' : '🌙'}</button>
       </div>
 
       <!-- Account info (signed in only) -->

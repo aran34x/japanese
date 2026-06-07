@@ -89,8 +89,14 @@ Big `.apkg` files in `AnkiDecks/` (git-ignored) are **not** committed. The pipel
   transitions** for overlays.
 - **Topbar** is `fixed` (`App.svelte`); 🏠 left, ふ/🔍/account right. Sizing knobs live in
   `src/lib/ui-config.ts` (`UI.topbarPadding`, `UI.mainTopPad`, `UI.navItemPad`).
-- **Theme:** `settings.theme` toggles a `light` class on `<html>`; `app.css` overrides Tailwind
-  slate/accent classes for an iOS-inspired light mode. Dark is default and gradient-light.
+- **Theme / skins:** `settings.theme` toggles a `light` class on `<html>`; `settings.skin` sets
+  `data-skin` on `<html>`. `app.css` owns the skin tokens and maps normal Tailwind style elements
+  onto them (`bg-slate-800` = container box, `bg-slate-700` = secondary surface, slate text =
+  themed text, pink/indigo = accent). **New UI must always use these defined style elements or the
+  token variables (`--box-bg`, `--box-border`, `--box-backdrop`, `--text-*`, `--accent`,
+  `--on-accent`) instead of ad hoc colors/backgrounds.** Do not hardcode bespoke cards, glass,
+  text colors, or accent gradients inside a component; let the active skin provide them. Never put
+  `text-white` on an accent surface; use `text-current`/the inherited `--on-accent` contrast.
 - **Spoiler rules:** never reveal the next hero's name (show `???`), and never show a Story's English
   title until it's completed.
 
@@ -102,3 +108,28 @@ Rosters: `characters.ts` (XP ladder, Wikipedia photos via `CharacterPortrait`), 
 `fictional.ts` (Characters), `achievements.ts` (Japan-themed, Wikipedia images). Stats modal
 (`Stats.svelte`) surfaces learning numbers, collection progress, and "struggle cards" (≥3 reviews,
 <60% accuracy).
+
+### Adventure character challenges
+
+- Each character challenge is a hardcoded set of 3 to 10 questions.
+- Challenge length and difficulty scale with the character's popularity/importance: obscure or early
+  unlocks stay short and direct; iconic characters can have more questions and harder wording.
+- Questions are curated comprehension clues that hint toward the character without revealing the
+  answer too early. They should feel like simple "I am..." facts, short trait sentences, or
+  character-specific context.
+- Most questions should be comprehension exercises: show one Japanese phrase/sentence and four
+  English translation choices, with one correct answer.
+- Earlier questions should be easy, concrete hints: friend/role, color, clothing, species/object,
+  ability, action, catchphrase-like behavior, origin year, or iconic gameplay/story fact.
+- Later questions may include direct vocabulary/kanji recognition when it supports the clue, such as
+  asking what a key word means or which Japanese word/kanji matches a trait.
+- The final question is always the identity reveal format: `My name is "{Japanese reading}". How do
+  you read this in English?`
+- Preserve spoiler rules before unlock: do not show the character's English name outside the final
+  challenge answer/result flow.
+- Pattern examples:
+  - Inpa/Impa: "I am Princess Zelda's friend", "I wear a mask and a blue suit", a ninja-related
+    vocabulary/kanji clue, then `My name is "Inpa". How do you read this in English?`
+  - Pikachu: "I am a mouse", "I am yellow", "I fight using electricity", then the name reveal.
+  - Mario: jumping clue, "Hold the A button to jump higher", debut/origin clue, "I wear a red hat",
+    then the name reveal.

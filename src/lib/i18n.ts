@@ -10,7 +10,9 @@ export const strings: Dict = {
     it: 'Impara il giapponese: kana, kanji, vocaboli e flashcard'
   },
   home: { en: 'Home', it: 'Home' },
+  menu: { en: 'Menu', it: 'Menu' },
   study: { en: 'Study', it: 'Studia' },
+  lessons: { en: 'Lessons', it: 'Lezioni' },
   decks: { en: 'Decks', it: 'Mazzi' },
   stats: { en: 'Stats', it: 'Statistiche' },
   settings: { en: 'Settings', it: 'Impostazioni' },
@@ -64,8 +66,10 @@ export const strings: Dict = {
   uiLanguage: { en: 'Interface language', it: 'Lingua interfaccia' },
   meaningLanguages: { en: 'Show meanings in', it: 'Mostra significati in' },
   skins: { en: 'Skins', it: 'Skin' },
-  skinDefault: { en: 'Default', it: 'Predefinita' },
-  skinDefaultDesc: { en: 'The original Nihongo Quest look.', it: 'Lo stile originale di Nihongo Quest.' },
+  skinDefault: { en: 'Default (Dark)', it: 'Predefinita (Scura)' },
+  skinDefaultDesc: { en: 'The original Nihongo Quest dark look.', it: 'Lo stile scuro originale di Nihongo Quest.' },
+  skinLight: { en: 'Light', it: 'Chiara' },
+  skinLightDesc: { en: 'Clean iOS-inspired warm off-white.', it: 'Bianco caldo pulito ispirato a iOS.' },
   skinSmash64: { en: 'Smash 64', it: 'Smash 64' },
   skinSmash64Desc: { en: 'Chunky, arcade, character-select energy.', it: 'Massiccia, arcade, da selezione personaggi.' },
   skinSakura: { en: 'Sakura', it: 'Sakura' },
@@ -113,6 +117,10 @@ export const strings: Dict = {
   loading: { en: 'Loading…', it: 'Caricamento…' },
 
   adventure: { en: 'Adventure', it: 'Avventura' },
+  homeStudyDesc: { en: 'Flashcards, quizzes & typing', it: 'Flashcard, quiz e scrittura' },
+  homeLessonsDesc: { en: 'Grammar, particles & useful vocab', it: 'Grammatica, particelle e vocaboli utili' },
+  homeAdventureDesc: { en: 'Climb the hero ladder', it: 'Scala la classifica degli eroi' },
+  homeStoriesDesc: { en: 'Read & comprehend', it: 'Leggi e comprendi' },
   collection: { en: 'Collection', it: 'Collezione' },
   heroes: { en: 'Heroes', it: 'Eroi' },
   achievements: { en: 'Achievements', it: 'Obiettivi' },
@@ -124,6 +132,7 @@ export const strings: Dict = {
   powerLevel: { en: 'Power level', it: 'Livello di potenza' },
   locked: { en: 'Locked', it: 'Bloccato' },
   toNextHero: { en: 'to next hero', it: 'al prossimo eroe' },
+  youLabel: { en: 'You', it: 'Tu' },
   questDeck: { en: 'Choose your battlefield', it: 'Scegli il campo di battaglia' },
   beginQuest: { en: 'Begin Quest', it: 'Inizia la Missione' },
   xpEarned: { en: 'XP earned', it: 'XP guadagnati' },
@@ -142,6 +151,54 @@ export const strings: Dict = {
   openWikipedia: { en: 'Open on Wikipedia', it: 'Apri su Wikipedia' },
   replayChallenge: { en: 'Replay challenge', it: 'Rigioca la sfida' },
   takeChallenge: { en: 'Take the challenge', it: 'Affronta la sfida' },
+  lessonsTitle: { en: 'Japanese lessons for the whole app', it: 'Lezioni di giapponese per tutta l app' },
+  lessonsIntro: {
+    en: 'Short guided lessons for the grammar, vocabulary and reading patterns you meet in stories, character challenges and cards.',
+    it: 'Brevi lezioni guidate per grammatica, vocabolario e strutture di lettura che trovi in storie, sfide e carte.'
+  },
+  lessonsMenuTitle: { en: 'Choose a lesson', it: 'Scegli una lezione' },
+  lessonsMenuIntro: {
+    en: 'One quiet lesson at a time. Read, respond, take the quiz, then return here.',
+    it: 'Una lezione tranquilla alla volta. Leggi, rispondi, fai il quiz, poi torna qui.'
+  },
+  lessonProgress: { en: 'Lesson progress', it: 'Progresso lezioni' },
+  lessonCategories: { en: 'Categories', it: 'Categorie' },
+  completed: { en: 'Completed', it: 'Completata' },
+  categoryComplete: { en: 'All complete', it: 'Tutto completato' },
+  missingLesson: { en: 'Missing', it: 'Mancante' },
+  missingLessons: { en: 'missing', it: 'mancanti' },
+  markComplete: { en: 'Mark complete', it: 'Segna completata' },
+  markIncomplete: { en: 'Mark incomplete', it: 'Segna incompleta' },
+  lessonPart: { en: 'Lesson', it: 'Lezione' },
+  lessonNote: { en: 'Note', it: 'Nota' },
+  quizAfterIntro: { en: 'Quiz after intro', it: 'Quiz dopo introduzione' },
+  continueLesson: { en: 'Continue', it: 'Continua' },
+  startLessonQuiz: { en: 'Start quiz', it: 'Inizia quiz' },
+  lessonQuiz: { en: 'Lesson quiz', it: 'Quiz lezione' },
+  finishQuiz: { en: 'Finish quiz', it: 'Finisci quiz' },
+  lessonPassed: { en: 'Lesson complete', it: 'Lezione completata' },
+  lessonCompleteBody: {
+    en: 'Nice work. This lesson is now counted as complete.',
+    it: 'Bel lavoro. Questa lezione ora conta come completata.'
+  },
+  lessonRetryTitle: { en: 'Review and retry', it: 'Ripassa e riprova' },
+  readLessonAgain: { en: 'Read lesson again', it: 'Rileggi la lezione' },
+  retryQuiz: { en: 'Retry quiz', it: 'Riprova quiz' },
+  returnToLessons: { en: 'Return to lessons', it: 'Torna alle lezioni' },
+  chooseFocus: { en: 'Before moving on, choose the focus.', it: 'Prima di continuare, scegli il punto importante.' },
+  focusGuessing: { en: 'Just guess from the English.', it: 'Indovinare solo dall inglese.' },
+  focusNudge: {
+    en: 'Almost. Try to follow the Japanese pattern, not only the translation.',
+    it: 'Quasi. Prova a seguire la struttura giapponese, non solo la traduzione.'
+  },
+  youWillLearn: { en: 'You will learn', it: 'Imparerai' },
+  patterns: { en: 'Patterns', it: 'Strutture' },
+  examples: { en: 'Examples', it: 'Esempi' },
+  recommendedLessons: { en: 'Recommended lessons', it: 'Lezioni consigliate' },
+  missingLessonsWarning: {
+    en: 'You may miss key vocabulary or grammar here.',
+    it: 'Qui potresti perdere vocaboli o grammatica importanti.'
+  },
   miniLesson: { en: 'Mini-lesson', it: 'Mini-lezione' },
   gotItRetry: { en: 'Got it — retry', it: 'Ho capito — riprova' },
   unlocked: { en: 'Unlocked!', it: 'Sbloccato!' },
@@ -188,6 +245,8 @@ export const strings: Dict = {
   },
   resetStoriesOnly: { en: 'Story progress', it: 'Progressi storie' },
   resetStoriesOnlyDesc: { en: 'Clear completed stories only.', it: 'Cancella solo le storie completate.' },
+  resetLessonsOnly: { en: 'Lesson progress', it: 'Progressi lezioni' },
+  resetLessonsOnlyDesc: { en: 'Clear completed lessons only.', it: 'Cancella solo le lezioni completate.' },
   resetAchievementsOnly: { en: 'Achievements', it: 'Obiettivi' },
   resetAchievementsOnlyDesc: { en: 'Clear earned achievement badges only.', it: 'Cancella solo gli obiettivi ottenuti.' },
   resetSectionAction: { en: 'Reset', it: 'Azzera' },
@@ -253,6 +312,17 @@ export const strings: Dict = {
   storiesIntro: {
     en: 'Read a story, then answer the questions. Stories get progressively harder.',
     it: 'Leggi una storia, poi rispondi alle domande. Le storie diventano più difficili.'
+  },
+
+  todaysReview: { en: "Today's review", it: 'Ripasso di oggi' },
+  dueReadyNow: { en: 'cards ready to review now', it: 'carte pronte da rivedere ora' },
+  allCaughtUp: { en: 'All caught up — nothing due!', it: 'Tutto in pari — niente da rivedere!' },
+  plusNewToday: { en: 'new today', it: 'nuove oggi' },
+  newWaiting: { en: 'new waiting', it: 'nuove in attesa' },
+  inCollection: { en: 'in collection', it: 'in raccolta' },
+  reviewExplain: {
+    en: 'Spaced-repetition reviews are scheduled automatically — study the due ones each day to remember them long-term.',
+    it: 'I ripassi a ripetizione dilazionata sono pianificati in automatico — studia ogni giorno quelle in scadenza per ricordarle a lungo.'
   }
 };
 

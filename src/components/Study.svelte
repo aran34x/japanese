@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { t, settings } from '../lib/stores';
   import { db, resetReviews } from '../lib/db';
-  import { buildQueue, type QueueItem } from '../lib/session';
+  import { buildQueue, deckCounts, type QueueItem } from '../lib/session';
   import { makeExercise } from '../lib/exercises/generator';
   import { schedule } from '../lib/srs';
   import type { Deck, Exercise, ExerciseKind, Grade } from '../lib/types';
@@ -11,7 +11,7 @@
   import { fly, slide } from 'svelte/transition';
   import { confetti } from '../lib/confetti';
   import { markSaving, markSaved } from '../lib/saveStatus';
-  import { addStudyTime } from '../lib/game/state';
+  import { addStudyTime, mutateGame, xpForAnswer } from '../lib/game/state';
 
   type Phase = 'menu' | 'config' | 'running' | 'done';
   type Mode = 'mixed' | 'flashcard' | 'quiz' | 'typing';
@@ -53,13 +53,20 @@
   let pool: Exercise['card'][] = [];
   let index = 0;
   let current: Exercise | null = null;
-  let sessionStats = { reviewed: 0, correct: 0 };
+  let sessionStats = { reviewed: 0, correct: 0, xp: 0 };
+  let combo = 0; // consecutive correct answers, drives the XP combo bonus
+
+  // Daily-review summary (all decks) for the Flashcards dashboard.
+  let counts = { due: 0, new: 0, learning: 0, total: 0 };
+  $: dueNow = counts.due + counts.learning;
+  $: newToday = Math.min(counts.new, $settings.newPerDay ?? 0);
 
   async function loadDecks() {
     const ds = await db.decks.toArray();
     decks = await Promise.all(
       ds.map(async (d) => ({ ...d, count: await db.cards.where('deckId').equals(d.id).count() }))
     );
+    counts = await deckCounts([]);
   }
   onMount(async () => {
     await loadDecks();
@@ -145,7 +152,8 @@
       ? await db.cards.where('deckId').anyOf(ids).toArray()
       : await db.cards.toArray();
     index = 0;
-    sessionStats = { reviewed: 0, correct: 0 };
+    combo = 0;
+    sessionStats = { reviewed: 0, correct: 0, xp: 0 };
     if (queue.length === 0) { phase = 'done'; return; }
     phase = 'running';
     loadCurrent();
@@ -170,7 +178,22 @@
     markSaved();
     void import('../lib/sync').then((m) => m.autoPush());
     sessionStats.reviewed += 1;
-    if (g !== 'again') sessionStats.correct += 1;
+    // Every correct answer earns XP toward leveling (combo bonus for streaks).
+    if (g !== 'again') {
+      combo += 1;
+      const gain = xpForAnswer(combo, g === 'hard');
+      sessionStats.correct += 1;
+      sessionStats.xp += gain;
+      void mutateGame((s) => ({
+        ...s,
+        xp: s.xp + gain,
+        totalCorrect: (s.totalCorrect ?? 0) + 1,
+        bestStreak: Math.max(s.bestStreak ?? 0, combo)
+      }));
+    } else {
+      combo = 0;
+      void mutateGame((s) => ({ ...s, totalWrong: (s.totalWrong ?? 0) + 1 }));
+    }
     next();
   }
 
@@ -193,7 +216,7 @@
 </script>
 
 <div class="flex-1 overflow-y-auto overflow-x-hidden">
-  <div class="mx-auto max-w-5xl px-4 py-8">
+  <div class="mx-auto flex min-h-full max-w-5xl flex-col px-4 py-8 {phase === 'menu' || phase === 'done' ? 'justify-center' : ''}">
     {#if phase === 'menu'}
       <section class="space-y-4">
         <h2 class="text-lg font-semibold">{$t('study')}</h2>
@@ -222,7 +245,47 @@
         {#if !isCustom}
           <!-- ── Single-mode: pick ONE set (tap to start) ─────────────── -->
           <h2 class="text-lg font-semibold">{modeLabel}</h2>
-          <p class="-mt-3 text-xs text-slate-400">{$t('chooseSet')}</p>
+
+          {#if mode === 'flashcard'}
+            <!-- Daily-review dashboard: review everything due across all decks -->
+            <div class="overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 shadow-lg">
+              <div class="p-6">
+                <div class="mb-4 text-xs font-semibold uppercase tracking-wide text-current opacity-70">
+                  {$t('todaysReview')}
+                </div>
+                <div class="flex items-end gap-3">
+                  <div class="text-6xl font-black leading-none">{dueNow}</div>
+                  <div class="pb-1 text-sm text-current opacity-90">
+                    {dueNow > 0 ? $t('dueReadyNow') : $t('allCaughtUp')}
+                  </div>
+                </div>
+                <button
+                  class="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 font-semibold text-indigo-700 shadow-sm transition active:scale-[0.98] hover:bg-indigo-50"
+                  on:click={() => start([])}
+                >
+                  <span>▶</span>
+                  <span>{$t('startReview')}</span>
+                  {#if newToday > 0}
+                    <span class="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-600">
+                      +{newToday} {$t('plusNewToday')}
+                    </span>
+                  {/if}
+                </button>
+              </div>
+              <div class="flex divide-x divide-white/15 border-t border-white/15 bg-black/10 text-center text-xs">
+                <div class="flex-1 py-2.5">
+                  <span class="font-bold text-current">{counts.new.toLocaleString()}</span>
+                  <span class="ml-1 text-current opacity-70">{$t('newWaiting')}</span>
+                </div>
+                <div class="flex-1 py-2.5">
+                  <span class="font-bold text-current">{counts.total.toLocaleString()}</span>
+                  <span class="ml-1 text-current opacity-70">{$t('inCollection')}</span>
+                </div>
+              </div>
+            </div>
+          {/if}
+
+          <p class="text-xs text-slate-400">{$t('chooseSet')}</p>
 
           <div class="space-y-5">
             {#each groups as g (g.cat)}
@@ -354,6 +417,9 @@
           <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-800">
             <div class="h-full bg-gradient-to-r from-pink-400 to-indigo-400 transition-all" style="width:{progress}%"></div>
           </div>
+          {#if combo >= 2}
+            <span class="rounded-full bg-pink-600/30 px-2 py-0.5 text-xs font-bold text-pink-300">🔥 {combo}</span>
+          {/if}
           <div class="text-xs text-slate-500">{index + 1} / {queue.length}</div>
         </div>
 
@@ -405,6 +471,12 @@
             {sessionStats.correct}/{sessionStats.reviewed} · {$t('accuracy')}
             {Math.round((sessionStats.correct / sessionStats.reviewed) * 100)}%
           </p>
+          {#if sessionStats.xp > 0}
+            <div class="mt-4 rounded-2xl bg-amber-500/15 px-8 py-3">
+              <div class="text-3xl font-black text-amber-300">+{sessionStats.xp}</div>
+              <div class="text-xs uppercase tracking-wide text-amber-200">{$t('xpEarned')}</div>
+            </div>
+          {/if}
         {:else}
           <p class="mt-4 text-slate-400">{$t('noDue')}</p>
         {/if}

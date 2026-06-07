@@ -4,6 +4,7 @@ import { newReviewState } from '../srs';
 import { markSaving, markSaved } from '../saveStatus';
 import { characterForXp, nextUnlock, CHARACTERS } from './characters';
 import { newlyEarned } from './achievements';
+import { resetLessonProgress } from '../lessons';
 
 // Persistent gamification state for Adventure mode.
 export interface GameState {
@@ -89,11 +90,12 @@ export async function resetAllProgress(): Promise<void> {
   await db.reviews.bulkPut(ids.map((id) => newReviewState(id)));
   const fresh = { ...DEFAULT_GAME };
   await db.meta.put({ key: 'gamestate', value: fresh });
+  await resetLessonProgress();
   game.set(fresh);
   scheduleCloudPush();
 }
 
-export type ProgressSection = 'srs' | 'adventure' | 'challenges' | 'stories' | 'achievements';
+export type ProgressSection = 'srs' | 'adventure' | 'challenges' | 'stories' | 'achievements' | 'lessons';
 
 /**
  * Reset one slice of progress while leaving decks, settings, login and the
@@ -103,6 +105,11 @@ export async function resetProgressSection(section: ProgressSection): Promise<vo
   if (section === 'srs') {
     const ids = (await db.cards.toCollection().primaryKeys()) as string[];
     await db.reviews.bulkPut(ids.map((id) => newReviewState(id)));
+    scheduleCloudPush();
+    return;
+  }
+  if (section === 'lessons') {
+    await resetLessonProgress();
     scheduleCloudPush();
     return;
   }

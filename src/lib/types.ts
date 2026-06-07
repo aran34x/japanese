@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 export type Lang = 'en' | 'it';
-export type AppSkin = 'default' | 'smash64' | 'sakura' | 'station' | 'nature' | 'comet';
+export type AppSkin = 'default' | 'light' | 'smash64' | 'sakura' | 'station' | 'nature' | 'comet';
 
 /** A category groups decks/cards so exercises can be generated per topic. */
 export type Category = 'hiragana' | 'katakana' | 'kanji' | 'vocab' | 'reading' | 'custom';
@@ -143,7 +143,6 @@ export interface Settings {
   /** Play audio automatically when available. */
   autoAudio: boolean;
   showRomaji: boolean;
-  theme: 'dark' | 'light';
   skin: AppSkin;
   /** Kanji enlargement factor in X-ray mode (em multiplier). */
   xrayKanjiScale: number;
