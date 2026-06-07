@@ -129,8 +129,9 @@ html, body {
   --danger-bg: rgba(136, 19, 55, 0.4);
   --danger-solid: #be123c;
 
-  /* Skin font. Always end the stack with Noto Sans JP so Japanese always renders. */
-  --font: 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+  /* Skin font. Keep 'Noto Sans JP' so Japanese renders, and 'Noto Emoji' so any
+     emoji codepoint falls through to the monochrome set (tinted by currentColor). */
+  --font: 'Noto Sans JP', system-ui, -apple-system, 'Noto Emoji', sans-serif;
 }
 
 /* ── The one global mapping: Tailwind utilities → tokens ──────────── */
@@ -221,7 +222,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
   --on-accent: #ffffff;
   --accent-text: #5856d6;
   --accent-input: #5856d6;
-  --font: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  --font: 'Zen Kaku Gothic New', 'Noto Sans JP', 'Noto Emoji', sans-serif;
 
   --warning: #b45309;
   --warning-bg: rgba(245, 158, 11, 0.1);
@@ -259,7 +260,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
   --accent: #e11d2e; --accent-2: #facc15;
   --on-accent: #ffffff; --accent-text: #facc15; --accent-input: #facc15;
   --hover: linear-gradient(180deg, #facc15, #f97316);
-  --font: 'Reggae One', 'Noto Sans JP', sans-serif;   /* chunky retro-arcade */
+  --font: 'Reggae One', 'Noto Sans JP', 'Noto Emoji', sans-serif;   /* chunky retro-arcade */
 }
 :root[data-skin='smash64'] body { background-attachment: fixed; background-position: center; background-size: cover; }
 /* Flair: 3D metal cards, gold secondary buttons, chunky drop-shadows */
@@ -380,7 +381,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
   --accent: #0ea5e9; --accent-2: #6366f1;
   --on-accent: #ffffff; --accent-text: #67e8f9; --accent-input: #22d3ee;
   --hover: rgba(125, 211, 252, 0.16);
-  --font: 'Shippori Mincho', 'Noto Sans JP', serif;   /* cinematic serif */
+  --font: 'Shippori Mincho', 'Noto Sans JP', 'Noto Emoji', serif;   /* cinematic serif */
 }
 :root[data-skin='comet'] body { background-attachment: fixed; background-position: center; background-size: cover; }
 /* Flair: accent glow + glassy chrome border */
@@ -418,7 +419,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
   --warning: #be185d; --danger: #be123c;
   --warning-bg: rgba(252, 231, 243, 0.94); --danger-bg: rgba(255, 228, 230, 0.82);
   --hover: linear-gradient(135deg, rgba(253, 242, 248, 0.98), rgba(252, 231, 243, 0.94));
-  --font: 'Zen Maru Gothic', 'Noto Sans JP', sans-serif;   /* soft rounded */
+  --font: 'Zen Maru Gothic', 'Noto Sans JP', 'Noto Emoji', sans-serif;   /* soft rounded */
 }
 :root[data-skin='sakura'] .hover\:bg-slate-800:hover,
 :root[data-skin='sakura'] .hover\:bg-slate-700:hover,
@@ -494,7 +495,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
   --warning: #fb923c;
   --warning-bg: rgba(249, 115, 22, 0.12);
   --hover: linear-gradient(90deg, rgba(249, 115, 22, 0.18), rgba(56, 189, 248, 0.14));
-  --font: 'M PLUS 1', 'Noto Sans JP', sans-serif;   /* modern signage */
+  --font: 'M PLUS 1', 'Noto Sans JP', 'Noto Emoji', sans-serif;   /* modern signage */
 }
 :root[data-skin='station'] body { background-size: cover, cover, 34px 34px, 34px 34px, cover; background-position: center; background-attachment: fixed; }
 /* Flair: signage-stripe cards, cyan rails, station glow, tighter corners */
@@ -541,7 +542,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
   --accent-text: #dcfce7; --accent-input: #bbf7d0;
   --warning: #bbf7d0; --warning-bg: rgba(240, 253, 244, 0.14);
   --hover: rgba(240, 253, 244, 0.24);
-  --font: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif;   /* friendly rounded */
+  --font: 'M PLUS Rounded 1c', 'Noto Sans JP', 'Noto Emoji', sans-serif;   /* friendly rounded */
 }
 :root[data-skin='nature'] body { background-attachment: fixed; background-position: center; background-size: cover; }
 /* Flair: frosted-glass cards & chrome, sunlight rim-light */
