@@ -12,7 +12,7 @@
   $: modes = [
     { id: 'study', icon: '📚', title: $t('study'), desc: $t('homeStudyDesc') },
     { id: 'lessons', icon: '先', title: $t('lessons'), desc: $t('homeLessonsDesc') },
-    { id: 'adventure', icon: '⚔️', title: $t('adventure'), desc: $t('homeAdventureDesc') },
+    { id: 'adventure', icon: '⚔', title: $t('adventure'), desc: $t('homeAdventureDesc') },
     { id: 'stories', icon: '📖', title: $t('stories'), desc: $t('homeStoriesDesc') }
   ];
 </script>

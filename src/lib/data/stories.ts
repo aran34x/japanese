@@ -168,7 +168,7 @@ export const STORIES: Story[] = [
     id: 'tenki',
     title: { en: "Today's Weather", it: 'Il tempo di oggi' },
     titleJp: '今日のお天気',
-    emoji: '☀️',
+    emoji: '☀',
     level: 'N5',
     lines: [
       { jp: '今日はお天気がいいです。', reading: 'きょうはおてんきがいいです。', en: 'Today the weather is good.', it: 'Oggi è bel tempo.' },
@@ -448,7 +448,7 @@ export const STORIES: Story[] = [
     id: 'umi',
     title: { en: 'Trip to the Sea', it: 'Viaggio al mare' },
     titleJp: '海の旅行',
-    emoji: '🏖️',
+    emoji: '🏖',
     level: 'N5+',
     lines: [
       { jp: '夏に海へ行きました。', reading: 'なつにうみへいきました。', en: 'In summer, I went to the sea.', it: 'In estate sono andato al mare.' },
@@ -854,7 +854,7 @@ export const STORIES: Story[] = [
     id: 'hikoki',
     title: { en: 'The Airplane', it: "L'aereo" },
     titleJp: '飛行機',
-    emoji: '✈️',
+    emoji: '✈',
     level: 'N5+',
     lines: [
       { jp: '空に大きな飛行機が飛んでいます。', reading: 'そらにおおきなひこうきがとんでいます。', en: 'A big airplane is flying in the sky.', it: 'Un grande aereo vola nel cielo.' },
@@ -894,7 +894,7 @@ export const STORIES: Story[] = [
     id: 'yuki',
     title: { en: 'Snow', it: 'Neve' },
     titleJp: '雪の日',
-    emoji: '❄️',
+    emoji: '❄',
     level: 'N5+',
     lines: [
       { jp: '今朝、窓の外を見ました。', reading: 'けさ、まどのそとをみました。', en: 'I looked out the window this morning.', it: 'Stamattina ho guardato fuori dalla finestra.' },
@@ -957,7 +957,7 @@ export const STORIES: Story[] = [
     id: 'tegami',
     title: { en: "Grandma's Letter", it: 'La lettera della nonna' },
     titleJp: 'おばあちゃんの手紙',
-    emoji: '✉️',
+    emoji: '✉',
     level: 'N4',
     lines: [
       { jp: 'ある日、美香は手紙をもらいました。', reading: 'あるひ、みかはてがみをもらいました。', en: 'One day, Mika received a letter.', it: 'Un giorno Mika ha ricevuto una lettera.' },

@@ -34,7 +34,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'combo-25',
-    icon: '⚔️',
+    icon: '⚔',
     imageUrl: wiki('e/e3/Samurai_armour%2C_Edo_period%2C_Japan.jpg/96px-Samurai_armour%2C_Edo_period%2C_Japan.jpg'),
     name: { en: 'Bushido Blade', it: 'Lama del Bushido' },
     desc: { en: 'Reach a 25-answer streak', it: 'Raggiungi una serie di 25' },
@@ -66,7 +66,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'streak-7',
-    icon: '⛩️',
+    icon: '⛩',
     imageUrl: wiki('6/68/Fushimi_Inari_Taisha_shrine%2C_Kyoto%2C_Japan.jpg/96px-Fushimi_Inari_Taisha_shrine%2C_Kyoto%2C_Japan.jpg'),
     name: { en: 'Shrine Keeper', it: 'Guardiano del Santuario' },
     desc: { en: 'Study 7 days in a row', it: 'Studia 7 giorni di fila' },

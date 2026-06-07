@@ -49,7 +49,7 @@
 
 <div class="rounded-2xl bg-slate-800 p-4">
   <div class="mb-1 flex items-center gap-2 text-sm font-medium">
-    ☁️ {$t('cloudSync')}
+    ☁ {$t('cloudSync')}
     {#if $syncSession}
       <span class="ml-auto rounded-full bg-green-600/30 px-2 py-0.5 text-xs text-green-300">● {$t('on')}</span>
     {/if}

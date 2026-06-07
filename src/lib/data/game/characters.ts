@@ -281,8 +281,8 @@ export const CHARACTERS: GameCharacter[] = [
     name: 'Amaterasu Ascendant',
     title: { en: 'Radiant Sun Goddess — FINAL FORM', it: 'Dea Solare Radiante — FORMA FINALE' },
     blurb: {
-      en: 'The dawn itself. You have read your way to legend. ☀️',
-      it: "L'alba stessa. Hai letto la tua strada verso la leggenda. ☀️"
+      en: 'The dawn itself. You have read your way to legend. ☀',
+      it: "L'alba stessa. Hai letto la tua strada verso la leggenda. ☀"
     },
     xpRequired: 400000,
     power: '∞',

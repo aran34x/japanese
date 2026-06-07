@@ -97,7 +97,7 @@ export const HOSTS: TrackHost[] = [
     track: 'anime',
     name: 'Ren',
     role: { en: 'Shonen Hero', it: 'Eroe Shonen' },
-    emoji: '⚔️',
+    emoji: '⚔',
     color: '#8b5cf6',
     facts: {
       en: [
@@ -116,7 +116,7 @@ export const HOSTS: TrackHost[] = [
     track: 'videogames',
     name: 'Pixel',
     role: { en: 'Platformer Mascot', it: 'Mascotte Platform' },
-    emoji: '🕹️',
+    emoji: '🕹',
     color: '#22c55e',
     facts: {
       en: [

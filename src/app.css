@@ -131,7 +131,7 @@ html, body {
 
   /* Skin font. Keep 'Noto Sans JP' so Japanese renders, and 'Noto Emoji' so any
      emoji codepoint falls through to the monochrome set (tinted by currentColor). */
-  --font: 'Noto Sans JP', system-ui, -apple-system, 'Noto Emoji', sans-serif;
+  --font: 'Noto Sans JP', 'Noto Emoji', system-ui, -apple-system, sans-serif;
 }
 
 /* ── The one global mapping: Tailwind utilities → tokens ──────────── */

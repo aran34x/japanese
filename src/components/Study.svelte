@@ -29,7 +29,7 @@
     { id: 'mixed' as Mode, label: '🎲 ' + $t('mixed') },
     { id: 'flashcard' as Mode, label: '🃏 ' + $t('flashcards') },
     { id: 'quiz' as Mode, label: '✅ ' + $t('quiz') },
-    { id: 'typing' as Mode, label: '⌨️ ' + $t('typing') }
+    { id: 'typing' as Mode, label: '⌨ ' + $t('typing') },
   ];
   // Tiles shown on the Study menu (no "mixed" — that lives inside Custom).
   $: menuModes = modeOptions.filter((m) => m.id !== 'mixed');
@@ -233,7 +233,7 @@
           class="w-full rounded-2xl border border-dashed border-slate-600 p-4 text-left active:scale-[0.98]"
           on:click={pickCustom}
         >
-          <div class="font-medium">⚙️ Custom</div>
+          <div class="font-medium">⚙ Custom</div>
           <div class="text-xs text-slate-400">{$t('mixAndMatch')}</div>
         </button>
       </section>
@@ -368,7 +368,7 @@
         {:else}
           <!-- ── Custom: pick decks + mode ────────────────────────────── -->
           <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold">⚙️ Custom</h2>
+            <h2 class="text-lg font-semibold">⚙ Custom</h2>
             <button class="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-pink-300" on:click={toggleAll}>
               {allSelected ? $t('unselectAll') : $t('selectAll')}
             </button>

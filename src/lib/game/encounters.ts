@@ -44,8 +44,8 @@ export function rollEncounter(cardsSinceLast: number): Encounter | null {
 }
 
 export const ENCOUNTER_LABELS: Record<EncounterKind, { en: string; it: string; icon: string }> = {
-  boss: { en: 'BOSS BATTLE', it: 'BATTAGLIA CON IL BOSS', icon: '⚔️' },
-  speed: { en: 'SPEED ROUND', it: 'ROUND VELOCE', icon: '⏱️' },
+  boss: { en: 'BOSS BATTLE', it: 'BATTAGLIA CON IL BOSS', icon: '⚔' },
+  speed: { en: 'SPEED ROUND', it: 'ROUND VELOCE', icon: '⏱' },
   gamble: { en: 'DOUBLE OR NOTHING', it: 'RADDOPPIA O NIENTE', icon: '🎴' },
   suddenDeath: { en: 'SUDDEN DEATH', it: 'MORTE IMPROVVISA', icon: '💀' }
 };
