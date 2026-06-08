@@ -1,7 +1,7 @@
 <script lang="ts">
   import { t } from '../lib/stores';
   import { fly } from 'svelte/transition';
-  import { TAEKIM, bookProgress, toggleChapterRead, markChapterRead, guideTarget, type BookChapter } from '../lib/book';
+  import { TAEKIM, bookProgress, toggleChapterRead, guideTarget, type BookChapter } from '../lib/book';
 
   type View = 'list' | 'read';
   let view: View = 'list';
@@ -17,8 +17,7 @@
   function open(c: BookChapter) {
     chapter = c;
     view = 'read';
-    // Reading a chapter for a few seconds counts as read.
-    setTimeout(() => { if (chapter?.id === c.id) void markChapterRead(c.id); }, 4000);
+    // Reading does NOT auto-complete — only the explicit "Mark as read" button does.
     window.scrollTo?.({ top: 0 });
   }
 
@@ -51,7 +50,7 @@
                   on:click={() => open(c)}
                 >
                   <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-900 font-jp text-lg">
-                    {read(c.id) ? '✓' : (c.jpTitle?.[0] ?? '本')}
+                    {c.jpTitle?.[0] ?? '本'}
                   </span>
                   <span class="min-w-0 flex-1">
                     <span class="block font-semibold">{c.title}</span>
@@ -59,7 +58,11 @@
                       {c.level}{#if c.jpTitle} · <span class="font-jp">{c.jpTitle}</span>{/if}
                     </span>
                   </span>
-                  <span class="text-slate-500">›</span>
+                  {#if read(c.id)}
+                    <span class="font-bold text-green-400">✓</span>
+                  {:else}
+                    <span class="text-slate-500">›</span>
+                  {/if}
                 </button>
               {/each}
             </div>

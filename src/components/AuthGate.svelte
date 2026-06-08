@@ -85,7 +85,7 @@
   <div class="w-full max-w-sm" in:fly={{ y: 20, duration: 250 }}>
     <div class="mb-6 text-center">
       <div class="text-4xl font-black">
-        <span class="bg-gradient-to-r from-pink-400 to-indigo-400 bg-clip-text text-transparent">日本語</span>
+        <span class="text-pink-400">日本語</span>
       </div>
       <div class="mt-1 text-lg font-bold">Nihongo Quest</div>
       <p class="mt-1 text-sm text-slate-400">{$t('loginToSave')}</p>

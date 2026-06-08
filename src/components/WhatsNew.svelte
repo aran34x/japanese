@@ -60,7 +60,7 @@
         {/each}
       </div>
 
-      <button class="mt-5 w-full rounded-xl bg-gradient-to-r from-pink-500 to-indigo-500 py-3 font-bold active:scale-[0.98]" on:click={dismiss}>
+      <button class="mt-5 w-full rounded-xl bg-indigo-500 py-3 font-bold active:scale-[0.98]" on:click={dismiss}>
         {$t('gotIt')}
       </button>
     </div>

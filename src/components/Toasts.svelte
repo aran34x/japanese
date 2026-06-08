@@ -19,9 +19,9 @@
     <div
       in:fly={{ y: -24, duration: 250 }}
       out:fly={{ y: -24, duration: 200 }}
-      class="pointer-events-auto w-full rounded-xl border border-amber-400/40 bg-gradient-to-r from-amber-500/90 to-pink-600/90 px-4 py-2 text-center shadow-lg backdrop-blur"
+      class="pointer-events-auto w-full rounded-xl border border-amber-400/40 bg-amber-500/15 px-4 py-2 text-center shadow-lg backdrop-blur"
     >
-      <div class="text-sm font-bold text-white">{t.icon ?? ''} {label(t)}</div>
+      <div class="text-sm font-bold text-amber-300">{t.icon ?? ''} {label(t)}</div>
       {#if t.subtitle}<div class="text-xs text-amber-100">{t.subtitle}</div>{/if}
     </div>
   {/each}
