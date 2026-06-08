@@ -3,7 +3,21 @@
 // ---------------------------------------------------------------------------
 
 export type Lang = 'en' | 'it';
-export type AppSkin = 'default' | 'light' | 'smash64' | 'sakura' | 'station' | 'nature' | 'comet';
+export type AppSkin =
+  | 'default'
+  | 'light'
+  | 'smash64'
+  | 'sakura'
+  | 'station'
+  | 'nature'
+  | 'comet'
+  | 'fuji'
+  | 'sushi'
+  | 'countryside'
+  | 'samurai'
+  | 'temple'
+  | 'dojo'
+  | 'touge';
 
 /** A category groups decks/cards so exercises can be generated per topic. */
 export type Category = 'hiragana' | 'katakana' | 'kanji' | 'vocab' | 'reading' | 'custom';

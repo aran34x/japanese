@@ -17,12 +17,16 @@
   import Home from './components/Home.svelte';
   import Study from './components/Study.svelte';
   import Lessons from './components/Lessons.svelte';
+  import Guide from './components/Guide.svelte';
   import Stories from './components/Stories.svelte';
+  import { loadBookProgress } from './lib/book';
   import Stats from './components/Stats.svelte';
   import SettingsScreen from './components/SettingsScreen.svelte';
   import { ensureAnkiDecks } from './lib/data/anki-seed';
   import { checkForUpdates } from './lib/sw-update';
   import Adventure from './components/Adventure.svelte';
+  import Levels from './components/Levels.svelte';
+  import Achievements from './components/Achievements.svelte';
   import Toasts from './components/Toasts.svelte';
   import WhatsNew from './components/WhatsNew.svelte';
   import { getXrayKanjiSizePreset } from './lib/xray-size-presets';
@@ -83,6 +87,7 @@
     await ensureSeeded();
     await loadGame();
     await loadLessonProgress();
+    await loadBookProgress();
     await loadXray();
     ready.set(true);
     // Seed built-in Anki decks in background (fetches JSON + media URLs from Supabase).
@@ -97,6 +102,12 @@
   // If sync isn't configured, never gate.
   $: showGate =
     $ready && $authReady && $syncConfigured && !$syncSession && !skippedAuth;
+  $: routeTitleKey =
+    $route === 'study'
+      ? 'custom'
+      : $route === 'adventure'
+        ? 'charactersTab'
+        : $route;
 </script>
 
 {#if showGate}
@@ -116,7 +127,7 @@
         {/if}
         {#if $route !== 'home'}
           <div class="xray-dim-el pointer-events-none absolute left-1/2 -translate-x-1/2 text-sm font-bold tracking-wide text-slate-200">
-            {$t($route)}
+            {$t(routeTitleKey)}
           </div>
         {/if}
         <div class="flex items-center gap-2">
@@ -140,10 +151,16 @@
         <div class="flex-1 flex flex-col overflow-hidden" in:fly={{ y: 28, duration: 240, delay: 60 }} out:fade={{ duration: 100 }}>
           {#if $route === 'adventure'}
             <Adventure />
+          {:else if $route === 'levels'}
+            <Levels />
+          {:else if $route === 'achievements'}
+            <Achievements />
           {:else if $route === 'study'}
             <Study />
           {:else if $route === 'lessons'}
             <Lessons />
+          {:else if $route === 'guide'}
+            <Guide />
           {:else if $route === 'stories'}
             <Stories />
           {:else}

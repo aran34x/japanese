@@ -17,6 +17,8 @@ export interface AppLesson {
   examples: { jp: string; reading: string; en: string; it: string }[];
   /** Optional hand-authored quiz; if absent, a hardened quiz is generated. */
   quiz?: LessonQuizQuestion[];
+  /** Links this lesson to a chapter in the Guide (Tae Kim) for "read the full chapter". */
+  bookChapterId?: string;
 }
 
 export interface LessonSection {
@@ -49,6 +51,7 @@ export const LESSONS: AppLesson[] = [
     id: 'kana-names',
     category: 'foundation',
     level: 'Start',
+    bookChapterId: 'hiragana',
     title: { en: 'Kana for Names', it: 'Kana per i nomi' },
     summary: {
       en: 'Read hiragana and katakana slowly, one sound at a time. Character names often use katakana.',
@@ -71,84 +74,89 @@ export const LESSONS: AppLesson[] = [
     id: 'desu-identity',
     category: 'grammar',
     level: 'Start',
-    title: { en: 'Saying What Something Is', it: 'Dire che cosa e qualcosa' },
+    bookChapterId: 'state-of-being',
+    title: { en: 'State-of-Being (だ / です)', it: "Stato dell'essere (だ / です)" },
     summary: {
-      en: 'です makes a simple identity sentence: "I am...", "This is...", or "It is...".',
-      it: 'です crea una frase semplice di identita: "io sono...", "questo e...", o "e...".'
+      en: 'Japanese has no verb "to be". You attach だ (plain) or です (polite) to a noun to declare what something is.',
+      it: 'Il giapponese non ha il verbo "essere". Attacchi だ (semplice) o です (cortese) a un nome per dire cos\'è qualcosa.'
     },
     teaches: {
-      en: ['A は B です', 'Simple character clues', 'Story introductions'],
-      it: ['A は B です', 'Indizi semplici sui personaggi', 'Introduzioni nelle storie']
+      en: ['Noun + だ / です', 'Negative じゃない', 'Past だった'],
+      it: ['Nome + だ / です', 'Negativo じゃない', 'Passato だった']
     },
     patterns: [
-      { jp: 'A は B です。', reading: 'A wa B desu.', en: 'A is B.', it: 'A e B.' }
+      { jp: '〜だ', reading: '~ da', en: 'is ~ (plain)', it: 'è ~ (semplice)' },
+      { jp: '〜じゃない', reading: '~ ja nai', en: 'is not ~', it: 'non è ~' }
     ],
     examples: [
-      { jp: 'わたしはねずみです。', reading: 'watashi wa nezumi desu.', en: 'I am a mouse.', it: 'Sono un topo.' },
-      { jp: '猫の名前はタマです。', reading: 'neko no namae wa Tama desu.', en: "The cat's name is Tama.", it: 'Il gatto si chiama Tama.' }
+      { jp: '学生だ。', reading: 'gakusei da.', en: 'is a student', it: 'è uno studente' },
+      { jp: '学生じゃない。', reading: 'gakusei ja nai.', en: 'is not a student', it: 'non è uno studente' }
     ]
   },
   {
     id: 'wa-topic',
     category: 'particles',
     level: 'N5',
+    bookChapterId: 'particles-intro',
     title: { en: 'The Topic Particle は', it: 'La particella tema は' },
     summary: {
-      en: 'は marks the topic: the thing the sentence is talking about. It is written は but read wa.',
-      it: 'は marca il tema: la cosa di cui parla la frase. Si scrive は ma si legge wa.'
+      en: 'は marks the topic — what the sentence is about. It is written は but pronounced "wa". も replaces は to mean "also".',
+      it: 'は marca il tema — di cosa parla la frase. Si scrive は ma si pronuncia "wa". も sostituisce は per dire "anche".'
     },
     teaches: {
-      en: ['Topic marking', 'Reading は as wa', 'Character clue sentences'],
-      it: ['Marcare il tema', 'Leggere は come wa', 'Frasi-indizio sui personaggi']
+      en: ['は marks the topic', 'Read は as "wa"', 'も means "also"'],
+      it: ['は marca il tema', 'Leggere は come "wa"', 'も significa "anche"']
     },
     patterns: [
-      { jp: 'わたしは...', reading: 'watashi wa...', en: 'As for me...', it: 'Quanto a me...' }
+      { jp: 'A は B', reading: 'A wa B', en: 'As for A, B', it: 'Quanto ad A, B' }
     ],
     examples: [
-      { jp: 'わたしは黄色いです。', reading: 'watashi wa kiiroi desu.', en: 'I am yellow.', it: 'Sono giallo.' },
-      { jp: 'タマは魚が大好きです。', reading: 'Tama wa sakana ga daisuki desu.', en: 'Tama loves fish.', it: 'Tama adora il pesce.' }
+      { jp: 'アリスは学生。', reading: 'Arisu wa gakusei.', en: 'As for Alice, (she is) a student.', it: 'Quanto ad Alice, è una studentessa.' },
+      { jp: 'トムも学生。', reading: 'Tomu mo gakusei.', en: 'Tom is also a student.', it: 'Anche Tom è uno studente.' }
     ]
   },
   {
     id: 'ga-subject',
     category: 'particles',
     level: 'N5',
-    title: { en: 'The Subject Particle が', it: 'La particella soggetto が' },
+    bookChapterId: 'particles-intro',
+    title: { en: 'The Identifier Particle が', it: "La particella identificatore が" },
     summary: {
-      en: 'が points to the subject or the thing being noticed: "there is...", "X likes Y", or "Y happens".',
-      it: 'が indica il soggetto o la cosa notata: "c e...", "a X piace Y", o "succede Y".'
+      en: 'が singles out which unknown thing is the one in question. は talks about a topic in general; が answers "who?" or "what?".',
+      it: 'が indica quale cosa sconosciuta è quella in questione. は parla di un tema in generale; が risponde a "chi?" o "cosa?".'
     },
     teaches: {
-      en: ['There is/are', 'Likes with が', 'Reading simple story lines'],
-      it: ['C e / ci sono', 'Piacere con が', 'Leggere frasi semplici nelle storie']
+      en: ['が identifies the subject', 'は (general) vs が (specific)', 'Answering who/what'],
+      it: ['が identifica il soggetto', 'は (generale) vs が (specifico)', 'Rispondere a chi/cosa']
     },
     patterns: [
-      { jp: 'N が います。', reading: 'N ga imasu.', en: 'There is N.', it: "C'e N." }
+      { jp: '誰が〜', reading: 'dare ga ~', en: 'who is the one that ~', it: 'chi è quello che ~' }
     ],
     examples: [
-      { jp: '小さい猫がいます。', reading: 'chiisai neko ga imasu.', en: 'There is a little cat.', it: "C'e un gattino." },
-      { jp: '魚が大好きです。', reading: 'sakana ga daisuki desu.', en: 'I love fish.', it: 'Adoro il pesce.' }
+      { jp: '誰が学生？', reading: 'dare ga gakusei?', en: 'Who is the student?', it: 'Chi è lo studente?' },
+      { jp: 'ジョンが学生。', reading: 'Jon ga gakusei.', en: 'John is the one who is a student.', it: 'John è quello che è studente.' }
     ]
   },
   {
     id: 'no-possessive',
     category: 'particles',
     level: 'N5',
+    bookChapterId: 'noun-particles',
     title: { en: 'The の Link', it: 'Il collegamento の' },
     summary: {
-      en: 'の connects nouns. It can mean possession, description, or "of".',
-      it: 'の collega nomi. Puo indicare possesso, descrizione, o "di".'
+      en: 'の connects two nouns to show possession or description ("A\'s B" / "B of A"). It can also stand in for a noun ("the ~ one").',
+      it: 'の collega due nomi per indicare possesso o descrizione ("B di A"). Può anche sostituire un nome ("quello ~").'
     },
     teaches: {
-      en: ['Names and titles', 'Possession', 'Phrases like cat name or royal family'],
-      it: ['Nomi e titoli', 'Possesso', 'Frasi come nome del gatto o famiglia reale']
+      en: ['Possession (A の B)', 'Description', 'の as "the ~ one"'],
+      it: ['Possesso (A の B)', 'Descrizione', 'の come "quello ~"']
     },
     patterns: [
       { jp: 'A の B', reading: 'A no B', en: "B of A / A's B", it: 'B di A' }
     ],
     examples: [
-      { jp: '猫の名前', reading: 'neko no namae', en: "the cat's name", it: 'il nome del gatto' },
-      { jp: 'ゼルダ姫の友だち', reading: 'Zeruda-hime no tomodachi', en: "Princess Zelda's friend", it: "l'amica della Principessa Zelda" }
+      { jp: 'ボブの本', reading: 'Bobu no hon', en: "Bob's book", it: 'il libro di Bob' },
+      { jp: '白いのはかわいい。', reading: 'shiroi no wa kawaii.', en: 'The white one is cute.', it: 'Quello bianco è carino.' }
     ]
   },
   {
@@ -218,21 +226,22 @@ export const LESSONS: AppLesson[] = [
     id: 'de-using',
     category: 'particles',
     level: 'N5+',
-    title: { en: 'で for Using and Place', it: 'で per usare e luogo' },
+    bookChapterId: 'verb-particles',
+    title: { en: 'で — Place of Action & Means', it: 'で — luogo dell\'azione e mezzo' },
     summary: {
-      en: 'で can mark where something happens or what tool/power is used.',
-      it: 'で puo marcare dove succede qualcosa o quale strumento/potere viene usato.'
+      en: 'で marks where an action happens, or the means/tool used to do it.',
+      it: "で marca dove avviene un'azione, o il mezzo/strumento usato per farla."
     },
     teaches: {
-      en: ['Using a tool or power', 'Doing something at a place', 'Story and battle clues'],
-      it: ['Usare uno strumento o potere', 'Fare qualcosa in un luogo', 'Indizi di storie e battaglie']
+      en: ['で = where an action happens', 'で = by what means', 'Contrast with に (location of existence)'],
+      it: ["で = dove avviene un'azione", 'で = con quale mezzo', 'Contrasto con に (luogo di esistenza)']
     },
     patterns: [
-      { jp: 'N で V', reading: 'N de V', en: 'do V with/at N', it: 'fare V con/in N' }
+      { jp: 'N で V', reading: 'N de V', en: 'do V at/with N', it: 'fare V in/con N' }
     ],
     examples: [
-      { jp: '公園で遊びます。', reading: 'kouen de asobimasu.', en: 'I play in the park.', it: 'Gioco al parco.' },
-      { jp: '電気で戦います。', reading: 'denki de tatakaimasu.', en: 'I fight with electricity.', it: "Combatto con l'elettricita." }
+      { jp: '公園で遊ぶ。', reading: 'kouen de asobu.', en: 'play in the park', it: 'gioco al parco' },
+      { jp: 'バスで帰る。', reading: 'basu de kaeru.', en: 'go home by bus', it: 'torno a casa in autobus' }
     ]
   },
   {
@@ -260,6 +269,7 @@ export const LESSONS: AppLesson[] = [
     id: 'hiragana-sounds',
     category: 'foundation',
     level: 'Start',
+    bookChapterId: 'hiragana',
     title: { en: 'Hiragana Sound Map', it: 'Mappa dei suoni hiragana' },
     summary: {
       en: 'Learn hiragana as a sound grid: a, i, u, e, o, then consonant rows.',
@@ -282,6 +292,7 @@ export const LESSONS: AppLesson[] = [
     id: 'sound-changes',
     category: 'foundation',
     level: 'Start',
+    bookChapterId: 'hiragana',
     title: { en: 'Dakuten, Small Tsu, Long Sounds', it: 'Dakuten, piccolo tsu, suoni lunghi' },
     summary: {
       en: 'Small marks change sounds. This is essential for names, stories and card readings.',
@@ -304,6 +315,7 @@ export const LESSONS: AppLesson[] = [
     id: 'katakana-basics',
     category: 'foundation',
     level: 'Start',
+    bookChapterId: 'katakana',
     title: { en: 'Katakana for Names and Loanwords', it: 'Katakana per nomi e prestiti' },
     summary: {
       en: 'Katakana is common for foreign names, game names, sounds and borrowed words.',
@@ -326,6 +338,7 @@ export const LESSONS: AppLesson[] = [
     id: 'first-kanji-map',
     category: 'foundation',
     level: 'N5',
+    bookChapterId: 'kanji',
     title: { en: 'First Grade Kanji Map', it: 'Mappa dei kanji di prima elementare' },
     summary: {
       en: 'Start with the kanji Japanese children meet early: numbers, nature, body, school and direction words.',
@@ -480,44 +493,46 @@ export const LESSONS: AppLesson[] = [
     id: 'wo-and-he',
     category: 'particles',
     level: 'N5',
+    bookChapterId: 'verb-particles',
     title: { en: 'The Particles を and へ', it: 'Le particelle を e へ' },
     summary: {
-      en: 'を marks the thing you act on. へ marks a direction. Both are written oddly but read simply.',
-      it: 'を marca la cosa su cui fai un azione. へ marca una direzione. Entrambe si scrivono in modo strano ma si leggono semplice.'
+      en: 'を marks the direct object (the thing a verb acts on); it is read "o". へ marks a direction; it is read "e".',
+      it: 'を marca l\'oggetto diretto (la cosa su cui agisce il verbo); si legge "o". へ marca una direzione; si legge "e".'
     },
     teaches: {
-      en: ['を as object marker', 'へ as direction marker', 'Special readings o and e'],
-      it: ['を come marcatore oggetto', 'へ come marcatore direzione', 'Letture speciali o ed e']
+      en: ['を = direct object (read "o")', 'へ = direction (read "e")', 'Verb comes at the end'],
+      it: ['を = oggetto diretto (si legge "o")', 'へ = direzione (si legge "e")', 'Il verbo va alla fine']
     },
     patterns: [
       { jp: 'N を V', reading: 'N o V', en: 'do V to N', it: 'fare V su N' },
-      { jp: 'N へ行きます', reading: 'N e ikimasu', en: 'go to N', it: 'andare verso N' }
+      { jp: 'N へ V', reading: 'N e V', en: 'V toward N', it: 'V verso N' }
     ],
     examples: [
-      { jp: '本を読みます。', reading: 'hon o yomimasu.', en: 'I read a book.', it: 'Leggo un libro.' },
-      { jp: '学校へ行きます。', reading: 'gakkou e ikimasu.', en: 'I go to school.', it: 'Vado a scuola.' }
+      { jp: '魚を食べる。', reading: 'sakana o taberu.', en: 'eat fish', it: 'mangio pesce' },
+      { jp: '学校へ行く。', reading: 'gakkou e iku.', en: 'go to school', it: 'vado a scuola' }
     ]
   },
   {
     id: 'ni-place-time',
     category: 'particles',
     level: 'N5',
-    title: { en: 'に for Place and Time', it: 'に per luogo e tempo' },
+    bookChapterId: 'verb-particles',
+    title: { en: 'に for Target, Place & Time', it: 'に per destinazione, luogo e tempo' },
     summary: {
-      en: 'に can mark where something exists, where you go, or when something happens.',
-      it: 'に puo marcare dove esiste qualcosa, dove vai, o quando succede qualcosa.'
+      en: 'に marks a destination, where something exists, or a point in time. (で is where an action happens; に is where something IS.)',
+      it: 'に marca una destinazione, dove esiste qualcosa, o un punto nel tempo. (で è dove avviene un\'azione; に è dove qualcosa È.)'
     },
     teaches: {
-      en: ['Existence place', 'Destination', 'Time point'],
-      it: ['Luogo di esistenza', 'Destinazione', 'Punto nel tempo']
+      en: ['に = destination / existence / time', 'Contrast with で', 'いる / ある with に'],
+      it: ['に = destinazione / esistenza / tempo', 'Contrasto con で', 'いる / ある con に']
     },
     patterns: [
-      { jp: 'N に います', reading: 'N ni imasu', en: 'is in/at N', it: 'e in/a N' },
-      { jp: '七時に', reading: 'shichi-ji ni', en: 'at seven o clock', it: 'alle sette' }
+      { jp: 'N に いる', reading: 'N ni iru', en: 'is in/at N', it: 'è in/a N' },
+      { jp: '〜時に', reading: '~ ji ni', en: 'at ~ o\'clock', it: 'alle ~' }
     ],
     examples: [
-      { jp: '先生は教室にいます。', reading: 'sensei wa kyoushitsu ni imasu.', en: 'The teacher is in the classroom.', it: "L'insegnante e in classe." },
-      { jp: '七時に起きます。', reading: 'shichi-ji ni okimasu.', en: 'I wake up at seven.', it: 'Mi sveglio alle sette.' }
+      { jp: '猫は部屋にいる。', reading: 'neko wa heya ni iru.', en: 'The cat is in the room.', it: 'Il gatto è nella stanza.' },
+      { jp: '七時に起きる。', reading: 'shichi-ji ni okiru.', en: 'wake up at seven', it: 'mi sveglio alle sette' }
     ]
   },
   {
@@ -546,44 +561,46 @@ export const LESSONS: AppLesson[] = [
     id: 'adjectives-first',
     category: 'grammar',
     level: 'N5',
-    title: { en: 'First Adjectives', it: 'Primi aggettivi' },
+    bookChapterId: 'adjectives',
+    title: { en: 'Adjectives (い / な)', it: 'Aggettivi (い / な)' },
     summary: {
-      en: 'Adjectives let you describe size, color, feeling and simple traits in stories and clues.',
-      it: 'Gli aggettivi ti fanno descrivere dimensione, colore, emozione e tratti semplici in storie e indizi.'
+      en: 'い-adjectives end in い and attach directly to a noun (no な, never だ). な-adjectives behave like nouns and need な before the noun.',
+      it: "Gli aggettivi in い finiscono in い e si attaccano direttamente al nome (niente な, mai だ). Gli aggettivi in な si comportano come nomi e vogliono な prima del nome."
     },
     teaches: {
-      en: ['い adjectives', 'Simple descriptions', 'Colors and size'],
-      it: ['Aggettivi in い', 'Descrizioni semplici', 'Colori e dimensioni']
+      en: ['い-adjectives (高い建物)', 'な-adjectives (静かな人)', 'Negative くない / past かった'],
+      it: ['Aggettivi in い (高い建物)', 'Aggettivi in な (静かな人)', 'Negativo くない / passato かった']
     },
     patterns: [
-      { jp: '小さい / 大きい', reading: 'chiisai / ookii', en: 'small / big', it: 'piccolo / grande' },
-      { jp: '赤い / 青い / 黄色い', reading: 'akai / aoi / kiiroi', en: 'red / blue / yellow', it: 'rosso / blu / giallo' }
+      { jp: 'い-adj + 名詞', reading: 'takai biru', en: 'tall building (direct)', it: 'edificio alto (diretto)' },
+      { jp: 'な-adj + な + 名詞', reading: 'shizuka na hito', en: 'quiet person', it: 'persona tranquilla' }
     ],
     examples: [
-      { jp: '小さい猫です。', reading: 'chiisai neko desu.', en: 'It is a little cat.', it: 'E un gattino.' },
-      { jp: 'わたしは黄色いです。', reading: 'watashi wa kiiroi desu.', en: 'I am yellow.', it: 'Sono giallo.' }
+      { jp: '高いビル。', reading: 'takai biru.', en: 'a tall building', it: 'un edificio alto' },
+      { jp: '静かな人。', reading: 'shizuka na hito.', en: 'a quiet person', it: 'una persona tranquilla' }
     ]
   },
   {
     id: 'daily-verbs-first',
     category: 'grammar',
     level: 'N5',
-    title: { en: 'Daily Verbs in ます', it: 'Verbi quotidiani in ます' },
+    bookChapterId: 'verbs',
+    title: { en: 'Verb Basics', it: 'Basi dei verbi' },
     summary: {
-      en: 'First reading uses common action verbs in the polite ます form.',
-      it: 'Le prime letture usano verbi comuni nella forma cortese ます.'
+      en: 'Almost every verb is a ru-verb or a u-verb (only する and 来る are irregular). The dictionary form is the plain present, and the verb always ends the sentence.',
+      it: 'Quasi ogni verbo è ru-verbo o u-verbo (solo する e 来る sono irregolari). La forma del dizionario è il presente semplice, e il verbo è sempre alla fine.'
     },
     teaches: {
-      en: ['Polite verbs', 'Daily actions', 'Reading action sentences'],
-      it: ['Verbi cortesi', 'Azioni quotidiane', 'Leggere frasi d azione']
+      en: ['ru-verbs (食べる)', 'u-verbs (飲む)', 'する / 来る are irregular'],
+      it: ['Ru-verbi (食べる)', 'U-verbi (飲む)', 'する / 来る sono irregolari']
     },
     patterns: [
-      { jp: '読みます・書きます・行きます', reading: 'yomimasu / kakimasu / ikimasu', en: 'read / write / go', it: 'leggere / scrivere / andare' },
-      { jp: '食べます・寝ます・遊びます', reading: 'tabemasu / nemasu / asobimasu', en: 'eat / sleep / play', it: 'mangiare / dormire / giocare' }
+      { jp: 'ru-verb: 食べる', reading: 'taberu', en: 'to eat', it: 'mangiare' },
+      { jp: 'u-verb: 飲む', reading: 'nomu', en: 'to drink', it: 'bere' }
     ],
     examples: [
-      { jp: '毎日、書きます。', reading: 'mainichi, kakimasu.', en: 'I write every day.', it: 'Scrivo ogni giorno.' },
-      { jp: '公園で遊びます。', reading: 'kouen de asobimasu.', en: 'I play in the park.', it: 'Gioco al parco.' }
+      { jp: '魚を食べる。', reading: 'sakana o taberu.', en: 'eat fish', it: 'mangio pesce' },
+      { jp: '水を飲む。', reading: 'mizu o nomu.', en: 'drink water', it: 'bevo acqua' }
     ]
   },
   {

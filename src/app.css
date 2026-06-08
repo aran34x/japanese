@@ -62,6 +62,41 @@ html, body {
   --sb-thumb: #bbf7d0;
   --sb-thumb-hover: #dcfce7;
 }
+:root[data-skin='fuji'] {
+  --sb-track: rgba(23, 37, 84, 0.32);
+  --sb-thumb: #93c5fd;
+  --sb-thumb-hover: #f9a8d4;
+}
+:root[data-skin='sushi'] {
+  --sb-track: rgba(45, 25, 16, 0.48);
+  --sb-thumb: #7c3f22;
+  --sb-thumb-hover: #fb7185;
+}
+:root[data-skin='countryside'] {
+  --sb-track: rgba(240, 253, 244, 0.46);
+  --sb-thumb: #86a33e;
+  --sb-thumb-hover: #16a34a;
+}
+:root[data-skin='samurai'] {
+  --sb-track: rgba(9, 9, 11, 0.62);
+  --sb-thumb: #3f3f46;
+  --sb-thumb-hover: #d6ad60;
+}
+:root[data-skin='temple'] {
+  --sb-track: rgba(42, 22, 15, 0.45);
+  --sb-thumb: #9a3412;
+  --sb-thumb-hover: #d97706;
+}
+:root[data-skin='dojo'] {
+  --sb-track: rgba(245, 240, 223, 0.45);
+  --sb-thumb: #a3a36b;
+  --sb-thumb-hover: #6b8e23;
+}
+:root[data-skin='touge'] {
+  --sb-track: rgba(2, 6, 23, 0.62);
+  --sb-thumb: #155e75;
+  --sb-thumb-hover: #ef4444;
+}
 
 /* ════════════════════════════════════════════════════════════════════
    THEMING — design tokens + ONE global mapping (the "Container Box")
@@ -573,6 +608,247 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
 :root[data-skin='nature'] .bg-amber-500\/15,
 :root[data-skin='nature'] .bg-amber-500\/10 { border: 1px solid rgba(220, 252, 231, 0.24); }
 
+/* FUJI - dawn mountain lake: clear blues, snow, rose sunrise */
+:root[data-skin='fuji'] {
+  color-scheme: light;
+  --skin-bg-image: url('/skin-fuji-bg.jpg');
+  --bg:
+    linear-gradient(rgba(239, 246, 255, 0.2), rgba(219, 234, 254, 0.52)),
+    var(--skin-bg-image),
+    linear-gradient(180deg, #e0f2fe 0%, #f8fafc 58%, #dbeafe 100%);
+  --panel: rgba(239, 246, 255, 0.42);
+  --chrome-bg: rgba(248, 250, 252, 0.78);
+  --panel-soft: rgba(255, 255, 255, 0.56);
+  --box-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(239, 246, 255, 0.72));
+  --box-backdrop: blur(18px) saturate(1.12);
+  --box-border: rgba(59, 130, 246, 0.2);
+  --box-bg-2: rgba(219, 234, 254, 0.72);
+  --scrim: rgba(30, 41, 59, 0.38);
+  --text: #172554; --text-strong: #0f172a;
+  --text-soft: #1e3a8a; --text-muted: #46689f; --text-faint: #6b8bb9;
+  --accent: #f472b6; --accent-2: #60a5fa;
+  --on-accent: #ffffff; --accent-text: #2563eb; --accent-input: #f472b6;
+  --warning: #b45309; --warning-bg: rgba(251, 191, 36, 0.18);
+  --success: #15803d; --success-bg: rgba(187, 247, 208, 0.55);
+  --danger: #e11d48; --danger-bg: rgba(255, 228, 230, 0.72);
+  --hover: rgba(191, 219, 254, 0.78);
+  --font: 'Zen Kaku Gothic New', 'Noto Sans JP', 'Noto Emoji', sans-serif;
+}
+:root[data-skin='fuji'] body { background-attachment: fixed; background-position: center; background-size: cover; }
+:root[data-skin='fuji'] .bg-slate-800 { box-shadow: 0 18px 42px rgba(30, 64, 175, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.86); }
+:root[data-skin='fuji'] header,
+:root[data-skin='fuji'] nav { border-color: rgba(96, 165, 250, 0.22); box-shadow: 0 12px 34px rgba(30, 64, 175, 0.1); }
+:root[data-skin='fuji'] .hover\:bg-slate-800:hover,
+:root[data-skin='fuji'] .hover\:bg-slate-700:hover,
+:root[data-skin='fuji'] .hover\:bg-slate-600:hover { color: #1e3a8a; }
+
+/* SUSHI - warm counter: lacquer wood, rice, nori, lantern glow */
+:root[data-skin='sushi'] {
+  color-scheme: dark;
+  --skin-bg-image: url('/skin-sushi-bg.jpg');
+  --bg:
+    linear-gradient(rgba(33, 18, 10, 0.32), rgba(33, 18, 10, 0.66)),
+    var(--skin-bg-image),
+    radial-gradient(circle at 16% 12%, rgba(251, 113, 133, 0.15), transparent 30%),
+    #2d190f;
+  --panel: rgba(45, 25, 16, 0.55);
+  --chrome-bg: rgba(45, 25, 16, 0.9);
+  --panel-soft: rgba(68, 39, 24, 0.58);
+  --box-bg: linear-gradient(180deg, rgba(92, 54, 31, 0.88), rgba(45, 25, 16, 0.9));
+  --box-backdrop: blur(12px) saturate(1.05);
+  --box-border: rgba(251, 191, 36, 0.2);
+  --box-bg-2: rgba(100, 63, 35, 0.82);
+  --scrim: rgba(28, 14, 8, 0.68);
+  --text: #fff7ed; --text-strong: #fffaf0;
+  --text-soft: #fed7aa; --text-muted: #fdba74; --text-faint: #d08b58;
+  --accent: #fb7185; --accent-2: #84cc16;
+  --on-accent: #2d190f; --accent-text: #bef264; --accent-input: #fb7185;
+  --warning: #fbbf24; --warning-bg: rgba(251, 191, 36, 0.14);
+  --success: #a3e635; --success-bg: rgba(63, 98, 18, 0.35);
+  --danger: #fda4af; --danger-bg: rgba(127, 29, 29, 0.38);
+  --hover: linear-gradient(90deg, rgba(251, 113, 133, 0.22), rgba(132, 204, 22, 0.14));
+  --font: 'M PLUS Rounded 1c', 'Noto Sans JP', 'Noto Emoji', sans-serif;
+}
+:root[data-skin='sushi'] body { background-attachment: fixed; background-position: center; background-size: cover; }
+:root[data-skin='sushi'] .bg-slate-800 { box-shadow: 0 18px 42px rgba(28, 14, 8, 0.34), inset 0 1px 0 rgba(255, 247, 237, 0.16); }
+:root[data-skin='sushi'] .bg-slate-700 { border: 1px solid rgba(251, 191, 36, 0.12); }
+:root[data-skin='sushi'] .bg-indigo-500,
+:root[data-skin='sushi'] .bg-indigo-600,
+:root[data-skin='sushi'] .bg-pink-500 { box-shadow: 0 10px 24px rgba(251, 113, 133, 0.24); }
+
+/* COUNTRYSIDE - rice fields: fresh greens, open sky, straw gold */
+:root[data-skin='countryside'] {
+  color-scheme: light;
+  --skin-bg-image: url('/skin-countryside-bg.jpg');
+  --bg:
+    linear-gradient(rgba(240, 253, 244, 0.28), rgba(236, 253, 245, 0.58)),
+    var(--skin-bg-image),
+    linear-gradient(180deg, #e0f2fe 0%, #dcfce7 70%, #fef3c7 100%);
+  --panel: rgba(236, 253, 245, 0.48);
+  --chrome-bg: rgba(240, 253, 244, 0.82);
+  --panel-soft: rgba(255, 255, 255, 0.58);
+  --box-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(236, 253, 245, 0.76));
+  --box-backdrop: blur(16px) saturate(1.08);
+  --box-border: rgba(34, 197, 94, 0.2);
+  --box-bg-2: rgba(220, 252, 231, 0.78);
+  --scrim: rgba(20, 83, 45, 0.34);
+  --text: #143b23; --text-strong: #052e16;
+  --text-soft: #166534; --text-muted: #4d7c0f; --text-faint: #77933f;
+  --accent: #16a34a; --accent-2: #38bdf8;
+  --on-accent: #ffffff; --accent-text: #15803d; --accent-input: #16a34a;
+  --warning: #a16207; --warning-bg: rgba(254, 243, 199, 0.78);
+  --success: #15803d; --success-bg: rgba(187, 247, 208, 0.7);
+  --danger: #be123c; --danger-bg: rgba(255, 228, 230, 0.78);
+  --hover: rgba(187, 247, 208, 0.82);
+  --font: 'Zen Maru Gothic', 'Noto Sans JP', 'Noto Emoji', sans-serif;
+}
+:root[data-skin='countryside'] body { background-attachment: fixed; background-position: center; background-size: cover; }
+:root[data-skin='countryside'] .bg-slate-800 { box-shadow: 0 18px 38px rgba(22, 101, 52, 0.13), inset 0 1px 0 rgba(255, 255, 255, 0.86); }
+:root[data-skin='countryside'] header,
+:root[data-skin='countryside'] nav { border-color: rgba(34, 197, 94, 0.22); box-shadow: 0 12px 30px rgba(22, 101, 52, 0.1); }
+
+/* SAMURAI - castle focus: dark lacquer, steel, candle gold */
+:root[data-skin='samurai'] {
+  color-scheme: dark;
+  --skin-bg-image: url('/skin-samurai-bg.jpg');
+  --bg:
+    linear-gradient(rgba(9, 9, 11, 0.46), rgba(9, 9, 11, 0.78)),
+    var(--skin-bg-image),
+    radial-gradient(circle at 76% 18%, rgba(214, 173, 96, 0.14), transparent 30%),
+    #09090b;
+  --panel: rgba(9, 9, 11, 0.66);
+  --chrome-bg: rgba(9, 9, 11, 0.94);
+  --panel-soft: rgba(24, 24, 27, 0.7);
+  --box-bg:
+    linear-gradient(90deg, rgba(153, 27, 27, 0.28) 0 3px, transparent 3px),
+    linear-gradient(180deg, rgba(39, 39, 42, 0.9), rgba(9, 9, 11, 0.92));
+  --box-backdrop: blur(10px) saturate(1.06);
+  --box-border: rgba(214, 173, 96, 0.24);
+  --box-bg-2: rgba(63, 63, 70, 0.82);
+  --scrim: rgba(0, 0, 0, 0.72);
+  --text: #f4f4f5; --text-strong: #fafafa;
+  --text-soft: #e4e4e7; --text-muted: #b9b2a5; --text-faint: #8f8677;
+  --accent: #991b1b; --accent-2: #d6ad60;
+  --on-accent: #fff7ed; --accent-text: #d6ad60; --accent-input: #d6ad60;
+  --warning: #d6ad60; --warning-bg: rgba(214, 173, 96, 0.14);
+  --success: #86efac; --success-bg: rgba(20, 83, 45, 0.36);
+  --danger: #fca5a5; --danger-bg: rgba(127, 29, 29, 0.42);
+  --hover: linear-gradient(90deg, rgba(153, 27, 27, 0.34), rgba(214, 173, 96, 0.14));
+  --font: 'Shippori Mincho', 'Noto Sans JP', 'Noto Emoji', serif;
+}
+:root[data-skin='samurai'] body { background-attachment: fixed; background-position: center; background-size: cover; }
+:root[data-skin='samurai'] .bg-slate-800 { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(214, 173, 96, 0.16); }
+:root[data-skin='samurai'] .hover\:bg-slate-800:hover,
+:root[data-skin='samurai'] .hover\:bg-slate-700:hover,
+:root[data-skin='samurai'] .hover\:bg-slate-600:hover { color: #fff7ed; box-shadow: inset 4px 0 0 #d6ad60; }
+:root[data-skin='samurai'] .rounded-xl,
+:root[data-skin='samurai'] .rounded-2xl,
+:root[data-skin='samurai'] .rounded-3xl { border-radius: 10px; }
+
+/* TEMPLE - morning courtyard: vermilion, cedar, moss, stone */
+:root[data-skin='temple'] {
+  color-scheme: dark;
+  --skin-bg-image: url('/skin-temple-bg.jpg');
+  --bg:
+    linear-gradient(rgba(42, 22, 15, 0.3), rgba(42, 22, 15, 0.6)),
+    var(--skin-bg-image),
+    radial-gradient(circle at 82% 8%, rgba(245, 158, 11, 0.16), transparent 34%),
+    #2a160f;
+  --panel: rgba(42, 22, 15, 0.52);
+  --chrome-bg: rgba(42, 22, 15, 0.88);
+  --panel-soft: rgba(68, 43, 26, 0.62);
+  --box-bg: linear-gradient(180deg, rgba(91, 44, 26, 0.86), rgba(42, 22, 15, 0.86));
+  --box-backdrop: blur(12px) saturate(1.05);
+  --box-border: rgba(217, 119, 6, 0.28);
+  --box-bg-2: rgba(85, 62, 32, 0.82);
+  --scrim: rgba(42, 22, 15, 0.68);
+  --text: #fff7ed; --text-strong: #fffbeb;
+  --text-soft: #fed7aa; --text-muted: #d9b88a; --text-faint: #a48763;
+  --accent: #dc2626; --accent-2: #d97706;
+  --on-accent: #fff7ed; --accent-text: #fbbf24; --accent-input: #d97706;
+  --warning: #fbbf24; --warning-bg: rgba(217, 119, 6, 0.16);
+  --success: #bef264; --success-bg: rgba(54, 83, 20, 0.32);
+  --danger: #fca5a5; --danger-bg: rgba(127, 29, 29, 0.38);
+  --hover: linear-gradient(90deg, rgba(220, 38, 38, 0.22), rgba(217, 119, 6, 0.18));
+  --font: 'Zen Kaku Gothic New', 'Noto Sans JP', 'Noto Emoji', sans-serif;
+}
+:root[data-skin='temple'] body { background-attachment: fixed; background-position: center; background-size: cover; }
+:root[data-skin='temple'] .bg-slate-800 { box-shadow: 0 18px 42px rgba(42, 22, 15, 0.32), inset 0 1px 0 rgba(255, 251, 235, 0.15); }
+:root[data-skin='temple'] header,
+:root[data-skin='temple'] nav { border-color: rgba(217, 119, 6, 0.28); box-shadow: 0 12px 32px rgba(42, 22, 15, 0.3); }
+
+/* DOJO - disciplined interior: tatami, paper, warm wood */
+:root[data-skin='dojo'] {
+  color-scheme: light;
+  --skin-bg-image: url('/skin-dojo-bg.jpg');
+  --bg:
+    linear-gradient(rgba(245, 240, 223, 0.28), rgba(245, 240, 223, 0.58)),
+    var(--skin-bg-image),
+    linear-gradient(180deg, #f5f0df 0%, #d6d3a5 100%);
+  --panel: rgba(245, 240, 223, 0.5);
+  --chrome-bg: rgba(245, 240, 223, 0.86);
+  --panel-soft: rgba(255, 251, 235, 0.58);
+  --box-bg: linear-gradient(180deg, rgba(255, 251, 235, 0.86), rgba(245, 240, 223, 0.76));
+  --box-backdrop: blur(14px) saturate(1.05);
+  --box-border: rgba(63, 42, 27, 0.18);
+  --box-bg-2: rgba(214, 211, 165, 0.72);
+  --scrim: rgba(63, 42, 27, 0.36);
+  --text: #2f261c; --text-strong: #1c1711;
+  --text-soft: #4b3a25; --text-muted: #75633d; --text-faint: #917f58;
+  --accent: #3f5f46; --accent-2: #a3a36b;
+  --on-accent: #fffaf0; --accent-text: #3f5f46; --accent-input: #6b8e23;
+  --warning: #92400e; --warning-bg: rgba(254, 243, 199, 0.78);
+  --success: #166534; --success-bg: rgba(187, 247, 208, 0.58);
+  --danger: #be123c; --danger-bg: rgba(255, 228, 230, 0.75);
+  --hover: rgba(214, 211, 165, 0.84);
+  --font: 'M PLUS 1', 'Noto Sans JP', 'Noto Emoji', sans-serif;
+}
+:root[data-skin='dojo'] body { background-attachment: fixed; background-position: center; background-size: cover; }
+:root[data-skin='dojo'] .bg-slate-800 { box-shadow: 0 16px 34px rgba(63, 42, 27, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.76); }
+:root[data-skin='dojo'] .rounded-xl,
+:root[data-skin='dojo'] .rounded-2xl,
+:root[data-skin='dojo'] .rounded-3xl { border-radius: 8px; }
+:root[data-skin='dojo'] header,
+:root[data-skin='dojo'] nav { border-color: rgba(63, 42, 27, 0.16); box-shadow: 0 12px 30px rgba(63, 42, 27, 0.1); }
+
+/* TOUGE - midnight pass: wet asphalt, teal glow, red light trails */
+:root[data-skin='touge'] {
+  color-scheme: dark;
+  --skin-bg-image: url('/skin-touge-bg.jpg');
+  --bg:
+    linear-gradient(rgba(2, 6, 23, 0.34), rgba(2, 6, 23, 0.74)),
+    var(--skin-bg-image),
+    radial-gradient(circle at 75% 16%, rgba(34, 211, 238, 0.2), transparent 32%),
+    #020617;
+  --panel: rgba(2, 6, 23, 0.62);
+  --chrome-bg: rgba(2, 6, 23, 0.9);
+  --panel-soft: rgba(15, 23, 42, 0.66);
+  --box-bg:
+    linear-gradient(90deg, rgba(34, 211, 238, 0.2) 0 3px, transparent 3px),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(2, 6, 23, 0.9));
+  --box-backdrop: blur(14px) saturate(1.18);
+  --box-border: rgba(34, 211, 238, 0.25);
+  --box-bg-2: rgba(15, 63, 78, 0.72);
+  --scrim: rgba(2, 6, 23, 0.76);
+  --text: #e0faff; --text-strong: #f8fafc;
+  --text-soft: #bae6fd; --text-muted: #67e8f9; --text-faint: #5aa6b4;
+  --accent: #ef4444; --accent-2: #22d3ee;
+  --on-accent: #ffffff; --accent-text: #22d3ee; --accent-input: #22d3ee;
+  --warning: #f59e0b; --warning-bg: rgba(245, 158, 11, 0.14);
+  --success: #5eead4; --success-bg: rgba(20, 83, 45, 0.35);
+  --danger: #fca5a5; --danger-bg: rgba(127, 29, 29, 0.4);
+  --hover: linear-gradient(90deg, rgba(239, 68, 68, 0.2), rgba(34, 211, 238, 0.14));
+  --font: 'M PLUS 1', 'Noto Sans JP', 'Noto Emoji', sans-serif;
+}
+:root[data-skin='touge'] body { background-attachment: fixed; background-position: center; background-size: cover; }
+:root[data-skin='touge'] .bg-slate-800 { box-shadow: 0 18px 42px rgba(0, 0, 0, 0.36), 0 0 28px rgba(34, 211, 238, 0.08), inset 0 1px 0 rgba(103, 232, 249, 0.16); }
+:root[data-skin='touge'] .hover\:bg-slate-800:hover,
+:root[data-skin='touge'] .hover\:bg-slate-700:hover,
+:root[data-skin='touge'] .hover\:bg-slate-600:hover { color: #f8fafc; box-shadow: inset 4px 0 0 #ef4444; }
+:root[data-skin='touge'] .bg-indigo-500,
+:root[data-skin='touge'] .bg-indigo-600,
+:root[data-skin='touge'] .bg-pink-500 { box-shadow: 0 10px 26px rgba(239, 68, 68, 0.28), 0 0 18px rgba(34, 211, 238, 0.16); }
+
 /* ── Shared ────────────────────────────────────────────────────── */
 #app {
   min-height: 100%;
@@ -582,7 +858,14 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
 :root[data-skin='comet'] #app > .bg-slate-950,
 :root[data-skin='sakura'] #app > .bg-slate-950,
 :root[data-skin='station'] #app > .bg-slate-950,
-:root[data-skin='nature'] #app > .bg-slate-950 {
+:root[data-skin='nature'] #app > .bg-slate-950,
+:root[data-skin='fuji'] #app > .bg-slate-950,
+:root[data-skin='sushi'] #app > .bg-slate-950,
+:root[data-skin='countryside'] #app > .bg-slate-950,
+:root[data-skin='samurai'] #app > .bg-slate-950,
+:root[data-skin='temple'] #app > .bg-slate-950,
+:root[data-skin='dojo'] #app > .bg-slate-950,
+:root[data-skin='touge'] #app > .bg-slate-950 {
   background: transparent;
 }
 
@@ -592,6 +875,13 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
   :root[data-skin='sakura'] { --skin-bg-image: url('/skin-sakura-bg-mobile.jpg'); }
   :root[data-skin='station'] { --skin-bg-image: url('/skin-station-bg-mobile.jpg'); }
   :root[data-skin='nature'] { --skin-bg-image: url('/skin-nature-bg-mobile.jpg'); }
+  :root[data-skin='fuji'] { --skin-bg-image: url('/skin-fuji-bg-mobile.jpg'); }
+  :root[data-skin='sushi'] { --skin-bg-image: url('/skin-sushi-bg-mobile.jpg'); }
+  :root[data-skin='countryside'] { --skin-bg-image: url('/skin-countryside-bg-mobile.jpg'); }
+  :root[data-skin='samurai'] { --skin-bg-image: url('/skin-samurai-bg-mobile.jpg'); }
+  :root[data-skin='temple'] { --skin-bg-image: url('/skin-temple-bg-mobile.jpg'); }
+  :root[data-skin='dojo'] { --skin-bg-image: url('/skin-dojo-bg-mobile.jpg'); }
+  :root[data-skin='touge'] { --skin-bg-image: url('/skin-touge-bg-mobile.jpg'); }
 }
 
 button {

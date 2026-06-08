@@ -120,6 +120,9 @@
       <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-700" on:click={() => { statsOpen.set(true); close(); }}>
         📊 {$t('stats')}
       </button>
+      <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-700" on:click={() => { navigate('achievements'); close(); }}>
+        🏅 {$t('achievements')}
+      </button>
       <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-700" on:click={() => { settingsOpen.set(true); close(); }}>
         ⚙ {$t('settingsLabel')}
       </button>

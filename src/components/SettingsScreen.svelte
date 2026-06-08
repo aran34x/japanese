@@ -51,7 +51,14 @@
     { id: 'sakura', title: 'skinSakura', desc: 'skinSakuraDesc', swatches: ['#4a102a', '#f9a8d4', '#fde68a'] },
     { id: 'station', title: 'skinStation', desc: 'skinStationDesc', swatches: ['#111827', '#f97316', '#38bdf8'] },
     { id: 'nature', title: 'skinNature', desc: 'skinNatureDesc', swatches: ['#052e16', '#f0fdf4', '#bbf7d0'] },
-    { id: 'comet', title: 'skinComet', desc: 'skinCometDesc', swatches: ['#0b1030', '#22d3ee', '#a78bfa'] }
+    { id: 'comet', title: 'skinComet', desc: 'skinCometDesc', swatches: ['#0b1030', '#22d3ee', '#a78bfa'] },
+    { id: 'fuji', title: 'skinFuji', desc: 'skinFujiDesc', swatches: ['#172554', '#f9a8d4', '#f8fafc'] },
+    { id: 'sushi', title: 'skinSushi', desc: 'skinSushiDesc', swatches: ['#3b2418', '#fb7185', '#84cc16'] },
+    { id: 'countryside', title: 'skinCountryside', desc: 'skinCountrysideDesc', swatches: ['#14532d', '#bef264', '#38bdf8'] },
+    { id: 'samurai', title: 'skinSamurai', desc: 'skinSamuraiDesc', swatches: ['#09090b', '#991b1b', '#d6ad60'] },
+    { id: 'temple', title: 'skinTemple', desc: 'skinTempleDesc', swatches: ['#7f1d1d', '#d97706', '#365314'] },
+    { id: 'dojo', title: 'skinDojo', desc: 'skinDojoDesc', swatches: ['#3f2a1b', '#a3a36b', '#f5f0df'] },
+    { id: 'touge', title: 'skinTouge', desc: 'skinTougeDesc', swatches: ['#020617', '#22d3ee', '#ef4444'] }
   ];
   function setSkin(skin: AppSkin) {
     settings.update((s) => ({ ...s, skin }));
