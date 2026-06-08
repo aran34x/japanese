@@ -170,7 +170,7 @@ To change the highlighted text color for Countryside, edit this token in `src/ap
 
 ```css
 :root[data-skin='countryside'] {
-  --accent-text: #15803d;
+  --accent-text: #166534;
 }
 ```
 

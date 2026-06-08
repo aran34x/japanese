@@ -704,14 +704,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
 :root[data-skin='countryside'] {
   color-scheme: light;
   --skin-bg-image: url('/skin-countryside-bg.jpg');
-  --bg:
-    linear-gradient(rgba(240, 253, 244, 0.28), rgba(236, 253, 245, 0.58)),
-    var(--skin-bg-image),
-    linear-gradient(180deg, #e0f2fe 0%, #dcfce7 70%, #fef3c7 100%);
+  --bg: var(--skin-bg-image), #dcfce7;
   --panel: rgba(236, 253, 245, 0.48);
   --chrome-bg: rgba(240, 253, 244, 0.82);
   --panel-soft: rgba(255, 255, 255, 0.58);
-  --box-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(236, 253, 245, 0.76));
+  --box-bg: rgba(255, 255, 255, 0.8);
   --box-backdrop: blur(16px) saturate(1.08);
   --box-border: rgba(34, 197, 94, 0.2);
   --box-bg-2: rgba(220, 252, 231, 0.78);
@@ -719,7 +716,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
   --text: #143b23; --text-strong: #052e16;
   --text-soft: #166534; --text-muted: #4d7c0f; --text-faint: #77933f;
   --accent: #16a34a; --accent-2: #38bdf8;
-  --on-accent: #ffffff; --accent-text: #48eb84; --accent-input: #16a34a;
+  --on-accent: #ffffff; --accent-text: #166534; --accent-input: #16a34a;
   --warning: #a16207; --warning-bg: rgba(254, 243, 199, 0.78);
   --success: #15803d; --success-bg: rgba(187, 247, 208, 0.7);
   --danger: #be123c; --danger-bg: rgba(255, 228, 230, 0.78);
