@@ -266,8 +266,8 @@ export const strings: Dict = {
   },
   resetSrs: { en: 'Study reviews', it: 'Ripassi studio' },
   resetSrsDesc: { en: 'Reset SRS card history only.', it: 'Azzera solo la cronologia SRS delle carte.' },
-  resetAdventure: { en: 'Adventure XP and levels', it: 'XP e livelli Avventura' },
-  resetAdventureDesc: { en: 'Reset XP, hero level, streaks and encounters.', it: 'Azzera XP, livello eroe, serie e incontri.' },
+  resetAdventure: { en: 'XP and levels', it: 'XP e livelli' },
+  resetAdventureDesc: { en: 'Reset XP, level, streaks and encounters.', it: 'Azzera XP, livello, serie e incontri.' },
   resetChallengesOnly: { en: 'Character challenges', it: 'Sfide personaggi' },
   resetChallengesOnlyDesc: {
     en: 'Lock real-person Icons and fictional Characters again. XP stays as-is.',

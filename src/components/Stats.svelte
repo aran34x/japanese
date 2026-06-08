@@ -84,9 +84,9 @@
     {/each}
   </div>
 
-  <!-- Adventure / collection progress -->
+  <!-- Levels / collection progress -->
   <div>
-    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">{$t('adventure')}</h3>
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">{$t('levels')}</h3>
     <div class="grid grid-cols-3 gap-3">
       {#each progress as p}
         <div class="flex flex-col items-center rounded-2xl bg-slate-800 p-3 text-center">
