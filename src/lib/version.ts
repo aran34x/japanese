@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.20.0';
+export const APP_VERSION = '0.21.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.21.0',
+    date: '2026-06-08',
+    title: { en: 'A real grammar guide — and grounded Lessons', it: 'Una vera guida di grammatica — e lezioni fondate' },
+    changes: [
+      { en: 'New Guide section: read a real beginner grammar textbook (Tae Kim, CC BY-NC-SA) chapter by chapter — from the writing system through だ/です, particles, adjectives and verbs.', it: 'Nuova sezione Guida: leggi un vero libro di grammatica per principianti (Tae Kim) capitolo per capitolo — dal sistema di scrittura a だ/です, particelle, aggettivi e verbi.' },
+      { en: 'Lessons are now grounded in that book: real examples and explanations, with a "Read the full chapter" link on each grammar lesson.', it: 'Le lezioni sono ora fondate su quel libro: esempi e spiegazioni reali, con un link "Leggi il capitolo completo" su ogni lezione di grammatica.' },
+      { en: 'Lesson quizzes rebuilt: particle lessons now actually test particle choice, and wrong answers are real, varied sentences.', it: 'Quiz delle lezioni rifatti: le lezioni sulle particelle ora testano davvero la scelta della particella, e le risposte sbagliate sono frasi reali e varie.' },
+      { en: 'Emojis adopt your skin color (monochrome Noto Emoji), and each skin now has its own font.', it: 'Le emoji assumono il colore della skin (Noto Emoji monocromatica) e ogni skin ha il proprio font.' }
+    ]
+  },
   {
     version: '0.20.0',
     date: '2026-06-08',

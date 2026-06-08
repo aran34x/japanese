@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { settings, t } from '../lib/stores';
+  import { settings, t, navigate } from '../lib/stores';
+  import { guideTarget } from '../lib/book';
   import {
     LESSONS,
     LESSON_CATEGORIES,
@@ -212,6 +213,12 @@
             {activeLesson.level}
           </div>
           <h2 class="mt-2 text-2xl font-black leading-tight">{activeLesson.title[$settings.uiLang]}</h2>
+          {#if activeLesson.bookChapterId}
+            <button
+              class="mt-3 inline-flex items-center gap-1 rounded-full bg-slate-800 px-3 py-1.5 text-xs font-semibold text-indigo-300"
+              on:click={() => { guideTarget.set(activeLesson?.bookChapterId ?? null); navigate('guide'); }}
+            >📖 {$t('readFullChapter')} →</button>
+          {/if}
         </div>
 
         {#if mode === 'learn' && learnItem}
@@ -440,7 +447,7 @@
   .progress-fill {
     height: 100%;
     border-radius: inherit;
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    background: var(--accent);
     transition: width 220ms ease;
   }
 
@@ -498,7 +505,7 @@
   }
 
   .primary-action {
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    background: var(--accent);
     color: var(--on-accent);
   }
 

@@ -140,7 +140,7 @@
           {/each}
         </div>
         <button
-          class="w-full rounded-xl bg-gradient-to-r from-pink-500 to-indigo-500 py-3 text-lg font-bold active:scale-[0.98]"
+          class="w-full rounded-xl bg-indigo-500 py-3 text-lg font-bold active:scale-[0.98]"
           on:click={startQuiz}
         >📝 {$t('answerQuestions')}</button>
       </section>
@@ -179,7 +179,7 @@
       {@const passed = correctCount >= Math.ceil(story.questions.length / 2)}
       <section class="grid place-items-center py-12 text-center" in:scale={{ start: 0.8, duration: 300 }}>
         {#if passed}
-          <div class="grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-green-400 to-emerald-500 text-5xl shadow-lg">
+          <div class="grid h-24 w-24 place-items-center rounded-full bg-green-900/40 text-5xl text-green-300 shadow-lg">
             ✓
           </div>
         {:else}

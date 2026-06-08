@@ -248,7 +248,7 @@
 
           {#if mode === 'flashcard'}
             <!-- Daily-review dashboard: review everything due across all decks -->
-            <div class="overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 shadow-lg">
+            <div class="overflow-hidden rounded-2xl bg-indigo-600 shadow-lg">
               <div class="p-6">
                 <div class="mb-4 text-xs font-semibold uppercase tracking-wide text-current opacity-70">
                   {$t('todaysReview')}
@@ -415,7 +415,7 @@
             ← {$t('back')}
           </button>
           <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-800">
-            <div class="h-full bg-gradient-to-r from-pink-400 to-indigo-400 transition-all" style="width:{progress}%"></div>
+            <div class="h-full bg-pink-500 transition-all" style="width:{progress}%"></div>
           </div>
           {#if combo >= 2}
             <span class="rounded-full bg-pink-600/30 px-2 py-0.5 text-xs font-bold text-pink-300">🔥 {combo}</span>

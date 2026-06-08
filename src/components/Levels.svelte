@@ -22,7 +22,7 @@
         </div>
         {#if nx.next}
           <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-700">
-            <div class="h-full bg-gradient-to-r from-pink-400 to-amber-300 transition-all" style="width:{nx.progress * 100}%"></div>
+            <div class="h-full bg-pink-500 transition-all" style="width:{nx.progress * 100}%"></div>
           </div>
           <div class="mt-1.5 text-xs text-slate-500">
             {Math.ceil(nx.next.xpRequired - $game.xp).toLocaleString()} XP {$t('toNextLevel')} ???

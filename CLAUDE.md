@@ -58,6 +58,25 @@ lesson is a set of **learn** sections (text + examples + notes) followed by a sh
 persisted to the IndexedDB `meta` key `lessonProgress`, loaded via `loadLessonProgress` in
 `App.svelte`). Reached from the Home "Lessons" tile (route `lessons`).
 
+The grammar/particle lessons are **grounded in Tae Kim's Guide** (their examples/explanations
+come from the book, not invented). Each links to its Guide chapter via `bookChapterId`, shown
+as a "Read the full chapter" button in `Lessons.svelte`. Quizzes: `lessonQuiz` uses a lesson's
+hand-authored `quiz` if present, else a hardened generator (real-sentence distractors from
+`ALL_EXAMPLES`, a particle **cloze** for particle lessons via `PARTICLE_QUIZ`, no
+duplicate/template/meta options).
+
+## Guide (the textbook reader — `src/lib/data/book/taekim.ts` + `Guide.svelte`)
+
+A faithful, abridged adaptation of **Tae Kim's Guide to Japanese Grammar** (CC BY-NC-SA 4.0,
+attributed), covering the beginner core: The Writing System (hiragana/katakana/kanji) + Basic
+Grammar (state-of-being → は/も/が → adjectives → verbs → negative/past → を/に/へ/で → の/と/や →
+adverbs). `TAEKIM` is a `Book` of `BookChapter`s; chapters render `BookBlock`s (`p` / `note` /
+`example` / `table`) in `Guide.svelte` using the **token system** (no bespoke colors).
+Read-chapter progress lives in the `bookProgress` store (IndexedDB `meta` key `bookProgress`,
+loaded via `loadBookProgress`); `guideTarget` lets a Lesson deep-link into a chapter. Route
+`guide`, reached from the Home "Guide" tile. To extend (Essential Grammar, other open books),
+add chapters under the same `Book` model — Japanese in `jp` fields auto-supports furigana/X-ray.
+
 ## XP & Adventure (see Gamification below)
 
 **All studying earns XP now** — `Study.svelte`'s grade flow awards `xpForAnswer(combo)` on every

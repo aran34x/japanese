@@ -695,7 +695,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
   --text: #143b23; --text-strong: #052e16;
   --text-soft: #166534; --text-muted: #4d7c0f; --text-faint: #77933f;
   --accent: #16a34a; --accent-2: #38bdf8;
-  --on-accent: #ffffff; --accent-text: #15803d; --accent-input: #16a34a;
+  --on-accent: #ffffff; --accent-text: #48eb84; --accent-input: #16a34a;
   --warning: #a16207; --warning-bg: rgba(254, 243, 199, 0.78);
   --success: #15803d; --success-bg: rgba(187, 247, 208, 0.7);
   --danger: #be123c; --danger-bg: rgba(255, 228, 230, 0.78);

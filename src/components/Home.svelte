@@ -36,7 +36,7 @@
           <div class="text-lg font-black leading-tight">{cur.character.name}</div>
           <div class="text-sm text-pink-300">{cur.character.title[$settings.uiLang]}</div>
           <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-700">
-            <div class="h-full rounded-full bg-gradient-to-r from-pink-400 to-amber-300 transition-all" style="width:{nx.progress * 100}%"></div>
+            <div class="h-full rounded-full bg-pink-500 transition-all" style="width:{nx.progress * 100}%"></div>
           </div>
           {#if nx.next}
             {@const xpLeft = Math.ceil(nx.next.xpRequired - $game.xp)}
@@ -54,10 +54,9 @@
         <div class="grid gap-4 sm:grid-cols-2">
           {#each studyModes as m (m.id)}
             <button
-              class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-500 to-indigo-500 p-5 text-left shadow-lg ring-1 ring-white/10 transition-transform duration-150 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl active:scale-95"
+              class="group relative overflow-hidden rounded-2xl bg-indigo-500 p-5 text-left shadow-lg ring-1 ring-white/10 transition-transform duration-150 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl active:scale-95"
               on:click={() => navigate(m.id)}
             >
-              <span class="pointer-events-none absolute -right-6 -top-10 h-28 w-28 rounded-full bg-white/15 blur-2xl"></span>
               <div class="relative flex items-center gap-4 sm:flex-col sm:items-start">
                 <div class="text-5xl drop-shadow-lg transition-transform duration-150 group-hover:scale-110 group-active:scale-95 sm:text-6xl">{m.icon}</div>
                 <div class="min-w-0">
@@ -78,10 +77,9 @@
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {#each testModes as m (m.id)}
             <button
-              class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-500 to-indigo-500 p-5 text-left shadow-lg ring-1 ring-white/10 transition-transform duration-150 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl active:scale-95"
+              class="group relative overflow-hidden rounded-2xl bg-indigo-500 p-5 text-left shadow-lg ring-1 ring-white/10 transition-transform duration-150 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl active:scale-95"
               on:click={() => navigate(m.id)}
             >
-              <span class="pointer-events-none absolute -right-6 -top-10 h-28 w-28 rounded-full bg-white/15 blur-2xl"></span>
               <div class="relative flex items-center gap-4 sm:flex-col sm:items-start">
                 <div class="text-5xl drop-shadow-lg transition-transform duration-150 group-hover:scale-110 group-active:scale-95 sm:text-6xl">{m.icon}</div>
                 <div class="min-w-0">

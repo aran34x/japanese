@@ -200,7 +200,7 @@
     {:else}
       <p class="text-center text-sm text-slate-400">{$t('charsLockedHint')}</p>
       <button
-        class="w-full rounded-xl bg-gradient-to-r from-pink-500 to-indigo-500 py-3 text-lg font-bold active:scale-[0.98]"
+        class="w-full rounded-xl bg-indigo-500 py-3 text-lg font-bold active:scale-[0.98]"
         on:click={startChallenge}>⚔ {$t('takeChallenge')}</button>
     {/if}
   </section>
