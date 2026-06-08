@@ -1,28 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <radialGradient id="bg" cx="50%" cy="35%" r="72%">
-      <stop offset="0" stop-color="#182a7a"/>
-      <stop offset="0.62" stop-color="#0f1b4d"/>
-      <stop offset="1" stop-color="#07122c"/>
-    </radialGradient>
-    <radialGradient id="coin" cx="35%" cy="24%" r="75%">
-      <stop offset="0" stop-color="#fff4a6"/>
-      <stop offset="0.38" stop-color="#facc15"/>
-      <stop offset="0.74" stop-color="#d97706"/>
-      <stop offset="1" stop-color="#92400e"/>
-    </radialGradient>
-    <linearGradient id="pink" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#fb8ac8"/>
-      <stop offset="1" stop-color="#f43f8f"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
-  <path d="M10 49c8 6 21 7 32 3 6-2 11-5 16-10-5 9-15 15-27 15-9 0-16-2-21-8Z" fill="#22d3ee" opacity=".9"/>
-  <path d="M52 16c-3 1-5 3-6 6 4-1 6-3 6-6Z" fill="#fb8ac8"/>
-  <path d="M9 21c3-4 7-6 12-5 5 1 7 5 7 10-5-2-11-1-17 2-1-2-2-4-2-7Z" fill="url(#pink)" opacity=".95"/>
-  <text x="18" y="31" fill="#fff7ed" font-family="'Noto Sans JP', sans-serif" font-size="15" font-weight="700" text-anchor="middle">&#12354;</text>
-  <circle cx="34" cy="35" r="22" fill="url(#coin)" stroke="#fff1a8" stroke-width="2"/>
-  <circle cx="34" cy="35" r="17" fill="none" stroke="#8a4b08" stroke-width="2" opacity=".45"/>
-  <text x="34" y="45" fill="#fff8d5" font-family="'Noto Sans JP', sans-serif" font-size="28" font-weight="800" text-anchor="middle" stroke="#78350f" stroke-width="1.8" paint-order="stroke">&#23398;</text>
-  <path d="M50 24l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z" fill="#fff7ed"/>
+  <rect width="64" height="64" rx="14" fill="#fff8e8"/>
+  <text
+    x="30"
+    y="45"
+    fill="#064e3b"
+    font-family="BIZ UDGothic, Yu Gothic, Meiryo, Noto Sans JP, sans-serif"
+    font-size="42"
+    font-weight="800"
+    text-anchor="middle"
+  >あ</text>
+  <circle cx="51" cy="51" r="6" fill="#e43d30"/>
 </svg>
