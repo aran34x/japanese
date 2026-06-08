@@ -102,7 +102,7 @@ html, body {
    THEMING — design tokens + ONE global mapping (the "Container Box")
 
    Components use plain Tailwind classes (bg-slate-800, text-slate-400,
-   from-pink-500, bg-indigo-500 …). The block below maps those classes ONCE
+   bg-indigo-500 …). The block below maps those classes ONCE
    to a small set of CSS variables (tokens). A theme/skin then only redefines
    the tokens — it never has to re-style the utility classes.
 
@@ -121,7 +121,7 @@ html, body {
        --box-backdrop: blur(16px);               // optional, default none
        --hover: <hovered button bg>;             // optional (hover text colour, if needed, goes in flair)
        --text; --text-strong; --text-soft; --text-muted; --text-faint;
-       --accent: <highlight bg>;  --accent-2: <gradient partner>;
+       --accent: <highlight bg>;  --accent-2: <secondary accent>;
        --on-accent: <text/icon ON a highlight>;  // DARK for light accents!
        --accent-text: <accent-colored text>;
        --font: '<Google Font>', 'Noto Sans JP', sans-serif;  // optional; load it in index.html
@@ -214,15 +214,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
 .accent-pink-500 { accent-color: var(--accent-input); }
 .focus\:ring-pink-500:focus { --tw-ring-color: var(--accent); }
 
-/* Accent gradients (home tiles, review card). The container paints its text in
-   --on-accent, so children using `text-current` stay readable on any skin. */
-.from-pink-500, .from-indigo-600 {
-  --tw-gradient-from: var(--accent) var(--tw-gradient-from-position);
-  --tw-gradient-to: rgba(0, 0, 0, 0) var(--tw-gradient-to-position);
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-.to-indigo-500, .to-purple-700 { --tw-gradient-to: var(--accent-2) var(--tw-gradient-to-position); }
-[class*="from-pink-500"], [class*="from-indigo-600"] { color: var(--on-accent); }
+/* Accent surfaces paint their on-accent text colour; avoid gradients in app UI. */
 
 /* Status colours */
 .text-amber-300, .text-amber-400, .text-amber-200 { color: var(--warning); }
@@ -232,6 +224,38 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); }
 .bg-green-900\/40 { background-color: var(--success-bg); }
 .bg-rose-900\/40, .bg-rose-900\/50 { background-color: var(--danger-bg); }
 .bg-rose-700 { background-color: var(--danger-solid); }
+
+/* Semantic palette aliases for new UI and easier manual skin editing.
+   Older Tailwind color names above are compatibility slots; prefer these. */
+.text-main { color: var(--text); }
+.text-strong { color: var(--text-strong); }
+.text-soft { color: var(--text-soft); }
+.text-muted { color: var(--text-muted); }
+.text-faint { color: var(--text-faint); }
+.text-highlight { color: var(--accent-text); }
+.text-on-highlight { color: var(--on-accent); }
+.text-warning { color: var(--warning); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+
+.surface-page { background: var(--panel); }
+.surface-soft { background: var(--panel-soft); }
+.surface-chrome { background: var(--chrome-bg); }
+.surface-card {
+  background: var(--box-bg);
+  border: 1px solid var(--box-border);
+  backdrop-filter: var(--box-backdrop);
+  -webkit-backdrop-filter: var(--box-backdrop);
+}
+.surface-secondary { background: var(--box-bg-2); }
+.surface-scrim { background: var(--scrim); }
+.surface-highlight {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.surface-warning { background: var(--warning-bg); }
+.surface-success { background: var(--success-bg); }
+.surface-danger { background: var(--danger-bg); }
 
 /* LIGHT — iOS-inspired warm off-white (this is a skin, not a separate mode) */
 :root[data-skin='light'] {

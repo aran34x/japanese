@@ -132,7 +132,7 @@
           ⎋ {$t('signOut')}
         </button>
       {:else}
-        <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-indigo-300 hover:bg-slate-700" on:click={() => { settingsOpen.set(true); close(); }}>
+        <button class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-highlight hover:bg-slate-700" on:click={() => { settingsOpen.set(true); close(); }}>
           → {$t('signIn')}
         </button>
       {/if}
@@ -141,7 +141,7 @@
         {updateLabel}
       </button>
 
-      {#if msg}<div class="mt-1 px-2 text-xs text-pink-300">{msg}</div>{/if}
+      {#if msg}<div class="mt-1 px-2 text-xs text-highlight">{msg}</div>{/if}
       </div>
     </div>
   {/if}

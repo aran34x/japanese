@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.21.0';
+export const APP_VERSION = '0.22.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.22.0',
+    date: '2026-06-09',
+    title: { en: 'Lessons, rebuilt Bunpo-style', it: 'Lezioni, rifatte in stile Bunpo' },
+    changes: [
+      { en: 'Lessons are now a JLPT level path (Start → N5 → N5+ → N4): one clear grammar point per lesson — meaning, how to make it, and real examples (tap 🔊 to hear them).', it: 'Le lezioni sono ora un percorso per livello (Start → N5 → N5+ → N4): un punto grammaticale chiaro per lezione — significato, come si forma ed esempi reali (tocca 🔊 per ascoltarli).' },
+      { en: 'New practice: multiple-choice, fill-in-the-blank, and "build the sentence" word-order exercises — no more vague filler.', it: 'Nuove esercitazioni: scelta multipla, completa lo spazio e "componi la frase" — niente più riempitivi vaghi.' },
+      { en: 'Grammar content is grounded in the Guide (Tae Kim), so it is accurate and consistent.', it: 'I contenuti grammaticali sono basati sulla Guida (Tae Kim), quindi sono accurati e coerenti.' }
+    ]
+  },
   {
     version: '0.21.0',
     date: '2026-06-08',

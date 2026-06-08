@@ -124,7 +124,7 @@
                 <div class="flex-1 font-jp text-lg">{line.jp}</div>
                 <button class="shrink-0 rounded-lg bg-slate-700 px-2 py-1 text-sm" title="🔊" on:click={() => speakJa(line.reading)}>🔊</button>
               </div>
-              <div class="mt-1 text-xs text-pink-300">{line.reading}</div>
+              <div class="mt-1 text-xs text-highlight">{line.reading}</div>
 
               {#if showTrans[i]}
                 <div class="mt-2 text-sm text-slate-300" in:fly={{ y: 4, duration: 120 }}>

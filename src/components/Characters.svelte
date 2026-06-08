@@ -155,7 +155,7 @@
               title="🔊">🔊</button>
           {/if}
         </div>
-        <div class="flex items-center justify-center gap-2 font-jp text-lg text-pink-300">
+        <div class="flex items-center justify-center gap-2 font-jp text-lg text-highlight">
           {isUnlocked(ch) ? ch.ja : '???'}
           {#if isUnlocked(ch)}
             <button
@@ -190,7 +190,7 @@
       {/if}
       <p class="rounded-xl bg-amber-500/10 p-3 text-sm text-amber-200">💡 {ch.fact[$settings.uiLang]}</p>
       {#if bio?.pageUrl}
-        <a href={bio.pageUrl} target="_blank" rel="noopener" class="block text-center text-sm text-sky-400 underline">
+        <a href={bio.pageUrl} target="_blank" rel="noopener" class="block text-center text-sm text-highlight underline">
           {$t('openWikipedia')} ↗
         </a>
       {/if}
@@ -234,7 +234,7 @@
     </div>
     <div class="mt-3 text-2xl">🎉</div>
     <div class="text-xl font-black">{ch.name}</div>
-    <div class="font-jp text-pink-300">{ch.ja}</div>
+    <div class="font-jp text-highlight">{ch.ja}</div>
     <div class="mt-1 text-sm text-slate-400">
       {$t('unlocked')} +{ch.xp} XP
     </div>

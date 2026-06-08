@@ -81,7 +81,7 @@
         <header>
           <div class="text-xs font-bold uppercase tracking-wide text-slate-400">{chapter.level}</div>
           <h2 class="mt-1 text-3xl font-black leading-tight">{chapter.title}</h2>
-          {#if chapter.jpTitle}<div class="mt-1 font-jp text-lg text-pink-300">{chapter.jpTitle}</div>{/if}
+          {#if chapter.jpTitle}<div class="mt-1 font-jp text-lg text-highlight">{chapter.jpTitle}</div>{/if}
         </header>
 
         {#each chapter.sections as section}
@@ -97,7 +97,7 @@
                   {#each block.items as ex}
                     <div class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
                       <span class="font-jp text-2xl leading-snug">{ex.jp}</span>
-                      {#if ex.reading}<span class="text-sm font-semibold text-pink-300">{ex.reading}</span>{/if}
+                      {#if ex.reading}<span class="text-sm font-semibold text-highlight">{ex.reading}</span>{/if}
                       <span class="text-sm text-slate-400">— {ex.en}</span>
                     </div>
                   {/each}

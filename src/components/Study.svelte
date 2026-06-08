@@ -302,7 +302,7 @@
                           <span class="block truncate font-medium">{deckName(d)}</span>
                           <span class="block text-xs text-slate-400">{d.count} {$t('cards')}</span>
                         </span>
-                        <span class="text-indigo-300">▶</span>
+                        <span class="text-highlight">▶</span>
                       </button>
                       <!-- Reset progress -->
                       <button
@@ -340,7 +340,7 @@
             {#if mixOpen}
               <div class="mt-2 space-y-2" transition:slide={{ duration: 200 }}>
                 <div class="flex justify-end">
-                  <button class="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-pink-300" on:click={toggleAll}>
+                  <button class="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-highlight" on:click={toggleAll}>
                     {allSelected ? $t('unselectAll') : $t('selectAll')}
                   </button>
                 </div>
@@ -369,7 +369,7 @@
           <!-- ── Custom: pick decks + mode ────────────────────────────── -->
           <div class="flex items-center justify-between">
             <h2 class="text-lg font-semibold">⚙ Custom</h2>
-            <button class="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-pink-300" on:click={toggleAll}>
+            <button class="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-highlight" on:click={toggleAll}>
               {allSelected ? $t('unselectAll') : $t('selectAll')}
             </button>
           </div>
@@ -418,7 +418,7 @@
             <div class="h-full bg-pink-500 transition-all" style="width:{progress}%"></div>
           </div>
           {#if combo >= 2}
-            <span class="rounded-full bg-pink-600/30 px-2 py-0.5 text-xs font-bold text-pink-300">🔥 {combo}</span>
+            <span class="rounded-full bg-pink-600/30 px-2 py-0.5 text-xs font-bold text-highlight">🔥 {combo}</span>
           {/if}
           <div class="text-xs text-slate-500">{index + 1} / {queue.length}</div>
         </div>

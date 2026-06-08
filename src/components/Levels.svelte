@@ -15,16 +15,16 @@
     <section class="space-y-5" in:fly={{ y: 12, duration: 200 }}>
       <div class="rounded-2xl bg-slate-800 p-4">
         <div class="flex items-center justify-between text-xs">
-          <span class="font-bold uppercase tracking-wider text-slate-400">
-            {$t('level')} {curUnlockedIndex + 1} · <span class="text-indigo-300">{cur.character.name}</span>
+          <span class="font-bold uppercase tracking-wider text-muted">
+            {$t('level')} {curUnlockedIndex + 1} · <span class="text-highlight">{cur.character.name}</span>
           </span>
-          <span class="text-slate-500">{Math.round($game.xp).toLocaleString()} XP</span>
+          <span class="text-faint">{Math.round($game.xp).toLocaleString()} XP</span>
         </div>
         {#if nx.next}
-          <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-700">
-            <div class="h-full bg-pink-500 transition-all" style="width:{nx.progress * 100}%"></div>
+          <div class="surface-secondary mt-2 h-2.5 overflow-hidden rounded-full">
+            <div class="surface-highlight h-full transition-all" style="width:{nx.progress * 100}%"></div>
           </div>
-          <div class="mt-1.5 text-xs text-slate-500">
+          <div class="mt-1.5 text-xs text-faint">
             {Math.ceil(nx.next.xpRequired - $game.xp).toLocaleString()} XP {$t('toNextLevel')} ???
           </div>
         {:else}

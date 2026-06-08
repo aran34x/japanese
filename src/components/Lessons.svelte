@@ -1,16 +1,17 @@
 <script lang="ts">
   import { settings, t, navigate } from '../lib/stores';
   import { guideTarget } from '../lib/book';
+  import { speakJa } from '../lib/speech';
   import {
     LESSONS,
-    LESSON_CATEGORIES,
+    lessonsByLevel,
     lessonProgress,
     toggleLessonDone,
     markLessonDone,
     lessonSections,
     lessonQuiz,
     type AppLesson,
-    type LessonCategory
+    type LessonQuizQuestion
   } from '../lib/lessons';
   import { fade, fly } from 'svelte/transition';
 
@@ -27,19 +28,16 @@
   let quizIndex = 0;
   let picked: number | null = null;
   let quizCorrect = 0;
-  let selectedCategory: LessonCategory | null = null;
-  const categoryOrder = ['foundation', 'particles', 'grammar', 'vocabulary', 'reading'] as LessonCategory[];
+  let selectedLevel: string | null = null;
+
+  // Word-order ("build the sentence") state.
+  let orderPicked: number[] = [];
+  let orderChecked = false;
+  let orderCorrect = false;
 
   $: completed = $lessonProgress.length;
-  $: lessonsByCategory = categoryOrder
-    .map((category) => ({
-      category,
-      lessons: LESSONS.filter((lesson) => lesson.category === category)
-    }))
-    .filter((group) => group.lessons.length > 0);
-  $: selectedGroup = selectedCategory
-    ? lessonsByCategory.find((group) => group.category === selectedCategory)
-    : null;
+  $: levels = lessonsByLevel();
+  $: selectedGroup = selectedLevel ? levels.find((g) => g.level === selectedLevel) : null;
   $: sections = activeLesson ? lessonSections(activeLesson) : [];
   $: quiz = activeLesson ? lessonQuiz(activeLesson) : [];
   $: learnItems = sections.flatMap((section, index): LearnItem[] => [
@@ -66,9 +64,32 @@
   ]);
   $: learnItem = learnItems[learnIndex];
   $: question = quiz[quizIndex];
-  $: answered = picked !== null;
+  // Deterministic token order for the current "build the sentence" question.
+  $: orderTiles = question && question.kind === 'order'
+    ? shuffleTokens(question.tokens, (activeLesson?.id ?? '') + ':' + quizIndex)
+    : [];
+  $: answered = question?.kind === 'order' ? orderChecked : picked !== null;
   $: passed = quizCorrect >= Math.ceil(quiz.length * 0.7);
   $: lessonDone = !!activeLesson && $lessonProgress.includes(activeLesson.id);
+
+  function hash(s: string): number {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function shuffleTokens(tokens: string[], seed: string): string[] {
+    return tokens
+      .map((tok, i) => ({ tok, k: hash(`${seed}:${i}:${tok}`) }))
+      .sort((a, b) => a.k - b.k)
+      .map((x) => x.tok);
+  }
+
+  function resetQuestionState() {
+    picked = null;
+    orderPicked = [];
+    orderChecked = false;
+    orderCorrect = false;
+  }
 
   function startLesson(lesson: AppLesson) {
     activeLesson = lesson;
@@ -76,8 +97,8 @@
     sectionIndex = 0;
     learnIndex = 0;
     quizIndex = 0;
-    picked = null;
     quizCorrect = 0;
+    resetQuestionState();
   }
 
   function closeLesson() {
@@ -85,8 +106,8 @@
     mode = 'learn';
     sectionIndex = 0;
     learnIndex = 0;
-    picked = null;
     quizCorrect = 0;
+    resetQuestionState();
   }
 
   function toggleActiveLessonDone() {
@@ -102,27 +123,56 @@
     }
     mode = 'quiz';
     quizIndex = 0;
-    picked = null;
     quizCorrect = 0;
+    resetQuestionState();
   }
 
   function chooseAnswer(i: number) {
-    if (picked !== null || !question) return;
+    if (!question || question.kind === 'order' || picked !== null) return;
     picked = i;
     if (question.options[i]?.correct) quizCorrect++;
+  }
+
+  function optionsFor(question: LessonQuizQuestion) {
+    return question.kind === 'order' ? [] : question.options;
+  }
+
+  function tapOrderTile(i: number) {
+    if (orderChecked) return;
+    orderPicked = orderPicked.includes(i)
+      ? orderPicked.filter((x) => x !== i)
+      : [...orderPicked, i];
+  }
+  function checkOrder() {
+    if (!question || question.kind !== 'order' || orderPicked.length !== orderTiles.length) return;
+    const built = orderPicked.map((i) => orderTiles[i]);
+    orderCorrect = built.join('') === question.answer.join('');
+    orderChecked = true;
+    if (orderCorrect) quizCorrect++;
   }
 
   async function nextQuestion() {
     if (quizIndex + 1 < quiz.length) {
       quizIndex++;
-      picked = null;
+      resetQuestionState();
       return;
     }
-
     mode = 'result';
     if (passed && activeLesson && !$lessonProgress.includes(activeLesson.id)) {
       await markLessonDone(activeLesson.id);
     }
+  }
+
+  function retryQuiz() {
+    mode = 'quiz';
+    quizIndex = 0;
+    quizCorrect = 0;
+    resetQuestionState();
+  }
+  function readAgain() {
+    mode = 'learn';
+    sectionIndex = 0;
+    learnIndex = 0;
   }
 </script>
 
@@ -138,19 +188,17 @@
 
         {#if !selectedGroup}
           <div class="mt-10 space-y-3">
-            {#each lessonsByCategory as group}
+            {#each levels as group}
               {@const doneCount = group.lessons.filter((lesson) => $lessonProgress.includes(lesson.id)).length}
               {@const missingCount = group.lessons.length - doneCount}
               <button
                 class="lesson-row category-row"
-                on:click={() => (selectedCategory = group.category)}
+                on:click={() => (selectedLevel = group.level)}
               >
                 <span class="min-w-0">
-                  <span class="block truncate text-base font-black">
-                    {LESSON_CATEGORIES[group.category].label[$settings.uiLang]}
-                  </span>
+                  <span class="block truncate text-base font-black">{group.level}</span>
                   <span class="mt-1 block text-xs font-bold opacity-55">
-                    {missingCount ? `${missingCount} ${$t('missingLessons')}` : $t('categoryComplete')}
+                    {doneCount}/{group.lessons.length} · {missingCount ? `${missingCount} ${$t('missingLessons')}` : $t('categoryComplete')}
                   </span>
                 </span>
                 <span class="lesson-row-mark {missingCount === 0 ? 'done' : ''}">
@@ -161,11 +209,11 @@
           </div>
         {:else}
           <div class="mt-8">
-            <button class="soft-pill" on:click={() => (selectedCategory = null)}>
+            <button class="soft-pill" on:click={() => (selectedLevel = null)}>
               ← {$t('lessonCategories')}
             </button>
             <div class="lesson-category-title mt-7">
-              <span>{LESSON_CATEGORIES[selectedGroup.category].label[$settings.uiLang]}</span>
+              <span>{selectedGroup.level}</span>
             </div>
             <div class="mt-3 space-y-3">
               {#each selectedGroup.lessons as lesson}
@@ -215,7 +263,7 @@
           <h2 class="mt-2 text-2xl font-black leading-tight">{activeLesson.title[$settings.uiLang]}</h2>
           {#if activeLesson.bookChapterId}
             <button
-              class="mt-3 inline-flex items-center gap-1 rounded-full bg-slate-800 px-3 py-1.5 text-xs font-semibold text-indigo-300"
+              class="mt-3 inline-flex items-center gap-1 rounded-full bg-slate-800 px-3 py-1.5 text-xs font-semibold text-highlight"
               on:click={() => { guideTarget.set(activeLesson?.bookChapterId ?? null); navigate('guide'); }}
             >📖 {$t('readFullChapter')} →</button>
           {/if}
@@ -235,9 +283,13 @@
                 <h3 class="mt-4 text-3xl font-black leading-tight">{learnItem.title}</h3>
                 <p class="mt-6 text-xl leading-9 opacity-90">{learnItem.body}</p>
               {:else if learnItem.kind === 'example'}
+                {@const exJp = learnItem.jp}
                 <div class="lesson-kicker">{$t('examples')}</div>
                 <div class="example-block mt-5 rounded-3xl p-5">
-                  <div class="font-jp text-4xl leading-tight">{learnItem.jp}</div>
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="font-jp text-4xl leading-tight">{learnItem.jp}</div>
+                    <button class="shrink-0 rounded-full bg-slate-800 px-3 py-2 text-lg" title="🔊" on:click={() => speakJa(exJp)}>🔊</button>
+                  </div>
                   <div class="mt-4 text-base font-bold accent-text">{learnItem.reading}</div>
                   <div class="mt-5 text-xl leading-8 opacity-85">{learnItem.meaning}</div>
                 </div>
@@ -268,25 +320,65 @@
               </div>
               <h3 class="mt-4 text-3xl font-black leading-tight">{question.prompt[$settings.uiLang]}</h3>
 
-              <div class="mt-7 grid gap-3">
-                {#each question.options as opt, i}
-                  <button
-                    class="quiz-choice
-                      {answered && opt.correct ? 'correct' : ''}
-                      {answered && !opt.correct && picked === i ? 'wrong' : ''}
-                      {answered && !opt.correct && picked !== i ? 'dimmed' : ''}"
-                    disabled={answered}
-                    on:click={() => chooseAnswer(i)}
-                  >
-                    {opt.label[$settings.uiLang]}
-                  </button>
-                {/each}
-              </div>
-
-              {#if answered}
-                <div class="soft-surface mt-5 rounded-3xl p-4 text-sm leading-6 opacity-85">
-                  {question.explanation[$settings.uiLang]}
+              {#if question.kind === 'order'}
+                <!-- Build-the-sentence: tap the tiles into order -->
+                <div class="mt-6 flex min-h-[3.75rem] flex-wrap items-center gap-2 rounded-2xl bg-slate-900/40 p-3">
+                  {#each orderPicked as ti}
+                    <button class="rounded-xl bg-slate-800 px-3 py-2 font-jp text-xl" disabled={orderChecked} on:click={() => tapOrderTile(ti)}>{orderTiles[ti]}</button>
+                  {/each}
+                  {#if orderPicked.length === 0}
+                    <span class="px-1 text-sm opacity-50">{$t('tapWordsInOrder')}</span>
+                  {/if}
                 </div>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  {#each orderTiles as tok, i}
+                    <button
+                      class="rounded-xl bg-slate-700 px-3 py-2 font-jp text-xl transition-opacity {orderPicked.includes(i) ? 'opacity-25' : ''}"
+                      disabled={orderChecked || orderPicked.includes(i)}
+                      on:click={() => tapOrderTile(i)}
+                    >{tok}</button>
+                  {/each}
+                </div>
+
+                {#if !orderChecked}
+                  <button class="primary-action mt-6 w-full" disabled={orderPicked.length !== orderTiles.length} on:click={checkOrder}>
+                    {$t('checkAnswer')}
+                  </button>
+                {:else}
+                  <div class="soft-surface mt-5 rounded-3xl p-4 text-sm leading-6 opacity-90">
+                    <div class="font-black {orderCorrect ? 'text-green-400' : 'text-rose-400'}">
+                      {orderCorrect ? '✓ ' + $t('correct') : '✗ ' + $t('incorrect')}
+                    </div>
+                    <div class="mt-2 flex items-center gap-2">
+                      <span class="font-jp text-lg">{question.answer.join('')}</span>
+                      <button class="rounded-full bg-slate-800 px-2 py-1 text-sm" title="🔊" on:click={() => speakJa(question.kind === 'order' ? question.answer.join('') : '')}>🔊</button>
+                    </div>
+                    {#if question.reading}<div class="text-xs accent-text">{question.reading}</div>{/if}
+                    {#if question.translation}<div class="mt-1 opacity-80">{question.translation[$settings.uiLang]}</div>{/if}
+                    <div class="mt-2">{question.explanation[$settings.uiLang]}</div>
+                  </div>
+                {/if}
+              {:else}
+                <div class="mt-7 grid gap-3">
+                  {#each optionsFor(question) as opt, i}
+                    <button
+                      class="quiz-choice
+                        {answered && opt.correct ? 'correct' : ''}
+                        {answered && !opt.correct && picked === i ? 'wrong' : ''}
+                        {answered && !opt.correct && picked !== i ? 'dimmed' : ''}"
+                      disabled={answered}
+                      on:click={() => chooseAnswer(i)}
+                    >
+                      {opt.label[$settings.uiLang]}
+                    </button>
+                  {/each}
+                </div>
+
+                {#if answered}
+                  <div class="soft-surface mt-5 rounded-3xl p-4 text-sm leading-6 opacity-85">
+                    {question.explanation[$settings.uiLang]}
+                  </div>
+                {/if}
               {/if}
             </div>
           {/key}
@@ -311,22 +403,10 @@
                   {$t('returnToLessons')}
                 </button>
               {:else}
-                <button
-                    class="primary-action"
-                  on:click={() => {
-                    mode = 'quiz';
-                    quizIndex = 0;
-                    picked = null;
-                    quizCorrect = 0;
-                  }}
-                >
+                <button class="primary-action" on:click={retryQuiz}>
                   {$t('retryQuiz')}
                 </button>
-                <button class="soft-action" on:click={() => {
-                  mode = 'learn';
-                  sectionIndex = 0;
-                  learnIndex = 0;
-                }}>
+                <button class="soft-action" on:click={readAgain}>
                   {$t('readLessonAgain')}
                 </button>
               {/if}

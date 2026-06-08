@@ -34,9 +34,9 @@
             <div class="text-xs text-slate-500">{Math.round($game.xp).toLocaleString()} XP</div>
           </div>
           <div class="text-lg font-black leading-tight">{cur.character.name}</div>
-          <div class="text-sm text-pink-300">{cur.character.title[$settings.uiLang]}</div>
-          <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-700">
-            <div class="h-full rounded-full bg-pink-500 transition-all" style="width:{nx.progress * 100}%"></div>
+          <div class="text-sm text-highlight">{cur.character.title[$settings.uiLang]}</div>
+          <div class="surface-secondary mt-2 h-2 overflow-hidden rounded-full">
+            <div class="surface-highlight h-full rounded-full transition-all" style="width:{nx.progress * 100}%"></div>
           </div>
           {#if nx.next}
             {@const xpLeft = Math.ceil(nx.next.xpRequired - $game.xp)}
@@ -50,11 +50,11 @@
 
     <div class="space-y-6">
       <section>
-        <h2 class="mb-3 text-sm font-black uppercase tracking-wide text-slate-400">{$t('study')}</h2>
+        <h2 class="mb-3 text-sm font-black uppercase tracking-wide text-muted">{$t('study')}</h2>
         <div class="grid gap-4 sm:grid-cols-2">
           {#each studyModes as m (m.id)}
             <button
-              class="group relative overflow-hidden rounded-2xl bg-indigo-500 p-5 text-left shadow-lg ring-1 ring-white/10 transition-transform duration-150 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl active:scale-95"
+              class="surface-highlight group relative overflow-hidden rounded-2xl p-5 text-left shadow-lg ring-1 ring-white/10 transition-transform duration-150 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl active:scale-95"
               on:click={() => navigate(m.id)}
             >
               <div class="relative flex items-center gap-4 sm:flex-col sm:items-start">
@@ -73,11 +73,11 @@
       </section>
 
       <section>
-        <h2 class="mb-3 text-sm font-black uppercase tracking-wide text-slate-400">{$t('test')}</h2>
+        <h2 class="mb-3 text-sm font-black uppercase tracking-wide text-muted">{$t('test')}</h2>
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {#each testModes as m (m.id)}
             <button
-              class="group relative overflow-hidden rounded-2xl bg-indigo-500 p-5 text-left shadow-lg ring-1 ring-white/10 transition-transform duration-150 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl active:scale-95"
+              class="surface-highlight group relative overflow-hidden rounded-2xl p-5 text-left shadow-lg ring-1 ring-white/10 transition-transform duration-150 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl active:scale-95"
               on:click={() => navigate(m.id)}
             >
               <div class="relative flex items-center gap-4 sm:flex-col sm:items-start">

@@ -48,11 +48,11 @@
       <div class="mt-4 max-h-[50vh] space-y-4 overflow-y-auto">
         {#each entries as e}
           <div>
-            <div class="text-sm font-semibold text-pink-300">{e.title[$settings.uiLang]}</div>
+            <div class="text-sm font-semibold text-highlight">{e.title[$settings.uiLang]}</div>
             <ul class="mt-1 space-y-1">
               {#each e.changes as ch}
                 <li class="flex gap-2 text-sm text-slate-300">
-                  <span class="text-pink-400">›</span><span>{ch[$settings.uiLang]}</span>
+                  <span class="text-highlight">›</span><span>{ch[$settings.uiLang]}</span>
                 </li>
               {/each}
             </ul>

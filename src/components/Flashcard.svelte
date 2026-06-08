@@ -90,7 +90,7 @@
   {#if flipped}
     <div class="mt-4 space-y-1 border-t border-slate-700 pt-4">
       {#if card.reading && card.reading !== card.front}
-        <div class="text-xl text-pink-300">{card.reading}</div>
+        <div class="text-xl text-highlight">{card.reading}</div>
       {/if}
       {#if card.romaji}<div class="text-sm text-slate-400">{card.romaji}</div>{/if}
       <div class="text-lg">{meaningText()}</div>

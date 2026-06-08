@@ -50,9 +50,9 @@
 
   // Coloured stat tiles.
   $: tiles = [
-    { value: `${accuracy}%`, label: $t('accuracy'), color: 'text-pink-400' },
-    { value: reviewedTotal, label: $t('totalReviews'), color: 'text-indigo-400' },
-    { value: studyTime, label: $t('timeStudied'), color: 'text-sky-400' },
+    { value: `${accuracy}%`, label: $t('accuracy'), color: 'text-highlight' },
+    { value: reviewedTotal, label: $t('totalReviews'), color: 'text-highlight' },
+    { value: studyTime, label: $t('timeStudied'), color: 'text-highlight' },
     { value: mature, label: $t('mature'), color: 'text-green-400' },
     { value: learnedCards, label: $t('cardsLearned'), color: 'text-amber-400' },
     { value: total, label: $t('totalCards'), color: 'text-slate-300' }

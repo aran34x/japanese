@@ -7,9 +7,18 @@ Nihongo Quest skins are mostly CSS-token themes. The intended workflow is:
 3. Add two background images in `public/`: one desktop image and one mobile image.
 4. Register the skin in the TypeScript settings list if it is a new selectable skin.
 
-Components should not usually get custom colors. They use normal Tailwind utility names such as
-`bg-slate-800`, `bg-slate-700`, `text-slate-400`, `bg-indigo-500`, and `from-pink-500`.
-The skin system remaps those utilities globally to the active skin's tokens.
+Components should not usually get custom colors. New UI should use semantic classes such as
+`surface-card`, `surface-secondary`, `surface-highlight`, `text-main`, `text-muted`, and
+`text-highlight`.
+
+Older UI still contains Tailwind color-name classes such as `bg-slate-800` and `text-slate-400`.
+Those are compatibility aliases that the skin system remaps globally to semantic tokens. For
+example, old `text-pink-300` meant "accent/highlight text", not literally pink. Prefer
+`text-highlight` in new or edited code.
+
+Gradients are not part of the app UI style. Do not use gradient utility classes or CSS gradients for
+buttons, cards, progress bars, text, panels, hover states, or skin tokens. Use solid token colors,
+opacity, borders, shadows, and background images instead.
 
 ## Runtime Model
 
@@ -56,7 +65,7 @@ tokens it needs.
 :root[data-skin='myskin'] {
   color-scheme: dark;
   --skin-bg-image: url('/skin-myskin-bg.jpg');
-  --bg: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.45)), var(--skin-bg-image), #101010;
+  --bg: var(--skin-bg-image), #101010;
   --panel: #101010;
   --panel-soft: rgba(16, 16, 16, 0.7);
   --chrome-bg: rgba(16, 16, 16, 0.95);
@@ -119,12 +128,12 @@ from `text-slate-*`.
 
 `--accent`: Primary highlight surface. Used by `bg-indigo-500`, `bg-indigo-600`, and `bg-pink-500`.
 
-`--accent-2`: Partner color for accent gradients.
+`--accent-2`: Secondary accent color. Do not use it to create gradients.
 
 `--on-accent`: Text and icon color on accent surfaces. This must be readable against `--accent`.
 For light accents, use a dark value.
 
-`--accent-text`: Accent-colored text, mapped from pink/indigo/sky text utilities.
+`--accent-text`: Accent/highlight text. Use it through `text-highlight`.
 
 `--accent-input`: Native form accent color.
 
@@ -135,9 +144,39 @@ For light accents, use a dark value.
 `--font`: Skin font stack. Keep `Noto Sans JP` and `Noto Emoji` in the fallback list so Japanese and
 emoji render correctly.
 
-## Utility Mapping
+## Semantic Classes
 
-These are the key Tailwind classes components should use so skins can restyle them globally:
+Prefer these classes in new or edited components:
+
+| Component intent | Use this class | Skin token |
+| --- | --- | --- |
+| Page/base surface | `surface-page` | `--panel` |
+| Soft panel | `surface-soft` | `--panel-soft` |
+| Header/nav chrome | `surface-chrome` | `--chrome-bg` |
+| Main card/container | `surface-card` | `--box-bg`, `--box-border`, `--box-backdrop` |
+| Secondary surface | `surface-secondary` | `--box-bg-2` |
+| Accent button/fill | `surface-highlight` | `--accent`, `--on-accent` |
+| Main body text | `text-main` | `--text` |
+| Strong text | `text-strong` | `--text-strong` |
+| Soft text | `text-soft` | `--text-soft` |
+| Muted text | `text-muted` | `--text-muted` |
+| Faint text | `text-faint` | `--text-faint` |
+| Highlight/accent text | `text-highlight` | `--accent-text` |
+| Warning text/surface | `text-warning`, `surface-warning` | `--warning`, `--warning-bg` |
+| Success text/surface | `text-success`, `surface-success` | `--success`, `--success-bg` |
+| Danger text/surface | `text-danger`, `surface-danger` | `--danger`, `--danger-bg` |
+
+To change the highlighted text color for Countryside, edit this token in `src/app.css`:
+
+```css
+:root[data-skin='countryside'] {
+  --accent-text: #15803d;
+}
+```
+
+## Legacy Utility Mapping
+
+These Tailwind color-name classes still work for older code, but do not use them in new UI:
 
 | Component intent | Use this class | Skin token |
 | --- | --- | --- |
@@ -154,8 +193,8 @@ These are the key Tailwind classes components should use so skins can restyle th
 | Accent button | `bg-indigo-500`, `bg-indigo-600`, `bg-pink-500` | `--accent`, `--on-accent` |
 | Accent text | `text-pink-300`, `text-indigo-400`, etc. | `--accent-text` |
 
-New UI should use these existing utility classes or the token variables directly. Avoid hardcoded
-component-level colors, bespoke card backgrounds, and one-off gradients.
+New UI should use semantic classes or the token variables directly. Avoid hardcoded component-level
+colors, bespoke card backgrounds, and one-off gradients.
 
 ## Background Images
 
@@ -234,10 +273,10 @@ shadows, border radius, special header treatment, glass effects, and a few view-
 ## Rules For New UI
 
 - Use the established Tailwind classes that the skin system maps.
+- Do not use gradients in app UI or skin CSS tokens.
 - Do not hardcode `text-white` on accent surfaces. Let `--on-accent` handle contrast.
 - Do not create bespoke cards inside components when `bg-slate-800` should be the themed container box.
 - If a color is truly component-specific, prefer a new token or a carefully scoped skin flair rule.
 - Keep Japanese font fallback intact.
 - Check both dark and light-style skins for contrast.
 - Check desktop and mobile backgrounds after changing a skin.
-

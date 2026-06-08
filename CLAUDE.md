@@ -51,19 +51,22 @@ and `npm` must be called as `call npm ...` so control returns to the script.
 
 ## Lessons (`src/lib/lessons.ts` + `Lessons.svelte`)
 
-Guided, reading-based lessons (separate from SRS). `LESSONS` are grouped by `LESSON_CATEGORIES`
-(foundation, particles, grammar, vocabulary, reading) and JLPT-ish level (Start/N5/N5+/N4). Each
-lesson is a set of **learn** sections (text + examples + notes) followed by a short **quiz**;
-`lessonSections`/`lessonQuiz` derive them. Completion is tracked in `lessonProgress` (a store
-persisted to the IndexedDB `meta` key `lessonProgress`, loaded via `loadLessonProgress` in
-`App.svelte`). Reached from the Home "Lessons" tile (route `lessons`).
+Bunpo-style guided grammar course (separate from SRS). The menu is a **JLPT level path**
+(`LESSON_LEVELS` Start → N5 → N5+ → N4) ordered by `LESSON_PATH`; `lessonsByLevel()` groups
+lessons for the menu (the old category grouping is gone, though `category` still exists for
+`recommendedLessonsFor*`). Each lesson = **learn** sections (meaning → "how to make it" →
+examples, with a 🔊 `speakJa` button) then a **quiz**. Completion → `lessonProgress` (IndexedDB
+`meta` key `lessonProgress`, loaded via `loadLessonProgress`). Route `lessons`.
 
-The grammar/particle lessons are **grounded in Tae Kim's Guide** (their examples/explanations
-come from the book, not invented). Each links to its Guide chapter via `bookChapterId`, shown
-as a "Read the full chapter" button in `Lessons.svelte`. Quizzes: `lessonQuiz` uses a lesson's
-hand-authored `quiz` if present, else a hardened generator (real-sentence distractors from
-`ALL_EXAMPLES`, a particle **cloze** for particle lessons via `PARTICLE_QUIZ`, no
-duplicate/template/meta options).
+- **Authored content** wins: `AppLesson.content?: LessonSection[]` (Bunpo-style); else
+  `lessonSections` returns a minimal Meaning+Examples fallback (no generic filler). The core
+  grammar/particle lessons get authored `content` + `quiz` from `LESSON_AUTHORED` (merged into
+  `LESSONS` at load), **grounded in Tae Kim's Guide** and linked via `bookChapterId`
+  ("Read the full chapter" button).
+- **Quiz types** (`LessonQuizQuestion` union): `QuizChoice` (MCQ + fill-in-the-blank, blank in
+  the prompt) and `QuizOrder` (`kind:'order'` — word-order "build the sentence", tap tiles).
+  `lessonQuiz` returns a lesson's hand-authored `quiz` if present, else a hardened generator
+  (real-sentence distractors from `ALL_EXAMPLES` + a particle **cloze** via `PARTICLE_QUIZ`).
 
 ## Guide (the textbook reader — `src/lib/data/book/taekim.ts` + `Guide.svelte`)
 

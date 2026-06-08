@@ -17,6 +17,8 @@ export interface AppLesson {
   examples: { jp: string; reading: string; en: string; it: string }[];
   /** Optional hand-authored quiz; if absent, a hardened quiz is generated. */
   quiz?: LessonQuizQuestion[];
+  /** Hand-authored Bunpo-style sections (meaning / formation / examples). */
+  content?: LessonSection[];
   /** Links this lesson to a chapter in the Guide (Tae Kim) for "read the full chapter". */
   bookChapterId?: string;
 }
@@ -28,11 +30,26 @@ export interface LessonSection {
   note?: Record<Lang, string>;
 }
 
-export interface LessonQuizQuestion {
+/** Multiple-choice (also used for fill-in-the-blank — the blank lives in the prompt). */
+export interface QuizChoice {
+  kind?: 'mcq';
   prompt: Record<Lang, string>;
   options: { label: Record<Lang, string>; correct: boolean }[];
   explanation: Record<Lang, string>;
 }
+
+/** Word-order "build the sentence": tap the shuffled tokens into the right order. */
+export interface QuizOrder {
+  kind: 'order';
+  prompt: Record<Lang, string>;
+  tokens: string[];
+  answer: string[];
+  reading?: string;
+  translation?: Record<Lang, string>;
+  explanation: Record<Lang, string>;
+}
+
+export type LessonQuizQuestion = QuizChoice | QuizOrder;
 
 const META_KEY = 'lessonProgress';
 
@@ -701,7 +718,393 @@ function score(seed: string, value: string): number {
   return h >>> 0;
 }
 
+// ── Hand-authored Bunpo-style content + quizzes for the core grammar/particle
+// lessons (grounded in the Tae Kim Guide). Merged into LESSONS below. ──
+type Authored = { content: LessonSection[]; quiz: LessonQuizQuestion[] };
+
+const meaningSection = (en: string, it: string): LessonSection => ({
+  title: { en: 'Meaning', it: 'Significato' }, body: { en, it }
+});
+const formationSection = (en: string, it: string, examples?: LessonSection['examples']): LessonSection => ({
+  title: { en: 'How to make it', it: 'Come si forma' }, body: { en, it }, examples
+});
+const examplesSection = (examples: LessonSection['examples']): LessonSection => ({
+  title: { en: 'Examples', it: 'Esempi' },
+  body: { en: 'Tap the speaker to hear each sentence.', it: "Tocca l'altoparlante per ascoltare ogni frase." },
+  examples
+});
+
+const LESSON_AUTHORED: Record<string, Authored> = {
+  'desu-identity': {
+    content: [
+      meaningSection(
+        'Japanese has no verb like English "to be". You attach だ (plain) or です (polite) to a noun (or na-adjective) to declare what something is.',
+        'Il giapponese non ha un verbo come "essere". Attacchi だ (semplice) o です (cortese) a un nome (o aggettivo in な) per dire cos\'è qualcosa.'
+      ),
+      formationSection(
+        'Noun + だ (plain) / です (polite). Negative: Noun + じゃない. Past: Noun + だった.',
+        'Nome + だ (semplice) / です (cortese). Negativo: Nome + じゃない. Passato: Nome + だった.',
+        [
+          { jp: '学生だ。', reading: 'gakusei da.', en: 'is a student', it: 'è uno studente' },
+          { jp: '学生じゃない。', reading: 'gakusei ja nai.', en: 'is not a student', it: 'non è uno studente' },
+          { jp: '学生だった。', reading: 'gakusei datta.', en: 'was a student', it: 'era uno studente' }
+        ]
+      ),
+      examplesSection([
+        { jp: 'アリスは学生だ。', reading: 'Arisu wa gakusei da.', en: 'Alice is a student.', it: 'Alice è una studentessa.' },
+        { jp: '元気だ。', reading: 'genki da.', en: '(I) am well.', it: '(Io) sto bene.' }
+      ])
+    ],
+    quiz: [
+      { kind: 'order', prompt: { en: 'Build: "Alice is a student."', it: 'Componi: "Alice è una studentessa."' },
+        tokens: ['アリス', 'は', '学生', 'だ'], answer: ['アリス', 'は', '学生', 'だ'],
+        reading: 'Arisu wa gakusei da.', translation: { en: 'Alice is a student.', it: 'Alice è una studentessa.' },
+        explanation: { en: 'Topic (は) first, then the noun + だ at the end.', it: 'Prima il tema (は), poi il nome + だ alla fine.' } },
+      { prompt: { en: 'What is the negative of 学生だ?', it: 'Qual è il negativo di 学生だ?' },
+        options: [
+          { label: { en: '学生じゃない', it: '学生じゃない' }, correct: true },
+          { label: { en: '学生くない', it: '学生くない' }, correct: false },
+          { label: { en: '学生ない', it: '学生ない' }, correct: false },
+          { label: { en: '学生だった', it: '学生だった' }, correct: false }
+        ],
+        explanation: { en: 'Nouns take じゃない for the negative (くない is for い-adjectives).', it: 'I nomi usano じゃない al negativo (くない è per gli aggettivi in い).' } },
+      { prompt: { en: 'What does 元気だ mean?', it: 'Cosa significa 元気だ?' },
+        options: [
+          { label: { en: 'is well / energetic', it: 'sta bene / pieno di energia' }, correct: true },
+          { label: { en: 'is a student', it: 'è uno studente' }, correct: false },
+          { label: { en: 'was not well', it: 'non stava bene' }, correct: false },
+          { label: { en: 'is a person', it: 'è una persona' }, correct: false }
+        ],
+        explanation: { en: '元気 (genki) is a na-adjective meaning healthy/energetic; + だ states it.', it: '元気 (genki) è un aggettivo in な che significa sano/energico; + だ lo afferma.' } }
+    ]
+  },
+
+  'wa-topic': {
+    content: [
+      meaningSection(
+        'は marks the topic — what the sentence is about. It is written は but pronounced "wa". も replaces は to mean "also".',
+        'は marca il tema — di cosa parla la frase. Si scrive は ma si pronuncia "wa". も sostituisce は per dire "anche".'
+      ),
+      formationSection(
+        'Topic + は + (comment). Swap は for も to add "also".',
+        'Tema + は + (commento). Sostituisci は con も per aggiungere "anche".',
+        [
+          { jp: 'アリスは学生。', reading: 'Arisu wa gakusei.', en: 'As for Alice, (she is) a student.', it: 'Quanto ad Alice, è una studentessa.' },
+          { jp: 'トムも学生。', reading: 'Tomu mo gakusei.', en: 'Tom is also a student.', it: 'Anche Tom è uno studente.' }
+        ]
+      )
+    ],
+    quiz: [
+      { prompt: { en: 'Fill the blank:  アリス＿＿学生。  ("As for Alice, a student.")', it: 'Completa:  アリス＿＿学生。' },
+        options: [
+          { label: { en: 'は', it: 'は' }, correct: true },
+          { label: { en: 'が', it: 'が' }, correct: false },
+          { label: { en: 'を', it: 'を' }, correct: false },
+          { label: { en: 'の', it: 'の' }, correct: false }
+        ],
+        explanation: { en: 'は marks Alice as the topic.', it: 'は marca Alice come tema.' } },
+      { prompt: { en: 'How is the particle は pronounced?', it: 'Come si pronuncia la particella は?' },
+        options: [
+          { label: { en: 'wa', it: 'wa' }, correct: true },
+          { label: { en: 'ha', it: 'ha' }, correct: false },
+          { label: { en: 'a', it: 'a' }, correct: false },
+          { label: { en: 'ba', it: 'ba' }, correct: false }
+        ],
+        explanation: { en: 'As a particle, は is read "wa" (even though the kana is "ha").', it: 'Come particella, は si legge "wa" (anche se il kana è "ha").' } },
+      { kind: 'order', prompt: { en: 'Build: "Tom is also a student."', it: 'Componi: "Anche Tom è uno studente."' },
+        tokens: ['トム', 'も', '学生'], answer: ['トム', 'も', '学生'],
+        reading: 'Tomu mo gakusei.', translation: { en: 'Tom is also a student.', it: 'Anche Tom è uno studente.' },
+        explanation: { en: 'も replaces は to mean "also".', it: 'も sostituisce は per dire "anche".' } }
+    ]
+  },
+
+  'ga-subject': {
+    content: [
+      meaningSection(
+        'が singles out which unknown thing is the one in question — it answers "who?" or "what?". は talks about a topic in general; が points to a specific subject.',
+        'が indica quale cosa sconosciuta è quella in questione — risponde a "chi?" o "cosa?". は parla di un tema in generale; が indica un soggetto specifico.'
+      ),
+      formationSection(
+        'Question word (誰 / 何) + が … ? → Answer + が … .',
+        'Parola interrogativa (誰 / 何) + が … ? → Risposta + が … .',
+        [
+          { jp: '誰が学生？', reading: 'dare ga gakusei?', en: 'Who is the student?', it: 'Chi è lo studente?' },
+          { jp: 'ジョンが学生。', reading: 'Jon ga gakusei.', en: 'John is the one who is a student.', it: 'John è quello che è studente.' }
+        ]
+      )
+    ],
+    quiz: [
+      { prompt: { en: 'Fill the blank:  誰＿＿学生？  ("Who is the student?")', it: 'Completa:  誰＿＿学生？' },
+        options: [
+          { label: { en: 'が', it: 'が' }, correct: true },
+          { label: { en: 'は', it: 'は' }, correct: false },
+          { label: { en: 'を', it: 'を' }, correct: false },
+          { label: { en: 'に', it: 'に' }, correct: false }
+        ],
+        explanation: { en: 'With an unknown subject (誰), use が, not は.', it: 'Con un soggetto sconosciuto (誰), usa が, non は.' } },
+      { prompt: { en: 'Which particle singles out a specific subject (answers who/what)?', it: 'Quale particella indica un soggetto specifico (risponde a chi/cosa)?' },
+        options: [
+          { label: { en: 'が', it: 'が' }, correct: true },
+          { label: { en: 'は', it: 'は' }, correct: false },
+          { label: { en: 'も', it: 'も' }, correct: false },
+          { label: { en: 'の', it: 'の' }, correct: false }
+        ],
+        explanation: { en: 'は sets a general topic; が identifies the specific one.', it: 'は imposta un tema generale; が identifica quello specifico.' } },
+      { kind: 'order', prompt: { en: 'Build: "John is the one who is a student."', it: 'Componi: "John è quello che è studente."' },
+        tokens: ['ジョン', 'が', '学生'], answer: ['ジョン', 'が', '学生'],
+        reading: 'Jon ga gakusei.', translation: { en: 'John is the one who is a student.', it: 'John è quello che è studente.' },
+        explanation: { en: 'が marks John as the identified subject.', it: 'が marca John come soggetto identificato.' } }
+    ]
+  },
+
+  'no-possessive': {
+    content: [
+      meaningSection(
+        'の connects two nouns to show possession or description ("A\'s B" / "B of A"). It can also stand in for a noun ("the ~ one").',
+        'の collega due nomi per indicare possesso o descrizione ("B di A"). Può anche sostituire un nome ("quello ~").'
+      ),
+      formationSection(
+        'A の B  →  "A\'s B". Adjective + の  →  "the ~ one".',
+        'A の B  →  "B di A". Aggettivo + の  →  "quello ~".',
+        [
+          { jp: 'ボブの本', reading: 'Bobu no hon', en: "Bob's book", it: 'il libro di Bob' },
+          { jp: '白いの', reading: 'shiroi no', en: 'the white one', it: 'quello bianco' }
+        ]
+      )
+    ],
+    quiz: [
+      { kind: 'order', prompt: { en: 'Build: "Bob\'s book"', it: 'Componi: "il libro di Bob"' },
+        tokens: ['ボブ', 'の', '本'], answer: ['ボブ', 'の', '本'],
+        reading: 'Bobu no hon', translation: { en: "Bob's book", it: 'il libro di Bob' },
+        explanation: { en: 'Owner + の + thing.', it: 'Proprietario + の + cosa.' } },
+      { prompt: { en: 'Fill the blank:  ボブ＿＿本  ("Bob\'s book")', it: 'Completa:  ボブ＿＿本' },
+        options: [
+          { label: { en: 'の', it: 'の' }, correct: true },
+          { label: { en: 'は', it: 'は' }, correct: false },
+          { label: { en: 'が', it: 'が' }, correct: false },
+          { label: { en: 'で', it: 'で' }, correct: false }
+        ],
+        explanation: { en: 'の links the two nouns (owner → thing).', it: 'の collega i due nomi (proprietario → cosa).' } },
+      { prompt: { en: 'What does 白いのはかわいい mean?', it: 'Cosa significa 白いのはかわいい?' },
+        options: [
+          { label: { en: 'The white one is cute.', it: 'Quello bianco è carino.' }, correct: true },
+          { label: { en: 'White is not cute.', it: 'Il bianco non è carino.' }, correct: false },
+          { label: { en: "The cute one's white.", it: 'Il bianco di quello carino.' }, correct: false },
+          { label: { en: 'Is the white one cute?', it: 'Quello bianco è carino?' }, correct: false }
+        ],
+        explanation: { en: 'Here の stands in for a noun: "the white one".', it: 'Qui の sostituisce un nome: "quello bianco".' } }
+    ]
+  },
+
+  'adjectives-first': {
+    content: [
+      meaningSection(
+        'There are two kinds of adjective. い-adjectives end in い and attach straight to a noun. な-adjectives behave like nouns and need な before the noun.',
+        'Ci sono due tipi di aggettivo. Quelli in い finiscono in い e si attaccano direttamente al nome. Quelli in な si comportano come nomi e vogliono な prima del nome.'
+      ),
+      formationSection(
+        'い-adj + 名詞 (direct, no だ). な-adj + な + 名詞. Negative of い-adj: drop い + くない. Past: + かった.',
+        'Agg. in い + nome (diretto, niente だ). Agg. in な + な + nome. Negativo (い): togli い + くない. Passato: + かった.',
+        [
+          { jp: '高いビル', reading: 'takai biru', en: 'a tall building', it: 'un edificio alto' },
+          { jp: '静かな人', reading: 'shizuka na hito', en: 'a quiet person', it: 'una persona tranquilla' },
+          { jp: '高くない', reading: 'takakunai', en: 'is not tall', it: 'non è alto' }
+        ]
+      )
+    ],
+    quiz: [
+      { prompt: { en: 'Which is correct for "a quiet person"?', it: 'Qual è corretto per "una persona tranquilla"?' },
+        options: [
+          { label: { en: '静かな人', it: '静かな人' }, correct: true },
+          { label: { en: '静か人', it: '静か人' }, correct: false },
+          { label: { en: '静かい人', it: '静かい人' }, correct: false },
+          { label: { en: '静かだ人', it: '静かだ人' }, correct: false }
+        ],
+        explanation: { en: '静か is a な-adjective, so it needs な before the noun.', it: '静か è un aggettivo in な, quindi vuole な prima del nome.' } },
+      { prompt: { en: 'The negative of 高い ("tall") is…', it: 'Il negativo di 高い ("alto") è…' },
+        options: [
+          { label: { en: '高くない', it: '高くない' }, correct: true },
+          { label: { en: '高いじゃない', it: '高いじゃない' }, correct: false },
+          { label: { en: '高じゃない', it: '高じゃない' }, correct: false },
+          { label: { en: '高ない', it: '高ない' }, correct: false }
+        ],
+        explanation: { en: 'い-adjectives drop い and add くない (never じゃない).', it: 'Gli aggettivi in い tolgono い e aggiungono くない (mai じゃない).' } },
+      { kind: 'order', prompt: { en: 'Build: "a quiet person"', it: 'Componi: "una persona tranquilla"' },
+        tokens: ['静か', 'な', '人'], answer: ['静か', 'な', '人'],
+        reading: 'shizuka na hito', translation: { en: 'a quiet person', it: 'una persona tranquilla' },
+        explanation: { en: 'な-adjective + な + noun.', it: 'Aggettivo in な + な + nome.' } }
+    ]
+  },
+
+  'daily-verbs-first': {
+    content: [
+      meaningSection(
+        'Almost every verb is a ru-verb or a u-verb; only する (to do) and 来る (to come) are irregular. The dictionary form is the plain present, and the verb always ends the sentence.',
+        'Quasi ogni verbo è ru-verbo o u-verbo; solo する (fare) e 来る (venire) sono irregolari. La forma del dizionario è il presente semplice, e il verbo è sempre alla fine.'
+      ),
+      formationSection(
+        'ru-verbs end in る (食べる). u-verbs end in an u-sound (飲む, 話す, 買う). A verb alone is a full sentence.',
+        'I ru-verbi finiscono in る (食べる). Gli u-verbi finiscono in un suono in u (飲む, 話す, 買う). Un verbo da solo è una frase completa.',
+        [
+          { jp: '食べる', reading: 'taberu', en: 'to eat (ru-verb)', it: 'mangiare (ru-verbo)' },
+          { jp: '飲む', reading: 'nomu', en: 'to drink (u-verb)', it: 'bere (u-verbo)' }
+        ]
+      )
+    ],
+    quiz: [
+      { prompt: { en: 'Which is a ru-verb?', it: 'Quale è un ru-verbo?' },
+        options: [
+          { label: { en: '食べる (taberu)', it: '食べる (taberu)' }, correct: true },
+          { label: { en: '飲む (nomu)', it: '飲む (nomu)' }, correct: false },
+          { label: { en: '話す (hanasu)', it: '話す (hanasu)' }, correct: false },
+          { label: { en: '買う (kau)', it: '買う (kau)' }, correct: false }
+        ],
+        explanation: { en: '食べる ends in る with an e-sound before it → ru-verb.', it: '食べる finisce in る con un suono "e" prima → ru-verbo.' } },
+      { prompt: { en: 'Which two verbs are irregular?', it: 'Quali due verbi sono irregolari?' },
+        options: [
+          { label: { en: 'する and 来る', it: 'する e 来る' }, correct: true },
+          { label: { en: '食べる and 飲む', it: '食べる e 飲む' }, correct: false },
+          { label: { en: '行く and 買う', it: '行く e 買う' }, correct: false },
+          { label: { en: '見る and 話す', it: '見る e 話す' }, correct: false }
+        ],
+        explanation: { en: 'Only する (to do) and 来る (to come) break the rules.', it: 'Solo する (fare) e 来る (venire) rompono le regole.' } },
+      { kind: 'order', prompt: { en: 'Build: "Alice eats fish."', it: 'Componi: "Alice mangia pesce."' },
+        tokens: ['アリス', 'は', '魚', 'を', '食べる'], answer: ['アリス', 'は', '魚', 'を', '食べる'],
+        reading: 'Arisu wa sakana o taberu.', translation: { en: 'Alice eats fish.', it: 'Alice mangia pesce.' },
+        explanation: { en: 'Topic は … object を … verb at the end.', it: 'Tema は … oggetto を … verbo alla fine.' } }
+    ]
+  },
+
+  'wo-and-he': {
+    content: [
+      meaningSection(
+        'を marks the direct object — the thing a verb acts on; it is read "o". へ marks a direction; it is read "e".',
+        'を marca l\'oggetto diretto — la cosa su cui agisce il verbo; si legge "o". へ marca una direzione; si legge "e".'
+      ),
+      formationSection(
+        'Object + を + verb. Place + へ + motion verb.',
+        'Oggetto + を + verbo. Luogo + へ + verbo di moto.',
+        [
+          { jp: '魚を食べる。', reading: 'sakana o taberu.', en: 'eat fish', it: 'mangio pesce' },
+          { jp: '学校へ行く。', reading: 'gakkou e iku.', en: 'go to school', it: 'vado a scuola' }
+        ]
+      )
+    ],
+    quiz: [
+      { prompt: { en: 'Fill the blank:  魚＿＿食べる  ("eat fish")', it: 'Completa:  魚＿＿食べる' },
+        options: [
+          { label: { en: 'を', it: 'を' }, correct: true },
+          { label: { en: 'は', it: 'は' }, correct: false },
+          { label: { en: 'に', it: 'に' }, correct: false },
+          { label: { en: 'で', it: 'で' }, correct: false }
+        ],
+        explanation: { en: 'を marks 魚 as the direct object of 食べる.', it: 'を marca 魚 come oggetto diretto di 食べる.' } },
+      { prompt: { en: 'The particle を is pronounced…', it: 'La particella を si pronuncia…' },
+        options: [
+          { label: { en: 'o', it: 'o' }, correct: true },
+          { label: { en: 'wo', it: 'wo' }, correct: false },
+          { label: { en: 'e', it: 'e' }, correct: false },
+          { label: { en: 'ha', it: 'ha' }, correct: false }
+        ],
+        explanation: { en: 'を is read "o" (only used as the object particle).', it: 'を si legge "o" (usata solo come particella oggetto).' } },
+      { kind: 'order', prompt: { en: 'Build: "go to school"', it: 'Componi: "vado a scuola"' },
+        tokens: ['学校', 'へ', '行く'], answer: ['学校', 'へ', '行く'],
+        reading: 'gakkou e iku.', translation: { en: 'go to school', it: 'vado a scuola' },
+        explanation: { en: 'へ marks the direction; it is read "e".', it: 'へ marca la direzione; si legge "e".' } }
+    ]
+  },
+
+  'ni-place-time': {
+    content: [
+      meaningSection(
+        'に marks a destination, where something exists, or a point in time. (Compare で, which marks where an action happens.)',
+        'に marca una destinazione, dove esiste qualcosa, o un punto nel tempo. (Confronta で, che marca dove avviene un\'azione.)'
+      ),
+      formationSection(
+        'Place + に + いる/ある (exists). Time + に + verb.',
+        'Luogo + に + いる/ある (esiste). Tempo + に + verbo.',
+        [
+          { jp: '猫は部屋にいる。', reading: 'neko wa heya ni iru.', en: 'The cat is in the room.', it: 'Il gatto è nella stanza.' },
+          { jp: '七時に起きる。', reading: 'shichi-ji ni okiru.', en: 'wake up at seven', it: 'mi sveglio alle sette' }
+        ]
+      )
+    ],
+    quiz: [
+      { prompt: { en: 'Fill the blank:  七時＿＿起きる  ("wake up at seven")', it: 'Completa:  七時＿＿起きる' },
+        options: [
+          { label: { en: 'に', it: 'に' }, correct: true },
+          { label: { en: 'で', it: 'で' }, correct: false },
+          { label: { en: 'を', it: 'を' }, correct: false },
+          { label: { en: 'へ', it: 'へ' }, correct: false }
+        ],
+        explanation: { en: 'に marks the point in time (seven o\'clock).', it: 'に marca il punto nel tempo (le sette).' } },
+      { prompt: { en: 'Which particle marks where something EXISTS (with いる/ある)?', it: 'Quale particella marca dove qualcosa ESISTE (con いる/ある)?' },
+        options: [
+          { label: { en: 'に', it: 'に' }, correct: true },
+          { label: { en: 'で', it: 'で' }, correct: false },
+          { label: { en: 'を', it: 'を' }, correct: false },
+          { label: { en: 'へ', it: 'へ' }, correct: false }
+        ],
+        explanation: { en: 'に = place of existence; で = place of an action.', it: 'に = luogo di esistenza; で = luogo di un\'azione.' } },
+      { kind: 'order', prompt: { en: 'Build: "The cat is in the room."', it: 'Componi: "Il gatto è nella stanza."' },
+        tokens: ['猫', 'は', '部屋', 'に', 'いる'], answer: ['猫', 'は', '部屋', 'に', 'いる'],
+        reading: 'neko wa heya ni iru.', translation: { en: 'The cat is in the room.', it: 'Il gatto è nella stanza.' },
+        explanation: { en: 'Place + に + いる for existence.', it: 'Luogo + に + いる per l\'esistenza.' } }
+    ]
+  },
+
+  'de-using': {
+    content: [
+      meaningSection(
+        'で marks where an action happens, or the means/tool used to do it. (に is where something IS; で is where something is DONE.)',
+        'で marca dove avviene un\'azione, o il mezzo/strumento usato. (に è dove qualcosa È; で è dove qualcosa si FA.)'
+      ),
+      formationSection(
+        'Place + で + action verb. Means + で + verb.',
+        'Luogo + で + verbo d\'azione. Mezzo + で + verbo.',
+        [
+          { jp: '公園で遊ぶ。', reading: 'kouen de asobu.', en: 'play in the park', it: 'gioco al parco' },
+          { jp: 'バスで帰る。', reading: 'basu de kaeru.', en: 'go home by bus', it: 'torno a casa in autobus' }
+        ]
+      )
+    ],
+    quiz: [
+      { prompt: { en: 'Fill the blank:  公園＿＿遊ぶ  ("play in the park")', it: 'Completa:  公園＿＿遊ぶ' },
+        options: [
+          { label: { en: 'で', it: 'で' }, correct: true },
+          { label: { en: 'に', it: 'に' }, correct: false },
+          { label: { en: 'を', it: 'を' }, correct: false },
+          { label: { en: 'へ', it: 'へ' }, correct: false }
+        ],
+        explanation: { en: 'で marks the park as where the action (playing) happens.', it: 'で marca il parco come dove avviene l\'azione (giocare).' } },
+      { prompt: { en: 'で marks…', it: 'で marca…' },
+        options: [
+          { label: { en: 'place of an action / the means', it: 'luogo di un\'azione / il mezzo' }, correct: true },
+          { label: { en: 'the direct object', it: 'l\'oggetto diretto' }, correct: false },
+          { label: { en: 'possession', it: 'il possesso' }, correct: false },
+          { label: { en: 'the topic', it: 'il tema' }, correct: false }
+        ],
+        explanation: { en: 'で = where an action happens, or by what means.', it: 'で = dove avviene un\'azione, o con quale mezzo.' } },
+      { kind: 'order', prompt: { en: 'Build: "go home by bus"', it: 'Componi: "torno a casa in autobus"' },
+        tokens: ['バス', 'で', '帰る'], answer: ['バス', 'で', '帰る'],
+        reading: 'basu de kaeru.', translation: { en: 'go home by bus', it: 'torno a casa in autobus' },
+        explanation: { en: 'で marks the bus as the means.', it: 'で marca l\'autobus come mezzo.' } }
+    ]
+  }
+};
+
+// Merge authored content/quizzes into the lesson objects (once, at module load).
+for (const lesson of LESSONS) {
+  const authored = LESSON_AUTHORED[lesson.id];
+  if (authored) {
+    lesson.content = authored.content;
+    lesson.quiz = authored.quiz;
+  }
+}
+
 export function lessonSections(lesson: AppLesson): LessonSection[] {
+  // Hand-authored Bunpo-style content wins.
+  if (lesson.content && lesson.content.length) return lesson.content;
   if (lesson.id === 'kana-names') {
     return [
       {
@@ -751,42 +1154,55 @@ export function lessonSections(lesson: AppLesson): LessonSection[] {
     ];
   }
 
-  return [
+  // Minimal, non-filler fallback for lessons without authored content.
+  const sections: LessonSection[] = [
     {
-      title: { en: 'What This Lesson Is For', it: 'A cosa serve questa lezione' },
-      body: {
-        en: lesson.summary.en,
-        it: lesson.summary.it
-      }
-    },
-    {
-      title: { en: 'The Core Pattern', it: 'La struttura centrale' },
-      body: {
-        en: `The main pattern is ${lesson.patterns[0]?.reading ?? 'shown below'}. Read it as a shape first, then swap in new words.`,
-        it: `La struttura principale e ${lesson.patterns[0]?.reading ?? 'qui sotto'}. Leggila prima come forma, poi cambia le parole.`
-      },
-      examples: lesson.patterns
-    },
-    {
-      title: { en: 'How You Will See It in the App', it: 'Come la vedrai nell app' },
-      body: {
-        en: 'Stories and character clues use short, controlled sentences. When you see this pattern, slow down and find the particle or verb ending before guessing.',
-        it: 'Storie e indizi dei personaggi usano frasi brevi e controllate. Quando vedi questa struttura, rallenta e trova la particella o la fine del verbo prima di indovinare.'
-      },
-      examples: lesson.examples
-    },
-    {
-      title: { en: 'Exceptions and Traps', it: 'Eccezioni e trappole' },
-      body: {
-        en: 'Japanese often looks small but carries a lot in one particle. If a sentence feels wrong, check the particle first: は, が, の, で and から change the job of the words around them.',
-        it: 'Il giapponese sembra spesso piccolo ma una particella porta molto significato. Se una frase sembra strana, controlla prima la particella: は, が, の, で e から cambiano il ruolo delle parole vicine.'
-      },
-      note: {
-        en: 'Do not memorize only translations. Memorize what the pattern does.',
-        it: 'Non memorizzare solo traduzioni. Memorizza che cosa fa la struttura.'
-      }
+      title: { en: 'Meaning', it: 'Significato' },
+      body: { en: lesson.summary.en, it: lesson.summary.it },
+      examples: lesson.patterns.length ? lesson.patterns : undefined
     }
   ];
+  if (lesson.examples.length) {
+    sections.push({
+      title: { en: 'Examples', it: 'Esempi' },
+      body: {
+        en: 'Read each sentence aloud, then check the meaning.',
+        it: 'Leggi ogni frase ad alta voce, poi controlla il significato.'
+      },
+      examples: lesson.examples
+    });
+  }
+  return sections;
+}
+
+// ── Level path ───────────────────────────────────────────────────────
+// Curated teaching order. Lessons appear in the menu in this sequence,
+// grouped by level (Start → N5 → N5+ → N4).
+export const LESSON_LEVELS = ['Start', 'N5', 'N5+', 'N4'] as const;
+export type LessonLevel = (typeof LESSON_LEVELS)[number];
+
+export const LESSON_PATH: string[] = [
+  // Start — writing system + first sentence
+  'kana-names', 'hiragana-sounds', 'sound-changes', 'katakana-basics', 'desu-identity',
+  // N5 — kanji, particles, adjectives, verbs, questions, core vocab
+  'first-kanji-map', 'wa-topic', 'ga-subject', 'no-possessive', 'adjectives-first',
+  'daily-verbs-first', 'verbs-actions', 'wo-and-he', 'ni-place-time', 'question-ka',
+  'numbers-counting', 'calendar-time', 'colors-traits', 'family-people', 'school-classroom',
+  'greetings-classroom', 'nature-animals', 'punctuation-reading',
+  // N5+ — more particles & reading
+  'de-using', 'kara-from', 'reading-short-sentences', 'first-diary'
+];
+
+/** Lessons grouped into the level path, in teaching order. */
+export function lessonsByLevel(): { level: LessonLevel; lessons: AppLesson[] }[] {
+  const ordered = [
+    ...LESSON_PATH.map((id) => LESSONS.find((l) => l.id === id)).filter((l): l is AppLesson => !!l),
+    // any lesson not listed in the path, appended so nothing is hidden
+    ...LESSONS.filter((l) => !LESSON_PATH.includes(l.id))
+  ];
+  return LESSON_LEVELS
+    .map((level) => ({ level, lessons: ordered.filter((l) => l.level === level) }))
+    .filter((g) => g.lessons.length > 0);
 }
 
 export function lessonQuiz(lesson: AppLesson): LessonQuizQuestion[] {

@@ -85,7 +85,7 @@
   <div class="w-full max-w-sm" in:fly={{ y: 20, duration: 250 }}>
     <div class="mb-6 text-center">
       <div class="text-4xl font-black">
-        <span class="text-pink-400">日本語</span>
+        <span class="text-highlight">日本語</span>
       </div>
       <div class="mt-1 text-lg font-bold">Nihongo Quest</div>
       <p class="mt-1 text-sm text-slate-400">{$t('loginToSave')}</p>
@@ -134,7 +134,7 @@
       </button>
     {/if}
 
-    {#if msg}<div class="mt-3 rounded-lg bg-slate-800 p-3 text-center text-sm text-pink-300">{msg}</div>{/if}
+    {#if msg}<div class="mt-3 rounded-lg bg-slate-800 p-3 text-center text-sm text-highlight">{msg}</div>{/if}
 
     <button class="mt-6 w-full text-center text-sm text-slate-400 underline" on:click={() => dispatch('done')}>
       {$t('continueWithout')}

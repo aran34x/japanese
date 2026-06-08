@@ -223,7 +223,7 @@
         </button>
       </div>
     {/if}
-    {#if resetMsg}<div class="mt-2 text-center text-xs text-pink-300">{resetMsg}</div>{/if}
+    {#if resetMsg}<div class="mt-2 text-center text-xs text-highlight">{resetMsg}</div>{/if}
   </div>
 
   <div class="pt-2 text-center text-xs text-slate-600">Nihongo Quest · v{APP_VERSION}</div>

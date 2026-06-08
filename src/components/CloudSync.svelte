@@ -106,5 +106,5 @@
     </button>
   {/if}
 
-  {#if msg}<div class="mt-2 text-center text-xs text-pink-300">{msg}</div>{/if}
+  {#if msg}<div class="mt-2 text-center text-xs text-highlight">{msg}</div>{/if}
 </div>

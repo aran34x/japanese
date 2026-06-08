@@ -150,6 +150,8 @@ export const strings: Dict = {
   markRead: { en: 'Mark as read', it: 'Segna come letto' },
   bookSource: { en: 'Source', it: 'Fonte' },
   readFullChapter: { en: 'Read the full chapter', it: 'Leggi il capitolo completo' },
+  tapWordsInOrder: { en: 'Tap the words in the right order', it: 'Tocca le parole nell\'ordine giusto' },
+  checkAnswer: { en: 'Check', it: 'Verifica' },
   collection: { en: 'Collection', it: 'Collezione' },
   heroes: { en: 'Heroes', it: 'Eroi' },
   achievements: { en: 'Achievements', it: 'Obiettivi' },
