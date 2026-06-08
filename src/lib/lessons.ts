@@ -15,6 +15,8 @@ export interface AppLesson {
   teaches: Record<Lang, string[]>;
   patterns: { jp: string; reading: string; en: string; it: string }[];
   examples: { jp: string; reading: string; en: string; it: string }[];
+  /** Optional hand-authored quiz; if absent, a hardened quiz is generated. */
+  quiz?: LessonQuizQuestion[];
 }
 
 export interface LessonSection {
@@ -630,22 +632,47 @@ export const LESSONS: AppLesson[] = [
   }
 ];
 
-const wrongTranslations = [
-  { en: 'I go from home to school.', it: 'Vado da casa a scuola.' },
-  { en: 'I am wearing a red hat.', it: 'Indosso un cappello rosso.' },
-  { en: 'There is a little cat.', it: "C'e un gattino." },
-  { en: 'I fight using electricity.', it: "Combatto usando l'elettricita." },
-  { en: 'The cat loves fish.', it: 'Il gatto adora il pesce.' }
-];
+// ── Quiz distractor pools — built from REAL example sentences across every
+// lesson, so wrong answers are plausible and varied (never a fixed handful, a
+// template with A/B/N placeholders, or a meta "this is wrong" option). ──
+const ALL_EXAMPLES = LESSONS.flatMap((l) => l.examples);
 
-function optionsFor(correct: { en: string; it: string }, seed: string) {
-  const wrongs = wrongTranslations
-    .filter((item) => item.en !== correct.en)
-    .sort((a, b) => score(seed, a.en) - score(seed, b.en))
-    .slice(0, 3)
-    .map((item) => ({ label: item, correct: false }));
-  return [{ label: correct, correct: true }, ...wrongs].sort((a, b) => score(seed + ':order', a.label.en) - score(seed + ':order', b.label.en));
+function dedupeBy<T>(arr: T[], key: (t: T) => string): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const x of arr) { const k = key(x); if (k && !seen.has(k)) { seen.add(k); out.push(x); } }
+  return out;
 }
+
+const MEANING_POOL = dedupeBy(ALL_EXAMPLES.map((e) => ({ en: e.en, it: e.it })), (x) => x.en);
+const JP_POOL = [...new Set(ALL_EXAMPLES.map((e) => e.jp))];
+const READING_POOL = [...new Set(ALL_EXAMPLES.map((e) => e.reading))];
+
+type Opt = { label: { en: string; it: string }; correct: boolean };
+
+/** Deterministically pick `n` distractor strings, excluding the correct one. */
+function pickStrings(pool: string[], correct: string, seed: string, n = 3): string[] {
+  return pool.filter((v) => v && v !== correct).sort((a, b) => score(seed, a) - score(seed, b)).slice(0, n);
+}
+/** Deterministically pick `n` distractor meanings, excluding the correct one. */
+function pickMeanings(correct: { en: string; it: string }, seed: string, n = 3) {
+  return MEANING_POOL.filter((m) => m.en !== correct.en).sort((a, b) => score(seed, a.en) - score(seed, b.en)).slice(0, n);
+}
+/** Stable (deterministic) option order so the answer isn't always first. */
+function shuffleOpts(opts: Opt[], seed: string): Opt[] {
+  return [...opts].sort((a, b) => score(seed + ':o', a.label.en + a.label.it) - score(seed + ':o', b.label.en + b.label.it));
+}
+
+// Particle-cloze data: the actual skill a particle lesson should test.
+const PARTICLE_QUIZ: Record<string, { particle: string; options: string[]; role: { en: string; it: string } }> = {
+  'wa-topic': { particle: 'は', options: ['は', 'が', 'を', 'の'], role: { en: 'は marks the topic — what the sentence is about.', it: 'は marca il tema — di cosa parla la frase.' } },
+  'ga-subject': { particle: 'が', options: ['が', 'は', 'の', 'に'], role: { en: 'が marks the subject, or what exists / is noticed.', it: 'が marca il soggetto, o ciò che esiste / si nota.' } },
+  'no-possessive': { particle: 'の', options: ['の', 'は', 'が', 'で'], role: { en: 'の links two nouns (possession or description).', it: 'の collega due nomi (possesso o descrizione).' } },
+  'kara-from': { particle: 'から', options: ['から', 'まで', 'で', 'に'], role: { en: 'から marks a starting point (from).', it: 'から marca un punto di partenza (da).' } },
+  'de-using': { particle: 'で', options: ['で', 'に', 'を', 'へ'], role: { en: 'で marks where an action happens or the means used.', it: "で marca dove avviene l'azione o il mezzo usato." } },
+  'wo-and-he': { particle: 'を', options: ['を', 'が', 'に', 'で'], role: { en: 'を marks the direct object of the action.', it: "を marca l'oggetto diretto dell'azione." } },
+  'ni-place-time': { particle: 'に', options: ['に', 'で', 'へ', 'を'], role: { en: 'に marks a destination, a time, or where something exists.', it: 'に marca una destinazione, un tempo, o dove esiste qualcosa.' } }
+};
 
 function score(seed: string, value: string): number {
   let h = 2166136261;
@@ -746,55 +773,76 @@ export function lessonSections(lesson: AppLesson): LessonSection[] {
 }
 
 export function lessonQuiz(lesson: AppLesson): LessonQuizQuestion[] {
-  const firstExample = lesson.examples[0] ?? lesson.patterns[0];
-  const secondExample = lesson.examples[1] ?? firstExample;
-  const firstPattern = lesson.patterns[0] ?? firstExample;
+  if (lesson.quiz && lesson.quiz.length) return lesson.quiz;
 
-  return [
-    {
+  const ex0 = lesson.examples[0];
+  if (!ex0) return [];
+  const ex1 = lesson.examples[1];
+  const questions: LessonQuizQuestion[] = [];
+
+  // 1) Particle cloze — actually tests the skill a particle lesson teaches.
+  const pq = PARTICLE_QUIZ[lesson.id];
+  if (pq) {
+    const ex = lesson.examples.find((e) => e.jp.includes(pq.particle)) ?? ex0;
+    const blanked = ex.jp.replace(pq.particle, '＿＿');
+    questions.push({
       prompt: {
-        en: `Which phrase means: "${firstExample.en}"?`,
-        it: `Quale frase significa: "${firstExample.it}"?`
+        en: `Choose the particle:  ${blanked}  ("${ex.en}")`,
+        it: `Scegli la particella:  ${blanked}  ("${ex.it}")`
       },
-      options: [
-        { label: { en: firstExample.jp, it: firstExample.jp }, correct: true },
-        { label: { en: secondExample.jp, it: secondExample.jp }, correct: false },
-        { label: { en: firstPattern.jp, it: firstPattern.jp }, correct: false },
-        { label: { en: 'これは違います。', it: 'これは違います。' }, correct: false }
-      ].sort((a, b) => score(lesson.id + ':jp', a.label.en) - score(lesson.id + ':jp', b.label.en)),
+      options: shuffleOpts(
+        pq.options.map((p) => ({ label: { en: p, it: p }, correct: p === pq.particle })),
+        lesson.id + ':cloze'
+      ),
       explanation: {
-        en: `Read the full phrase: ${firstExample.reading}.`,
-        it: `Leggi tutta la frase: ${firstExample.reading}.`
+        en: `${ex.jp} — ${ex.reading}. ${pq.role.en}`,
+        it: `${ex.jp} — ${ex.reading}. ${pq.role.it}`
       }
-    },
-    {
-      prompt: {
-        en: `What does "${firstExample.jp}" mean?`,
-        it: `Che cosa significa "${firstExample.jp}"?`
-      },
-      options: optionsFor({ en: firstExample.en, it: firstExample.it }, lesson.id + ':meaning'),
-      explanation: {
-        en: 'Match the structure first, then the vocabulary.',
-        it: 'Abbina prima la struttura, poi il vocabolario.'
-      }
-    },
-    {
-      prompt: {
-        en: `Which reading belongs to "${firstPattern.jp}"?`,
-        it: `Quale lettura appartiene a "${firstPattern.jp}"?`
-      },
-      options: [
-        { label: { en: firstPattern.reading, it: firstPattern.reading }, correct: true },
-        { label: { en: firstExample.reading, it: firstExample.reading }, correct: false },
-        { label: { en: secondExample.reading, it: secondExample.reading }, correct: false },
-        { label: { en: 'kara desu', it: 'kara desu' }, correct: false }
-      ].sort((a, b) => score(lesson.id + ':reading', a.label.en) - score(lesson.id + ':reading', b.label.en)),
-      explanation: {
-        en: 'Readings are the bridge between Japanese text and what you say aloud.',
-        it: 'Le letture sono il ponte tra testo giapponese e cio che pronunci.'
-      }
-    }
-  ];
+    });
+  }
+
+  // 2) Meaning of example 0 (JP → meaning); distractors are other real meanings.
+  questions.push({
+    prompt: { en: `What does "${ex0.jp}" mean?`, it: `Che cosa significa "${ex0.jp}"?` },
+    options: shuffleOpts(
+      [
+        { label: { en: ex0.en, it: ex0.it }, correct: true },
+        ...pickMeanings({ en: ex0.en, it: ex0.it }, lesson.id + ':mean').map((m) => ({ label: m, correct: false }))
+      ],
+      lesson.id + ':mean'
+    ),
+    explanation: { en: `${ex0.jp} reads ${ex0.reading} — "${ex0.en}".`, it: `${ex0.jp} si legge ${ex0.reading} — "${ex0.it}".` }
+  });
+
+  // 3) Phrase of example 1 (meaning → JP) for breadth; only if a 2nd example exists.
+  if (ex1 && ex1.jp !== ex0.jp) {
+    questions.push({
+      prompt: { en: `Which Japanese means "${ex1.en}"?`, it: `Quale frase giapponese significa "${ex1.it}"?` },
+      options: shuffleOpts(
+        [
+          { label: { en: ex1.jp, it: ex1.jp }, correct: true },
+          ...pickStrings(JP_POOL, ex1.jp, lesson.id + ':jp').map((jp) => ({ label: { en: jp, it: jp }, correct: false }))
+        ],
+        lesson.id + ':jp'
+      ),
+      explanation: { en: `${ex1.jp} — ${ex1.reading}.`, it: `${ex1.jp} — ${ex1.reading}.` }
+    });
+  }
+
+  // 4) Reading of example 0 (JP → romaji).
+  questions.push({
+    prompt: { en: `How do you read "${ex0.jp}"?`, it: `Come si legge "${ex0.jp}"?` },
+    options: shuffleOpts(
+      [
+        { label: { en: ex0.reading, it: ex0.reading }, correct: true },
+        ...pickStrings(READING_POOL, ex0.reading, lesson.id + ':read').map((r) => ({ label: { en: r, it: r }, correct: false }))
+      ],
+      lesson.id + ':read'
+    ),
+    explanation: { en: `Sound it out: ${ex0.reading}.`, it: `Pronuncia: ${ex0.reading}.` }
+  });
+
+  return questions;
 }
 
 export async function loadLessonProgress() {
