@@ -1,6 +1,6 @@
 // App version + changelog. Bump APP_VERSION on each release and add an entry;
 // the "What's new" popup shows entries the user hasn't seen yet.
-export const APP_VERSION = '0.22.0';
+export const APP_VERSION = '0.23.0';
 
 export interface ChangelogEntry {
   version: string;
@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 // Newest first.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.23.0',
+    date: '2026-06-10',
+    title: { en: 'Taught like a teacher would', it: 'Insegnato come farebbe un insegnante' },
+    changes: [
+      { en: 'New cards in Study are now TAUGHT first (character + reading + meaning + audio), then quizzed — no more blind first guess.', it: 'Le carte nuove in Studia vengono prima INSEGNATE (carattere + lettura + significato + audio), poi chieste — niente più primo tentativo alla cieca.' },
+      { en: 'Quiz options are confusable on purpose (Monday vs Tuesday, め vs ぬ, シ vs ツ) instead of random giveaways.', it: 'Le opzioni dei quiz sono volutamente confondibili (lunedì vs martedì, め vs ぬ) invece di risposte ovvie.' },
+      { en: 'Typing answers are forgiving: "eat" for "to eat", "lunedi" for "lunedì", "ohayo" for "ohayou".', it: 'Le risposte scritte sono tolleranti: "eat" per "to eat", "lunedi" per "lunedì", "ohayo" per "ohayou".' },
+      { en: 'New cards arrive in learning order: hiragana → katakana → words → kanji → sentences.', it: 'Le carte nuove arrivano in ordine didattico: hiragana → katakana → parole → kanji → frasi.' }
+    ]
+  },
   {
     version: '0.22.0',
     date: '2026-06-09',

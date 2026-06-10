@@ -6,6 +6,18 @@ export interface QueueItem {
   state: ReviewState;
 }
 
+// New cards are introduced in pedagogical order: learn the phonetic scripts
+// first, then words, then kanji, then full sentences. Within a tier, the deck's
+// own card order applies.
+const CATEGORY_PRIORITY: Record<string, number> = {
+  hiragana: 0,
+  katakana: 1,
+  vocab: 2,
+  kanji: 3,
+  reading: 4,
+  custom: 5
+};
+
 /**
  * Build a study queue from selected decks: all due review/learning cards plus
  * up to `newLimit` brand-new cards. Sorted so due cards come first.
@@ -29,7 +41,12 @@ export async function buildQueue(deckIds: string[], newLimit: number): Promise<Q
   });
 
   due.sort((a, b) => a.state.due - b.state.due);
-  fresh.sort((a, b) => (a.card.order ?? 0) - (b.card.order ?? 0));
+  fresh.sort((a, b) => {
+    const pa = CATEGORY_PRIORITY[a.card.category] ?? 9;
+    const pb = CATEGORY_PRIORITY[b.card.category] ?? 9;
+    if (pa !== pb) return pa - pb;
+    return (a.card.order ?? 0) - (b.card.order ?? 0);
+  });
   return [...due, ...fresh.slice(0, newLimit)];
 }
 

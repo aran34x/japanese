@@ -53,6 +53,14 @@ export const strings: Dict = {
   q_type_reading: { en: 'Type the reading (romaji)', it: 'Scrivi la lettura (romaji)' },
   q_type_meaning: { en: 'Type the meaning', it: 'Scrivi il significato' },
 
+  // Teach-before-test intro card
+  newCardBadge: { en: 'New', it: 'Nuova' },
+  memorizeHint: {
+    en: 'Take a moment to memorize it — the question comes next.',
+    it: 'Prenditi un momento per memorizzarla — la domanda arriva subito dopo.'
+  },
+  continueBtn: { en: 'Got it →', it: 'Capito →' },
+
   chooseDeck: { en: 'Choose decks to study', it: 'Scegli i mazzi da studiare' },
   chooseSet: { en: 'Tap a set to start', it: 'Tocca un set per iniziare' },
   mixSets: { en: 'Mix multiple sets', it: 'Combina più set' },

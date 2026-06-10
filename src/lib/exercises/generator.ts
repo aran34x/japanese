@@ -70,18 +70,71 @@ export function allowedKinds(card: Card): ExerciseKind[] {
 // Text accessor for each "answer kind" — what the option/answer text should be.
 const readingText = (c: Card) => c.romaji ?? c.reading ?? '';
 
+// ---------------------------------------------------------------------------
+// Pedagogical distractor selection. Good options are CONFUSABLE with the
+// answer, not random: kana from the same consonant row / vowel column or a
+// visually-similar glyph; vocab from the same deck (days with days, colors
+// with colors). Random distractors are trivially eliminable and teach nothing.
+// ---------------------------------------------------------------------------
+
+// Classic visually-confusable kana sets (hiragana and katakana).
+const VISUAL_GROUPS: string[][] = [
+  ['あ', 'お'], ['め', 'ぬ'], ['わ', 'れ', 'ね'], ['る', 'ろ'], ['は', 'ほ', 'ま'],
+  ['き', 'さ'], ['ち', 'ら'], ['す', 'む'], ['い', 'り'], ['こ', 'に'], ['た', 'な'],
+  ['シ', 'ツ'], ['ソ', 'ン', 'リ'], ['ク', 'タ', 'ケ'], ['コ', 'ユ', 'ヨ'],
+  ['ワ', 'ウ', 'フ', 'ヲ'], ['チ', 'テ'], ['ア', 'マ', 'ム'], ['ナ', 'メ'], ['ル', 'レ']
+];
+function visualGroup(front: string): number {
+  const ch = front[0] ?? '';
+  return VISUAL_GROUPS.findIndex((g) => g.includes(ch));
+}
+
+/** How confusable (and therefore pedagogically useful) is `cand` vs `card`? */
+function affinity(card: Card, cand: Card): number {
+  if (card.category === 'hiragana' || card.category === 'katakana') {
+    let s = 0;
+    const ra = card.romaji ?? '';
+    const rb = cand.romaji ?? '';
+    if (ra && rb) {
+      if (ra.slice(0, -1) === rb.slice(0, -1)) s += 2; // same consonant row
+      else if (ra.slice(-1) === rb.slice(-1)) s += 1; // same vowel column
+    }
+    const g = visualGroup(card.front);
+    if (g !== -1 && g === visualGroup(cand.front)) s += 3; // め vs ぬ etc.
+    return s;
+  }
+  let s = 0;
+  if (cand.deckId === card.deckId) s += 2; // days with days, colors with colors
+  if (cand.tags?.some((t) => card.tags?.includes(t))) s += 1;
+  return s;
+}
+
 /**
- * Pick distractor cards from the SAME category so options are homogeneous
- * (kana with kana, kanji with kanji…). Falls back to the wider pool only if a
- * category is too small to fill the choices.
+ * Pick distractor cards from the SAME category, preferring confusable ones via
+ * `affinity`. Samples from the top candidates (not strictly the top 3) so the
+ * same question doesn't always show identical options.
  */
 function distractors(card: Card, pool: Card[], pick: (c: Card) => string, n = 3): Card[] {
   const target = pick(card);
   const seen = new Set<string>([target]);
   const out: Card[] = [];
 
-  const sameCat = shuffle(pool.filter((c) => c.category === card.category && c.id !== card.id));
-  for (const c of sameCat) {
+  const sameCat = pool.filter(
+    (c) => c.category === card.category && c.id !== card.id && pick(c) && pick(c) !== target
+  );
+  const ranked = sameCat
+    .map((c) => ({ c, score: affinity(card, c) + Math.random() * 0.5 }))
+    .sort((a, b) => b.score - a.score)
+    .map((r) => r.c);
+  for (const c of shuffle(ranked.slice(0, n * 2))) {
+    const v = pick(c);
+    if (!seen.has(v)) {
+      seen.add(v);
+      out.push(c);
+    }
+    if (out.length >= n) return out;
+  }
+  for (const c of ranked) {
     const v = pick(c);
     if (v && !seen.has(v)) {
       seen.add(v);

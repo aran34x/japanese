@@ -12,6 +12,7 @@
   import { confetti } from '../lib/confetti';
   import { markSaving, markSaved } from '../lib/saveStatus';
   import { addStudyTime, mutateGame, xpForAnswer } from '../lib/game/state';
+  import { speakJa } from '../lib/speech';
 
   type Phase = 'menu' | 'config' | 'running' | 'done';
   type Mode = 'mixed' | 'flashcard' | 'quiz' | 'typing';
@@ -161,10 +162,31 @@
   /** Start a session with exactly one set. */
   const startSingle = (id: string) => start([id]);
 
+  // Teach before testing: a card the learner has NEVER seen is shown first as an
+  // intro (character + reading + meaning + audio), and only quizzed after they
+  // dismiss it. Asking a question about something never taught forces a blind
+  // guess. (Flashcard mode already shows the card, so it's exempt.)
+  let showIntro = false;
+  const introduced = new Set<string>();
+  function introMeaning(c: Exercise['card']): string {
+    const parts = $settings.meaningLangs.map((l) => c.meaning[l]).filter(Boolean) as string[];
+    return [...new Set(parts)].join(' · ');
+  }
+  function dismissIntro() {
+    introduced.add(queue[index].card.id);
+    showIntro = false;
+  }
+
   let cardShownAt = 0;
   function loadCurrent() {
     const item = queue[index];
     current = makeExercise(item.card, pool, $settings.meaningLangs, kindForMode(item.card));
+    showIntro =
+      mode !== 'flashcard' &&
+      item.state.phase === 'new' &&
+      item.state.totalReviews === 0 &&
+      !introduced.has(item.card.id);
+    if (showIntro && $settings.autoAudio) speakJa(item.card.reading || item.card.front);
     cardShownAt = Date.now();
   }
 
@@ -425,7 +447,31 @@
 
         {#key index}
           <div in:fly={{ y: 16, duration: 180 }}>
-            {#if current.kind === 'flashcard'}
+            {#if showIntro}
+              <!-- Teach phase: first encounter with this card -->
+              <div class="rounded-2xl border border-amber-400/30 bg-slate-800 p-6 text-center">
+                <div class="mb-2 inline-block rounded-full bg-amber-500/20 px-3 py-0.5 text-xs font-bold uppercase tracking-wide text-amber-300">
+                  ✨ {$t('newCardBadge')}
+                </div>
+                <button
+                  class="mx-auto block py-4 font-jp text-6xl"
+                  on:click={() => speakJa(current?.card.reading || current?.card.front || '')}
+                  title="🔊"
+                >{current.card.front}</button>
+                {#if current.card.reading && current.card.reading !== current.card.front}
+                  <div class="text-xl text-highlight">{current.card.reading}</div>
+                {/if}
+                {#if current.card.romaji && $settings.showRomaji}
+                  <div class="text-sm text-slate-400">{current.card.romaji}</div>
+                {/if}
+                <div class="mt-2 text-lg">{introMeaning(current.card)}</div>
+                <p class="mt-3 text-xs text-slate-500">{$t('memorizeHint')}</p>
+              </div>
+              <button
+                class="mt-3 w-full rounded-xl bg-gradient-to-r from-amber-500 to-pink-500 py-3 font-bold active:scale-[0.98]"
+                on:click={dismissIntro}
+              >{$t('continueBtn')}</button>
+            {:else if current.kind === 'flashcard'}
               <Flashcard exercise={current} state={queue[index]?.state ?? null} on:grade={(e) => grade(e.detail)} />
             {:else}
               <QuizQuestion
