@@ -30,7 +30,8 @@ export const db = new AppDB();
 export const DEFAULT_SETTINGS: Settings = {
   uiLang: 'en',
   meaningLangs: ['en', 'it'],
-  newPerDay: 20,
+  // 10/day is the sustainable beginner pace; raise it in Settings if you like.
+  newPerDay: 10,
   autoAudio: true,
   showRomaji: true,
   skin: 'default',

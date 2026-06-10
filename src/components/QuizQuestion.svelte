@@ -11,6 +11,7 @@
   import { speakJa } from '../lib/speech';
   import type { Lesson } from '../lib/types';
   import { scale } from 'svelte/transition';
+  import { matchesAnswer } from '../lib/quiz/match';
 
   // A single, shared quiz-question UI used by Study, Adventure (ExerciseView)
   // and Stories. Handles the prompt, multiple-choice OR typing input, answer
@@ -73,10 +74,6 @@
     return true;
   }
 
-  export function normalize(s: string): string {
-    return s.trim().toLowerCase().replace(/\s+/g, ' ').replace(/[。、．.!?]/g, '');
-  }
-
   function finish(isCorrect: boolean) {
     if (answered) return;
     answered = true;
@@ -95,8 +92,7 @@
 
   function checkTyped() {
     if (answered) return;
-    const ans = normalize(typed);
-    finish(answers.some((a) => normalize(a) === ans));
+    finish(matchesAnswer(typed, answers));
   }
 </script>
 
