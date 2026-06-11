@@ -85,6 +85,89 @@ export const LESSONS: AppLesson[] = [
     examples: [
       { jp: 'マリオ', reading: 'mario', en: 'Mario', it: 'Mario' },
       { jp: 'ピカチュウ', reading: 'pikachuu', en: 'Pikachu', it: 'Pikachu' }
+    ],
+    quiz: [
+      // 1) Script recognition — the lesson's first job: notice WHICH script.
+      {
+        prompt: {
+          en: 'Which of these is written in KATAKANA (angular — used for foreign & character names)?',
+          it: 'Quale di questi è scritto in KATAKANA (angolare — per nomi stranieri e di personaggi)?'
+        },
+        options: [
+          { label: { en: 'マリオ', it: 'マリオ' }, correct: true },
+          { label: { en: 'ねこ', it: 'ねこ' }, correct: false },
+          { label: { en: 'やま', it: 'やま' }, correct: false }
+        ],
+        explanation: {
+          en: 'マリオ is katakana (straight, sharp strokes). ねこ and やま are hiragana (round, flowing). Character names usually use katakana.',
+          it: 'マリオ è katakana (tratti dritti e netti). ねこ e やま sono hiragana (tondi e fluidi). I nomi dei personaggi di solito usano katakana.'
+        }
+      },
+      // 2) Read a SINGLE kana — start tiny, one sound.
+      {
+        prompt: { en: 'This katakana makes which sound?  →  マ', it: 'Questo katakana fa quale suono?  →  マ' },
+        options: [
+          { label: { en: 'ma', it: 'ma' }, correct: true },
+          { label: { en: 'mo', it: 'mo' }, correct: false },
+          { label: { en: 'na', it: 'na' }, correct: false }
+        ],
+        explanation: {
+          en: 'マ = "ma". Tip: ナ (na) looks similar — マ has the extra stroke. Read one block at a time.',
+          it: 'マ = "ma". Suggerimento: ナ (na) è simile — マ ha il tratto in più. Leggi un blocco alla volta.'
+        }
+      },
+      // 3) Read the WHOLE name by joining sounds (no romaji shown in the prompt).
+      {
+        prompt: { en: 'Sound it out block by block:  マ + リ + オ  reads…', it: 'Pronuncia blocco per blocco:  マ + リ + オ  si legge…' },
+        options: [
+          { label: { en: 'ma-ri-o', it: 'ma-ri-o' }, correct: true },
+          { label: { en: 'me-ru-o', it: 'me-ru-o' }, correct: false },
+          { label: { en: 'na-ri-a', it: 'na-ri-a' }, correct: false }
+        ],
+        explanation: {
+          en: 'マ(ma) リ(ri) オ(o) → "mario". Read each block left to right and connect the sounds.',
+          it: 'マ(ma) リ(ri) オ(o) → "mario". Leggi ogni blocco da sinistra a destra e unisci i suoni.'
+        }
+      },
+      // 4) The lesson's key tricky point: LONG VOWELS (the ー bar / doubled vowel).
+      {
+        prompt: { en: 'The ー bar makes the vowel LONG. So ルイージ reads…', it: 'La barra ー allunga la vocale. Quindi ルイージ si legge…' },
+        options: [
+          { label: { en: 'ruiiji (Luigi)', it: 'ruiiji (Luigi)' }, correct: true },
+          { label: { en: 'ruiji', it: 'ruiji' }, correct: false },
+          { label: { en: 'ruija', it: 'ruija' }, correct: false }
+        ],
+        explanation: {
+          en: 'ル(ru) イ(i) ー(長: hold the i) ジ(ji) → "ruiiji". The ー means hold the previous vowel one extra beat.',
+          it: 'ル(ru) イ(i) ー(tieni la i) ジ(ji) → "ruiiji". La ー significa tenere la vocale precedente per un tempo in più.'
+        }
+      },
+      // 5) Pikachu — fun, and reinforces reading a longer katakana string.
+      {
+        prompt: { en: 'Read this character name:  ピカチュウ', it: 'Leggi questo nome di personaggio:  ピカチュウ' },
+        options: [
+          { label: { en: 'pikachuu (Pikachu)', it: 'pikachuu (Pikachu)' }, correct: true },
+          { label: { en: 'pikachu', it: 'pikachu' }, correct: false },
+          { label: { en: 'bikajuu', it: 'bikajuu' }, correct: false }
+        ],
+        explanation: {
+          en: 'ピ(pi) カ(ka) チュ(chu) ウ(u) → "pikachuu". チュ is one small-ゅ blend, and the final ウ stretches the u.',
+          it: 'ピ(pi) カ(ka) チュ(chu) ウ(u) → "pikachuu". チュ è un blocco con la ゅ piccola, e la ウ finale allunga la u.'
+        }
+      },
+      // 6) Build-the-sound: order the blocks to spell a name aloud.
+      {
+        kind: 'order',
+        prompt: { en: 'Tap the blocks in order to spell the ninja "na-ru-to" (Naruto):', it: 'Tocca i blocchi in ordine per scrivere il ninja "na-ru-to" (Naruto):' },
+        tokens: ['ナ', 'ル', 'ト'],
+        answer: ['ナ', 'ル', 'ト'],
+        reading: 'naruto',
+        translation: { en: 'Naruto', it: 'Naruto' },
+        explanation: {
+          en: 'ナ(na) ル(ru) ト(to) → "naruto". Build names sound by sound, left to right.',
+          it: 'ナ(na) ル(ru) ト(to) → "naruto". Costruisci i nomi suono per suono, da sinistra a destra.'
+        }
+      }
     ]
   },
   {
